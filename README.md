@@ -1,3 +1,3 @@
 # Lunify
-projects spo
+Project for SPO UNIVERSITY
 
