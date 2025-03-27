@@ -55,7 +55,7 @@ const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (login.length >= 3 && password.length >= 3 && !loginError && !passwordError) {
-      console.log('Форма отправлена');
+      console.log('мяу');
     }
   };
 

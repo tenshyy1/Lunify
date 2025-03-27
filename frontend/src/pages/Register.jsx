@@ -73,7 +73,7 @@ const Register = () => {
       !registerPasswordError &&
       !registerConfirmPasswordError
     ) {
-      console.log('Форма регистрации отправлена');
+      console.log('мяу');
     }
   };
 
