@@ -105,6 +105,7 @@ html, body {
 }
 
 .register-form-box {
+    border: 1.5px solid black;
     background: #fff;
     padding: 40px;
     border-radius: 20px;
@@ -116,14 +117,6 @@ html, body {
     animation: fadeInUp 0.6s ease-out forwards;
 }
 
-.register-form-box h2 {
-    margin-left: 2%;
-    margin-bottom: 30px;
-    margin-top: -5px;
-    font-size: 25px;
-    color: black;
-    font-weight: 600;
-}
 
 .input-group {
     position: relative;
@@ -208,7 +201,7 @@ html, body {
 }
 
 .register-submit-button {
-    margin-top: 0;
+    margin-top: 10px;
     width: 60%;
     padding: 14px;
     background: #1673F4;
@@ -253,7 +246,7 @@ html, body {
 }
 
 .login-link {
-    margin-top: 20px;
+    margin-top: 60px;
     font-size: 14px;
     color: #666;
 }

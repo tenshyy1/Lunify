@@ -62,6 +62,7 @@ const Register = () => {
     validatePasswordsMatch(password, value);
   };
 
+  //register succesfully
   const handleRegisterSubmit = (e) => {
     e.preventDefault();
     if (
@@ -81,7 +82,6 @@ const Register = () => {
       <div className="register-left">
         <div className="logo">LUNIFY<span>.</span></div>
         <div className="welcome-text">
-          <h1>Welcome.</h1>
           <p>Start your journey now with our crypto simulator</p>
         </div>
       </div>
