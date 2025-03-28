@@ -1,0 +1,214 @@
+/* ../styles/home.css */
+
+/* Общие стили для контейнера */
+.home-container {
+  font-family: 'Arial', sans-serif;
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 50px;
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-logo h1 {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.navbar-links {
+  display: flex;
+  list-style: none;
+  gap: 30px;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-links li a {
+  text-decoration: none;
+  color: #333;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.navbar-links li a:hover {
+  color: #007bff;
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.sign-in-btn {
+  text-decoration: none;
+  color: #007bff;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.sign-in-btn:hover {
+  text-decoration: underline;
+}
+
+.get-started-btn {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.get-started-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Hero Section */
+.hero-section {
+  text-align: center;
+  padding: 100px 20px;
+  background-color: #fff;
+}
+
+.hero-section h1 {
+  font-size: 48px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.hero-section h1 span {
+  color: #007bff;
+}
+
+.hero-section p {
+  font-size: 18px;
+  color: #666;
+  margin-bottom: 30px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-btn {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 5px;
+  font-size: 18px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.hero-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Most Popular Section */
+.popular-section {
+  padding: 50px 50px;
+  background-color: #fff;
+}
+
+.popular-section h2 {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 30px;
+}
+
+.crypto-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.crypto-card {
+  background: linear-gradient(145deg, #ffffff, #e6e6e6);
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.1), -5px -5px 15px rgba(255, 255, 255, 0.8);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.crypto-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.15), -8px -8px 20px rgba(255, 255, 255, 0.9);
+}
+
+.crypto-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+
+.crypto-card:hover .crypto-icon-svg {
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(52, 199, 89, 0.3), inset 2px 2px 5px rgba(0, 0, 0, 0.1), inset -2px -2px 5px rgba(255, 255, 255, 0.7);
+}
+
+.crypto-name {
+  display: flex;
+  flex-direction: column;
+}
+
+.crypto-name .name {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+.crypto-name .full-name {
+  font-size: 14px;
+  color: #888;
+}
+
+.crypto-price {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.crypto-price span:first-child {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+}
+
+.price-change {
+  font-size: 14px;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.price-change.positive {
+  color: #28a745;
+  background-color: rgba(40, 167, 69, 0.1);
+}
+
+.price-change.negative {
+  color: #dc3545;
+  background-color: rgba(220, 53, 69, 0.1);
+}
+
+.crypto-chart {
+  height: 60px;
+  background: linear-gradient(145deg, #f0f0f0, #e0e0e0);
+  border-radius: 10px;
+  padding: 5px;
+  box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.1), inset -2px -2px 5px rgba(255, 255, 255, 0.7);
+}
