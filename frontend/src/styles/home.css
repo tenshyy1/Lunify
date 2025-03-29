@@ -1,8 +1,38 @@
 /* ../styles/home.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
-/* Общие стили для контейнера */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* up animated*/
+.hero-section,
+.popular-section,
+.crypto-cards,
+.crypto-card,
+.crypto-content,
+.crypto-price,
+.crypto-chart-wrapper {
+  opacity: 0;
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+.crypto-card:nth-child(1) { animation-delay: 0.2s; }
+.crypto-card:nth-child(2) { animation-delay: 0.4s; }
+.crypto-card:nth-child(3) { animation-delay: 0.6s; }
+.crypto-card:nth-child(4) { animation-delay: 0.8s; }
+
+
+
+/* all style */
 .home-container {
-  font-family: 'Arial', sans-serif;
+  font-family: 'Poppins', sans-serif;
   background-color: #f5f5f5;
   color: #333;
 }
@@ -18,9 +48,11 @@
 }
 
 .navbar-logo h1 {
-  font-size: 24px;
+  font-size: 30px;
   font-weight: bold;
+  font-style: italic;
   margin: 0;
+  margin-left: 50%;
 }
 
 .navbar-links {
@@ -32,16 +64,32 @@
 }
 
 .navbar-links li a {
+  position: relative;
   text-decoration: none;
   color: #333;
   font-size: 16px;
   font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.navbar-links li a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px; 
+  width: 0;
+  height: 2px;
+  background-color: #007bff;
+  transition: width 0.3s ease;
 }
 
 .navbar-links li a:hover {
   color: #007bff;
 }
 
+.navbar-links li a:hover::after {
+  width: 100%;
+}
 .navbar-actions {
   display: flex;
   align-items: center;
@@ -60,19 +108,44 @@
 }
 
 .get-started-btn {
-  background-color: #007bff;
-  color: #fff;
-  border: none;
+  text-decoration: none;
+  position: relative;
+  background-color: white;
+  color: #007bff;
+  border: 1px solid #007bff;
   padding: 10px 20px;
   border-radius: 5px;
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
+  overflow: hidden;
+  transition: color 0.3s ease;
+}
+
+.get-started-btn::before {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #007bff;
+  transition: top 0.3s ease;
+  z-index: -1;
 }
 
 .get-started-btn:hover {
-  background-color: #0056b3;
+  color: white;
 }
+
+.get-started-btn:hover::before {
+  top: 0;
+}
+
+
+
+
+
 
 /* Hero Section */
 .hero-section {
@@ -211,4 +284,80 @@
   border-radius: 10px;
   padding: 5px;
   box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.1), inset -2px -2px 5px rgba(255, 255, 255, 0.7);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*footer*/
+
+.footer {
+  background-color: #fff; 
+  padding: 20px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Poppins', sans-serif; 
+  font-weight: 400;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px; /* Ограничиваем ширину для больших экранов */
+}
+
+.footer-logo {
+  font-size: 24px;
+  font-weight: 600; /* Более тяжелый вес для логотипа */
+}
+
+.footer-logo .dot {
+  color: #00aaff; /* Синий цвет для точки */
+}
+
+.footer-socials {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.socials-label {
+  font-size: 14px;
+  color: #6b21a8; /* Фиолетовый цвет для "SOCIALS" */
+  font-weight: 500; /* Средний вес для надписи "SOCIALS" */
+}
+
+.socials-icons {
+  display: flex;
+  gap: 10px;
+}
+
+.socials-icons a {
+  color: #000; /* Черный цвет иконок */
+  font-size: 20px;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.socials-icons a:hover {
+  color: #00aaff; /* Цвет при наведении (можно изменить) */
+}
+
+.footer-copyright {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #6b21a8; /* Фиолетовый цвет для копирайта */
+  font-weight: 400; /* Легкий вес для копирайта */
 }

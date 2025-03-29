@@ -1,7 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Footer from '../components/Footer';
-import Header from '../components/Header';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip, Legend } from 'chart.js';
 import '../styles/home.css';
@@ -45,11 +43,17 @@ const Home = () => {
       price: '4,267.90',
       change: '+2.23%',
       icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 0L1.5 12 12 18 22.5 12 12 0zm0 16.5L3 12l9-10.5 9 10.5-9 4.5z" fill="#627EEA"/>
-          <path d="M12 18v6l9-10.5L12 18z" fill="#627EEA"/>
-          <path d="M12 18v6L3 13.5 12 18z" fill="#627EEA"/>
-        </svg>
+          <svg xmlns="http://www.w3.org/2000/svg"
+          aria-label="Ethereum" role="img"
+          viewBox="0 0 512 512"><rect
+          width="20px" height="20px"
+          rx="15%"
+          fill="#ffffff"/><path
+          fill="#3C3C3B" d="m256 362v107l131-185z"/><path
+          fill="#343434" d="m256 41l131 218-131 78-132-78"/><path
+          fill="#8C8C8C" d="m256 41v158l-132 60m0 25l132 78v107"/><path
+          fill="#141414" d="m256 199v138l131-78"/><path
+          fill="#393939" d="m124 259l132-60v138"/></svg>
       ),
       chartData: {
         labels: ['1', '2', '3', '4', '5', '6', '7'],
@@ -131,6 +135,7 @@ const Home = () => {
 
   return (
     <div className="home-container">
+
       {/* Navbar */}
       <nav className="navbar">
         <div className="navbar-logo">
@@ -151,7 +156,9 @@ const Home = () => {
           <Link to="/login" className="sign-in-btn">
             Sign in
           </Link>
-          <button className="get-started-btn">Get started</button>
+          <Link to="/register" className="get-started-btn">
+            Get started
+          </Link>
         </div>
       </nav>
 
@@ -195,7 +202,30 @@ const Home = () => {
         </div>
       </section>
 
-      <Footer />
+      {/* Features */}
+
+      <footer className="footer">
+      <div className="footer-content">
+        <div className="footer-logo">
+          <span>LUNIFY</span>
+          <span className="dot">.</span>
+        </div>
+        <div className="footer-socials">
+          <span className="socials-label">SOCIALS</span>
+          <div className="socials-icons">
+            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+            </a>
+            <a href="https://discord.com" target="_blank" rel="noopener noreferrer">
+            </a>
+            <a href="https://youtube.com" target="_blank" rel="noopener noreferrer">
+            </a>
+          </div>
+        </div>
+      </div>
+      <div className="footer-copyright">
+        <p>Copyright © 2025 LUNIFY | ALL RIGHTS RESERVED</p>
+      </div>
+    </footer>
     </div>
   );
 };
