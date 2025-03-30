@@ -1,17 +1,51 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
+	"service/login"
+
+	_ "github.com/lib/pq"
 )
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.Write([]byte(`{"message": "Hello from Go backend!"}`))
-}
-
 func main() {
-	http.HandleFunc("/api", handler)
-	fmt.Println("Server is running on http://localhost:8080")
-	http.ListenAndServe(":8080", nil)
+	connStr := "postgres://postgres:12345@localhost:5432/mydb?sslmode=disable"
+	var err error
+	login.DB, err = sql.Open("postgres", connStr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer login.DB.Close()
+
+	err = login.DB.Ping()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = login.DB.Exec(`
+        CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            login VARCHAR(50) UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            email VARCHAR(100)
+        );
+        CREATE TABLE IF NOT EXISTS revoked_tokens (
+            id SERIAL PRIMARY KEY,
+            token TEXT UNIQUE NOT NULL,
+            revoked_at TIMESTAMP DEFAULT NOW()
+        );
+    `)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	http.HandleFunc("/register", login.RegisterHandler)
+	http.HandleFunc("/login", login.LoginHandler)
+	http.HandleFunc("/logout", login.LogoutHandler)
+	http.HandleFunc("/profile", login.ProfileHandler)
+
+	fmt.Println("Server starting on :8080...")
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }

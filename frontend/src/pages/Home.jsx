@@ -203,7 +203,25 @@ const Home = () => {
       </section>
 
       {/* Features */}
+      {/* Market UPDATE */}
+      {/* Learn Crypto */}
+      {/* New generation */}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+      {/*Footer*/}
       <footer className="footer">
       <div className="footer-content">
         <div className="footer-logo">
