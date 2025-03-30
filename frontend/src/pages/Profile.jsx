@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import '../styles/profile.css';
 import Header from '../components/Header';
 import SideHeader from '../components/SideHeader';
+import foto from '../assets/favicon.png';
 
-const Profile = () => {
+const Profile = ({ onLogout }) => { 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -41,7 +42,7 @@ const Profile = () => {
         console.error('Error fetching profile:', error);
         setLoading(false);
       });
-  }, [navigate]); // Добавляем navigate в зависимости
+  }, [navigate]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -75,55 +76,19 @@ const Profile = () => {
       });
   };
 
-  const handleLogout = () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      console.error('No token found');
-      navigate('/login');
-      return;
-    }
-
-    fetch('http://localhost:8080/logout', {
-      method: 'POST',
-      headers: {
-        'Authorization': token,
-      },
-    })
-      .then(response => {
-        if (!response.ok) throw new Error('Failed to logout');
-        return response.json();
-      })
-      .then(data => {
-        console.log('Logout successful:', data);
-        localStorage.removeItem('token');
-        navigate('/login'); 
-      })
-      .catch(error => {
-        console.error('Error during logout:', error);
-        localStorage.removeItem('token'); 
-        navigate('/login');
-      });
-  };
-
   if (loading) {
     return <div>Loading...</div>;
   }
 
   return (
     <div className="profile-profile-container">
-      {/* Sidebar с передачей handleLogout */}
-      <SideHeader onLogout={handleLogout} />
-
-      {/* Main Content */}
+      <SideHeader onLogout={onLogout} activePage="profile" /> {/* Передаём onLogout */}
       <main className="profile-main-content">
-        {/* Header */}
         <Header login={login} />
-
         <div className="profile-content-wrapper">
-          {/* Profile Details */}
           <section className="profile-profile-details">
             <div className="profile-profile-picture">
-              <img src="profile-pic-placeholder.jpg" alt="Profile" />
+              <img src={foto} alt="Profile" />
             </div>
             <h2>{firstName && lastName ? `${firstName} ${lastName}` : 'Your Name'}</h2>
             <form onSubmit={handleSubmit}>
@@ -154,8 +119,6 @@ const Profile = () => {
               <button type="submit">Save</button>
             </form>
           </section>
-
-          {/* Balance and Transactions */}
           <section className="profile-balance-transactions">
             <div className="profile-balance-card">
               <h3>Total Balance</h3>

@@ -1,0 +1,45 @@
+/* SwapPlaceholder.css */
+.swap-placeholder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f3f4f6;
+  }
+  
+  .swap-placeholder-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .swap-placeholder-item {
+    width: 200px;
+    height: 20px;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    animation: shimmer 1.5s infinite linear;
+  }
+  
+  @keyframes shimmer {
+    0% {
+      background-position: -200px 0;
+    }
+    100% {
+      background-position: 200px 0;
+    }
+  }
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  

@@ -5,6 +5,7 @@
     display: flex;
     height: 100vh;
     font-family: 'Poppins', sans-serif; /* Современный шрифт */
+    overflow: hidden;
   }
   .profile-main-content {
     flex-grow: 1;
@@ -20,10 +21,10 @@
   }
   
   .profile-profile-details {
-    width: 60%;
+    width: 45%;
     background-color: #FFFFFF;
-    padding: 20px;
-    border-radius: 8px;
+    padding: 30px;
+    border-radius: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   
@@ -37,14 +38,14 @@
   /* Детали профиля */
   .profile-profile-picture {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: -5px;
   }
   
   .profile-profile-picture img {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    border: 2px solid #FFFFFF;
+    width: 150px;
+    height: 150px;
+    border-radius: 15%;
+    border: 2px solid black;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   
