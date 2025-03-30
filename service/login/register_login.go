@@ -12,7 +12,7 @@ import (
 )
 
 var DB *sql.DB
-var jwtKey = []byte("my_secret_key") // Ключ для подписи JWT
+var jwtKey = []byte("my_secret_key")
 
 type User struct {
 	ID       int    `json:"id"`
@@ -26,14 +26,17 @@ type Response struct {
 	Token   string `json:"token,omitempty"`
 }
 
+type ErrorResponse struct {
+	Message string `json:"message"`
+}
+
 type Claims struct {
-	UserID int `json:"user_id"`
+	UserID int `json:"userламиd"`
 	jwt.StandardClaims
 }
 
-// Генерация JWT-токена
 func generateToken(userID int) (string, error) {
-	expirationTime := time.Now().Add(24 * time.Hour) // 24 часа
+	expirationTime := time.Now().Add(24 * time.Hour)
 	claims := &Claims{
 		UserID: userID,
 		StandardClaims: jwt.StandardClaims{
@@ -45,14 +48,12 @@ func generateToken(userID int) (string, error) {
 	return token.SignedString(jwtKey)
 }
 
-// Проверка, отозван ли токен
 func isTokenRevoked(tokenString string) bool {
 	var exists bool
 	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM revoked_tokens WHERE token = $1)", tokenString).Scan(&exists)
 	return err == nil && exists
 }
 
-// Разбор JWT-токена
 func parseJWT(tokenString string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return jwtKey, nil
@@ -70,23 +71,29 @@ func parseJWT(tokenString string) (*Claims, error) {
 	return claims, nil
 }
 
-// Регистрация пользователя
+func sendError(w http.ResponseWriter, message string, statusCode int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+	json.NewEncoder(w).Encode(ErrorResponse{Message: message})
+}
+
+// register
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		sendError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	var user User
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		sendError(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		sendError(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
@@ -96,11 +103,16 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		user.Login, hashedPassword,
 	).Scan(&id)
 	if err != nil {
-		http.Error(w, "Login already exists", http.StatusConflict)
+		sendError(w, "Login already exists", http.StatusConflict)
 		return
 	}
 
-	token, _ := generateToken(id)
+	token, err := generateToken(id)
+	if err != nil {
+		sendError(w, "Failed to generate token", http.StatusInternalServerError)
+		return
+	}
+
 	response := Response{
 		Message: "User registered successfully",
 		Token:   token,
@@ -110,17 +122,17 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-// Логин пользователя
+// login
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		sendError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	var user User
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		sendError(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
@@ -131,17 +143,22 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		user.Login,
 	).Scan(&id, &storedPassword)
 	if err != nil {
-		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		sendError(w, "Invalid credentials", http.StatusUnauthorized)
 		return
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(storedPassword), []byte(user.Password))
 	if err != nil {
-		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		sendError(w, "Invalid credentials", http.StatusUnauthorized)
 		return
 	}
 
-	token, _ := generateToken(id)
+	token, err := generateToken(id)
+	if err != nil {
+		sendError(w, "Failed to generate token", http.StatusInternalServerError)
+		return
+	}
+
 	response := Response{
 		Message: "Login successful",
 		Token:   token,
@@ -151,22 +168,22 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-// Логаут пользователя
+// logout
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		sendError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	tokenString := r.Header.Get("Authorization")
 	if tokenString == "" {
-		http.Error(w, "Token required", http.StatusUnauthorized)
+		sendError(w, "Token required", http.StatusUnauthorized)
 		return
 	}
 
 	_, err := DB.Exec("INSERT INTO revoked_tokens (token) VALUES ($1)", tokenString)
 	if err != nil {
-		http.Error(w, "Failed to revoke token", http.StatusInternalServerError)
+		sendError(w, "Failed to revoke token", http.StatusInternalServerError)
 		return
 	}
 
@@ -178,34 +195,34 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-// Обновление профиля пользователя
+// change profile
 func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		sendError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	tokenString := r.Header.Get("Authorization")
 	if tokenString == "" {
-		http.Error(w, "Token required", http.StatusUnauthorized)
+		sendError(w, "Token required", http.StatusUnauthorized)
 		return
 	}
 
 	if isTokenRevoked(tokenString) {
-		http.Error(w, "Token revoked", http.StatusUnauthorized)
+		sendError(w, "Token revoked", http.StatusUnauthorized)
 		return
 	}
 
 	claims, err := parseJWT(tokenString)
 	if err != nil {
-		http.Error(w, "Invalid token", http.StatusUnauthorized)
+		sendError(w, "Invalid token", http.StatusUnauthorized)
 		return
 	}
 
 	var user User
 	err = json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		sendError(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
@@ -214,7 +231,7 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 		user.Email, claims.UserID,
 	)
 	if err != nil {
-		http.Error(w, "Failed to update profile", http.StatusInternalServerError)
+		sendError(w, "Failed to update profile", http.StatusInternalServerError)
 		return
 	}
 

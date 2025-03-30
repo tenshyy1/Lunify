@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { loginUser } from "../services/authService";
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify'; // Импортируем toast
 import '../styles/login.css';
 import favicon from '../assets/favicon.png';
-
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -10,6 +11,8 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.title = 'Lunify - Login';
@@ -18,13 +21,12 @@ const Login = () => {
     link.href = favicon;
     link.type = 'image/png';
     document.head.appendChild(link);
-  }, []); 
+  }, []);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  //validation
   const validateLogin = (value) => {
     if (value.length < 3) {
       setLoginError('Login must be at least 3 characters');
@@ -32,6 +34,7 @@ const Login = () => {
       setLoginError('');
     }
   };
+
   const validatePassword = (value) => {
     if (value.length < 3) {
       setPasswordError('Password must be at least 3 characters');
@@ -39,23 +42,51 @@ const Login = () => {
       setPasswordError('');
     }
   };
+
   const handleLoginChange = (e) => {
     const value = e.target.value;
     setLogin(value);
     validateLogin(value);
   };
+
   const handlePasswordChange = (e) => {
     const value = e.target.value;
     setPassword(value);
     validatePassword(value);
   };
 
-
-  //successfully login
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (login.length >= 3 && password.length >= 3 && !loginError && !passwordError) {
-      console.log('мяу');
+      setIsLoading(true);
+      try {
+        const result = await loginUser(login, password);
+        if (result && result.token) {
+          console.log("Successful login:", result);
+          localStorage.setItem('token', result.token);
+          toast.success('Login successful! Welcome back!', {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+          setTimeout(() => navigate('/profile'), 3000); 
+        } else {
+          throw new Error(result?.message || 'Login failed');
+        }
+      } catch (error) {
+        console.error("Login error:", error);
+        setLoginError(error.message || 'Invalid login credentials');
+        toast.error(error.message || 'Invalid login credentials', {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -106,8 +137,12 @@ const Login = () => {
             </button>
             {passwordError && <span className="error-message">{passwordError}</span>}
           </div>
-          <button type="submit" className="login-button">
-            Login now
+          <button 
+            type="submit" 
+            className="login-button"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Logging in...' : 'Login now'}
           </button>
         </form>
         <p className="signup-link">

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { registerUser } from "../services/authService";
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify'; // Импортируем toast для уведомлений
 import '../styles/register.css';
 import favicon from '../assets/favicon.png';
 
@@ -12,10 +14,11 @@ const Register = () => {
   const [registerLoginError, setRegisterLoginError] = useState('');
   const [registerPasswordError, setRegisterPasswordError] = useState('');
   const [registerConfirmPasswordError, setRegisterConfirmPasswordError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.title = 'Lunify - Register';
-
     const link = document.createElement('link');
     link.rel = 'icon';
     link.href = favicon;
@@ -62,8 +65,7 @@ const Register = () => {
     validatePasswordsMatch(password, value);
   };
 
-  //register succesfully
-  const handleRegisterSubmit = (e) => {
+  const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     if (
       login.length >= 3 &&
@@ -73,7 +75,43 @@ const Register = () => {
       !registerPasswordError &&
       !registerConfirmPasswordError
     ) {
-      console.log('мяу');
+      setIsLoading(true);
+      try {
+        const result = await registerUser(login, password);
+        if (result && result.token) {
+          console.log("Registration successful:", result);
+          localStorage.setItem('token', result.token);
+          toast.success('Registration successful! Please log in.', {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+          setTimeout(() => navigate('/login'), 3000); // Задержка для отображения уведомления
+        } else {
+          throw new Error(result?.message || 'Registration failed');
+        }
+      } catch (error) {
+        console.error("Registration error:", error);
+        if (error.message === 'Login already exists') {
+          setRegisterLoginError('This login is already taken');
+          toast.error('This login is already taken.', {
+            position: "top-right",
+            autoClose: 3000,
+          });
+        } else {
+          setRegisterLoginError(error.message || 'An error occurred during registration');
+          toast.error(error.message || 'An error occurred during registration', {
+            position: "top-right",
+            autoClose: 3000,
+          });
+        }
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -159,8 +197,12 @@ const Register = () => {
               </button>
               {registerConfirmPasswordError && <span className="error-message">{registerConfirmPasswordError}</span>}
             </div>
-            <button type="submit" className="register-submit-button">
-              Create account
+            <button
+              type="submit"
+              className="register-submit-button"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Creating account...' : 'Create account'}
             </button>
           </form>
           <p className="login-link">

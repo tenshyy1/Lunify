@@ -1,13 +1,9 @@
+import React from 'react';
 import { Navigate } from 'react-router-dom';
-//import { useAuth } from '../context/AuthContext'; //авторизация/рега
 
-export default function ProtectedRoute({ children }) {
-  //const { isLogin } = useAuth();
-  const user = null;
+const ProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem('token'); // Проверка токена
+  return token ? children : <Navigate to="/login" replace />;
+};
 
-  //if (!isLogin) {
-    //return <Navigate to="/login" replace />;
-  //}
-
-  return children;
-}
+export default ProtectedRoute;
