@@ -39,17 +39,13 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Убрана таблица revoked_tokens
 	_, err = login.DB.Exec(`
         CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
             login VARCHAR(50) UNIQUE NOT NULL,
             password TEXT NOT NULL,
             email VARCHAR(100)
-        );
-        CREATE TABLE IF NOT EXISTS revoked_tokens (
-            id SERIAL PRIMARY KEY,
-            token TEXT UNIQUE NOT NULL,
-            revoked_at TIMESTAMP DEFAULT NOW()
         );
     `)
 	if err != nil {

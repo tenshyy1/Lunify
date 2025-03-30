@@ -12,7 +12,7 @@ import (
 )
 
 var DB *sql.DB
-var jwtKey = []byte("my_secret_key")
+var jwtKey = []byte("my_secret_key") // В продакшене вынеси в переменные окружения
 
 type User struct {
 	ID       int    `json:"id"`
@@ -31,12 +31,12 @@ type ErrorResponse struct {
 }
 
 type Claims struct {
-	UserID int `json:"userламиd"`
+	UserID int `json:"user_id"`
 	jwt.StandardClaims
 }
 
 func generateToken(userID int) (string, error) {
-	expirationTime := time.Now().Add(24 * time.Hour)
+	expirationTime := time.Now().Add(24 * time.Hour) // Можно уменьшить до 1 часа
 	claims := &Claims{
 		UserID: userID,
 		StandardClaims: jwt.StandardClaims{
@@ -46,12 +46,6 @@ func generateToken(userID int) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(jwtKey)
-}
-
-func isTokenRevoked(tokenString string) bool {
-	var exists bool
-	err := DB.QueryRow("SELECT EXISTS(SELECT 1 FROM revoked_tokens WHERE token = $1)", tokenString).Scan(&exists)
-	return err == nil && exists
 }
 
 func parseJWT(tokenString string) (*Claims, error) {
@@ -77,7 +71,7 @@ func sendError(w http.ResponseWriter, message string, statusCode int) {
 	json.NewEncoder(w).Encode(ErrorResponse{Message: message})
 }
 
-// register
+// Регистрация
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		sendError(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -122,7 +116,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-// login
+// Логин
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		sendError(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -168,7 +162,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-// logout
+// Логаут
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		sendError(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -181,12 +175,8 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := DB.Exec("INSERT INTO revoked_tokens (token) VALUES ($1)", tokenString)
-	if err != nil {
-		sendError(w, "Failed to revoke token", http.StatusInternalServerError)
-		return
-	}
-
+	// Здесь сервер просто подтверждает успешный выход,
+	// а клиент должен удалить токен из локального хранилища
 	response := Response{
 		Message: "Successfully logged out",
 	}
@@ -195,7 +185,7 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-// change profile
+// Обновление профиля
 func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
 		sendError(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -205,11 +195,6 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 	tokenString := r.Header.Get("Authorization")
 	if tokenString == "" {
 		sendError(w, "Token required", http.StatusUnauthorized)
-		return
-	}
-
-	if isTokenRevoked(tokenString) {
-		sendError(w, "Token revoked", http.StatusUnauthorized)
 		return
 	}
 
