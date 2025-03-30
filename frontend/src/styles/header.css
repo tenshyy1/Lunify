@@ -1,0 +1,42 @@
+.profile-top-bar {
+    display: flex;
+    margin-top: -25px;
+    margin-left: -20px;
+    width: 1750;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    background-color: #FFFFFF;
+    padding: 10px 50px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Тень для глубины */
+  }
+  
+  .profile-top-bar h1 {
+    font-size: 26px;
+    font-weight: bold;
+    color: #1C2526;
+  }
+  
+  .profile-user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .profile-user-info .profile-bell-icon {
+    font-size: 18px;
+    color: #4B5563;
+  }
+  
+  .profile-user-info span {
+    color: #1C2526;
+    font-size: 16px;
+  }
+  
+  .profile-user-info .profile-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  

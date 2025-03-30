@@ -1,0 +1,194 @@
+/* General Layout */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+/* Общий макет */
+.profile-profile-container {
+    display: flex;
+    height: 100vh;
+    font-family: 'Poppins', sans-serif; /* Современный шрифт */
+  }
+  .profile-main-content {
+    flex-grow: 1;
+    background-color: #F3F4F6; /* Светлый фон основной области */
+    padding: 20px;
+  }
+  
+  
+  /* Контейнер контента */
+  .profile-content-wrapper {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .profile-profile-details {
+    width: 60%;
+    background-color: #FFFFFF;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .profile-balance-transactions {
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  /* Детали профиля */
+  .profile-profile-picture {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .profile-profile-picture img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 2px solid #FFFFFF;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .profile-profile-details h2 {
+    font-size: 18px;
+    font-weight: bold;
+    color: #1C2526;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .profile-profile-details form label {
+    display: block;
+    margin-bottom: 10px;
+    color: #1C2526;
+    font-size: 14px;
+  }
+  
+  .profile-profile-details form input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    background-color: #F3F4F6;
+    border: 1px solid #D1D5DB;
+    border-radius: 5px;
+    font-size: 14px;
+  }
+  
+  /* Баланс и транзакции */
+  .profile-balance-card {
+    background-color: #FFFFFF;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    border-radius: 8px;
+  }
+  
+  .profile-balance-card h3, .profile-transactions h3 {
+    font-size: 16px;
+    font-weight: bold;
+    color: #1C2526;
+    margin-bottom: 10px;
+  }
+  
+  .profile-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .profile-tabs button {
+    background: none;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #4B5563;
+    border-bottom: 2px solid transparent;
+  }
+  
+  .profile-tabs .profile-active {
+    color: #3B82F6;
+    font-weight: bold;
+    border-bottom: 2px solid #3B82F6;
+  }
+  
+  .profile-balance-amount {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .profile-balance-amount .profile-positive {
+    font-size: 24px;
+    font-weight: bold;
+    color: #10B981; /* Зелёный для положительного баланса */
+  }
+  
+  .profile-balance-amount .profile-percentage {
+    font-size: 16px;
+    color: #10B981;
+  }
+  
+  .profile-graph {
+    height: 100px;
+    background-color: #F3F4F6;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4B5563;
+    font-size: 14px;
+  }
+  
+  .profile-transactions {
+    background-color: #FFFFFF;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    border-radius: 8px;
+  }
+  
+  .profile-transactions table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .profile-transactions th, .profile-transactions td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #E0E0E0;
+    font-size: 14px;
+    color: #4B5563;
+  }
+  
+  .profile-transactions th {
+    font-weight: bold;
+    color: #1C2526;
+  }
+  
+  .profile-transactions .profile-sell, .profile-transactions .profile-buy {
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+  }
+  
+  .profile-transactions .profile-sell {
+    background-color: #EF4444; /* Красный для продаж */
+    color: #FFFFFF;
+  }
+  
+  .profile-transactions .profile-buy {
+    background-color: #10B981; /* Зелёный для покупок */
+    color: #FFFFFF;
+  }
+  
+  .profile-see-all {
+    display: block;
+    margin-top: 10px;
+    color: #3B82F6;
+    text-decoration: none;
+    font-size: 14px;
+    text-align: right;
+  }
+  
+  .profile-see-all:hover {
+    text-decoration: underline;
+  }

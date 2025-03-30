@@ -39,13 +39,25 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Убрана таблица revoked_tokens
+	// Создание таблицы users
 	_, err = login.DB.Exec(`
         CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
             login VARCHAR(50) UNIQUE NOT NULL,
             password TEXT NOT NULL,
             email VARCHAR(100)
+        );
+    `)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Создание таблицы user_details
+	_, err = login.DB.Exec(`
+        CREATE TABLE IF NOT EXISTS user_details (
+            user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+            first_name VARCHAR(50),
+            last_name VARCHAR(50)
         );
     `)
 	if err != nil {
