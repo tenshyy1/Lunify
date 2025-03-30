@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // Импортируем useNavigate
+import { useNavigate } from 'react-router-dom'; 
 import '../styles/profile.css';
 import Header from '../components/Header';
 import SideHeader from '../components/SideHeader';
@@ -10,15 +10,14 @@ const Profile = () => {
   const [email, setEmail] = useState('');
   const [login, setLogin] = useState('');
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate(); // Инициализируем useNavigate
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
       console.error('No token found');
       setLoading(false);
-      navigate('/login'); // Перенаправляем на логин, если токена нет
-      return;
+      navigate('/login'); 
     }
 
     fetch('http://localhost:8080/profile', {
@@ -96,12 +95,12 @@ const Profile = () => {
       })
       .then(data => {
         console.log('Logout successful:', data);
-        localStorage.removeItem('token'); // Удаляем токен из localStorage
-        navigate('/login'); // Перенаправляем на страницу логина
+        localStorage.removeItem('token');
+        navigate('/login'); 
       })
       .catch(error => {
         console.error('Error during logout:', error);
-        localStorage.removeItem('token'); // Удаляем токен даже при ошибке
+        localStorage.removeItem('token'); 
         navigate('/login');
       });
   };

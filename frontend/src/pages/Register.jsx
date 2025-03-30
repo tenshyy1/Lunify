@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { registerUser } from "../services/authService";
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify'; // Импортируем toast для уведомлений
+import { toast } from 'react-toastify'; 
 import '../styles/register.css';
 import favicon from '../assets/favicon.png';
 
@@ -90,7 +90,7 @@ const Register = () => {
             draggable: true,
             progress: undefined,
           });
-          setTimeout(() => navigate('/login'), 3000); // Задержка для отображения уведомления
+          setTimeout(() => navigate('/login'), 3000); 
         } else {
           throw new Error(result?.message || 'Registration failed');
         }

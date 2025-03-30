@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { loginUser } from "../services/authService";
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify'; // Импортируем toast
+import { toast } from 'react-toastify'; 
 import '../styles/login.css';
 import favicon from '../assets/favicon.png';
 

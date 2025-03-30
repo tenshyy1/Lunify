@@ -102,7 +102,6 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// При регистрации имя и фамилия необязательны, добавим их позже в профиле
 	if user.FirstName != "" || user.LastName != "" {
 		_, err = DB.Exec(
 			"INSERT INTO user_details (user_id, first_name, last_name) VALUES ($1, $2, $3)",
@@ -224,7 +223,6 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Обновление email в таблице users
 		_, err = DB.Exec(
 			"UPDATE users SET email = $1 WHERE id = $2",
 			user.Email, claims.UserID,
@@ -234,7 +232,6 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Обновление или вставка first_name и last_name в user_details
 		_, err = DB.Exec(
 			"INSERT INTO user_details (user_id, first_name, last_name) VALUES ($1, $2, $3) "+
 				"ON CONFLICT (user_id) DO UPDATE SET first_name = $2, last_name = $3",
