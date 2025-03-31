@@ -1,36 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
 import '../styles/profile.css';
 import Header from '../components/Header';
 import SideHeader from '../components/SideHeader';
 import foto from '../assets/favicon.png';
+import { getProfile, updateProfile } from '../services/profile'; 
 
-const Profile = ({ onLogout }) => { 
+const Profile = ({ onLogout }) => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [login, setLogin] = useState('');
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
       console.error('No token found');
       setLoading(false);
-      navigate('/login'); 
+      navigate('/login');
+      return;
     }
 
-    fetch('http://localhost:8080/profile', {
-      method: 'GET',
-      headers: {
-        'Authorization': token,
-      },
-    })
-      .then(response => {
-        if (!response.ok) throw new Error('Failed to fetch profile');
-        return response.json();
-      })
+    getProfile(token)
       .then(data => {
         setFirstName(data.first_name || '');
         setLastName(data.last_name || '');
@@ -52,22 +45,13 @@ const Profile = ({ onLogout }) => {
       return;
     }
 
-    fetch('http://localhost:8080/profile', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': token,
-      },
-      body: JSON.stringify({
-        first_name: firstName,
-        last_name: lastName,
-        email: email,
-      }),
-    })
-      .then(response => {
-        if (!response.ok) throw new Error('Failed to update profile');
-        return response.json();
-      })
+    const profileData = {
+      first_name: firstName,
+      last_name: lastName,
+      email: email,
+    };
+
+    updateProfile(token, profileData)
       .then(data => {
         console.log('Profile updated:', data);
       })
@@ -82,7 +66,7 @@ const Profile = ({ onLogout }) => {
 
   return (
     <div className="profile-profile-container">
-      <SideHeader onLogout={onLogout} activePage="profile" /> {/* Передаём onLogout */}
+      <SideHeader onLogout={onLogout} activePage="profile" />
       <main className="profile-main-content">
         <Header login={login} />
         <div className="profile-content-wrapper">
