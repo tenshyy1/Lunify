@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { loginUser } from "../services/authService";
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify'; 
+import { toast } from 'react-toastify';
 import '../styles/login.css';
 import favicon from '../assets/favicon.png';
 
@@ -47,12 +47,20 @@ const Login = () => {
     const value = e.target.value;
     setLogin(value);
     validateLogin(value);
+    // Сбрасываем серверную ошибку при изменении поля
+    if (loginError && loginError !== 'Login must be at least 3 characters') {
+      setLoginError('');
+    }
   };
 
   const handlePasswordChange = (e) => {
     const value = e.target.value;
     setPassword(value);
     validatePassword(value);
+    // Сбрасываем серверную ошибку при изменении поля
+    if (passwordError && passwordError !== 'Password must be at least 3 characters') {
+      setPasswordError('');
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -73,17 +81,33 @@ const Login = () => {
             draggable: true,
             progress: undefined,
           });
-          setTimeout(() => navigate('/profile'), 3000); 
+          setTimeout(() => navigate('/profile'), 3000);
         } else {
           throw new Error(result?.message || 'Login failed');
         }
       } catch (error) {
         console.error("Login error:", error);
-        setLoginError(error.message || 'Invalid login credentials');
-        toast.error(error.message || 'Invalid login credentials', {
-          position: "top-right",
-          autoClose: 3000,
-        });
+        const errorMessage = error.message || 'Login failed';
+        // Разделяем ошибки от бэка
+        if (errorMessage === 'Invalid login') {
+          setLoginError('Invalid login');
+          toast.error('Invalid login', {
+            position: "top-right",
+            autoClose: 3000,
+          });
+        } else if (errorMessage === 'Invalid password') {
+          setPasswordError('Invalid password');
+          toast.error('Invalid password', {
+            position: "top-right",
+            autoClose: 3000,
+          });
+        } else {
+          setLoginError(errorMessage); // Другие ошибки покажем под логином
+          toast.error(errorMessage, {
+            position: "top-right",
+            autoClose: 3000,
+          });
+        }
       } finally {
         setIsLoading(false);
       }
@@ -97,28 +121,28 @@ const Login = () => {
         <h2>Login to your account</h2>
         <form onSubmit={handleSubmit}>
           <div className="input-group">
-            <input 
-              type="text" 
-              id="login" 
+            <input
+              type="text"
+              id="login"
               value={login}
               onChange={handleLoginChange}
               maxLength={15}
-              required 
+              required
             />
             <label htmlFor="login">Login</label>
             {loginError && <span className="error-message">{loginError}</span>}
           </div>
           <div className="input-group">
-            <input 
-              type={showPassword ? "text" : "password"} 
-              id="password" 
+            <input
+              type={showPassword ? "text" : "password"}
+              id="password"
               value={password}
               onChange={handlePasswordChange}
               maxLength={20}
-              required 
+              required
             />
             <label htmlFor="password">Password</label>
-            <button 
+            <button
               type="button"
               className="password-toggle"
               onClick={togglePasswordVisibility}
@@ -137,10 +161,10 @@ const Login = () => {
             </button>
             {passwordError && <span className="error-message">{passwordError}</span>}
           </div>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="login-button"
-            disabled={isLoading}
+            disabled={isLoading || login.length < 3 || password.length < 3}
           >
             {isLoading ? 'Logging in...' : 'Login now'}
           </button>
