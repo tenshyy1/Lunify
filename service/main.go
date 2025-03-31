@@ -1,74 +1,43 @@
 package main
 
 import (
-	"database/sql"
-	"fmt"
 	"log"
-	"net/http"
-	"service/login"
 
-	_ "github.com/lib/pq"
+	"service/handlers/login"
+	"service/handlers/profile"
+	"service/models"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+
+	"service/common"
 )
 
-func enableCORS(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
-}
-
 func main() {
-	connStr := "postgres://postgres:12345@localhost:5432/mydb?sslmode=disable"
-	var err error
-	login.DB, err = sql.Open("postgres", connStr)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer login.DB.Close()
+	// Инициализация БД
+	dbInstance := models.InitDB()
+	defer dbInstance.Close()
 
-	err = login.DB.Ping()
-	if err != nil {
-		log.Fatal(err)
-	}
+	// Установка подключения в common
+	common.DB = dbInstance
 
-	// Создание таблицы users
-	_, err = login.DB.Exec(`
-        CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
-            login VARCHAR(50) UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            email VARCHAR(100)
-        );
-    `)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// Создание приложения Fiber
+	app := fiber.New()
 
-	// Создание таблицы user_details
-	_, err = login.DB.Exec(`
-        CREATE TABLE IF NOT EXISTS user_details (
-            user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-            first_name VARCHAR(50),
-            last_name VARCHAR(50)
-        );
-    `)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// Настройка CORS
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "http://localhost:3000",
+		AllowMethods: "GET,POST,PUT,DELETE,OPTIONS",
+		AllowHeaders: "Content-Type, Authorization",
+	}))
 
-	http.HandleFunc("/register", login.RegisterHandler)
-	http.HandleFunc("/login", login.LoginHandler)
-	http.HandleFunc("/logout", login.LogoutHandler)
-	http.HandleFunc("/profile", login.ProfileHandler)
+	// Маршруты
+	app.Post("/register", login.RegisterHandler)
+	app.Post("/login", login.LoginHandler)
+	app.Post("/logout", login.LogoutHandler)
+	app.Get("/profile", profile.GetProfileHandler)
+	app.Put("/profile", profile.UpdateProfileHandler)
 
-	fmt.Println("Server starting on :8080...")
-	log.Fatal(http.ListenAndServe(":8080", enableCORS(http.DefaultServeMux)))
+	// Запуск сервера
+	log.Fatal(app.Listen(":8080"))
 }
