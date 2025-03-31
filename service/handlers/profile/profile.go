@@ -31,7 +31,7 @@ func GetProfileHandler(c *fiber.Ctx) error {
 		return common.SendError(c, "User not found", fiber.StatusNotFound)
 	}
 
-	return c.JSON(user)
+	return c.JSON(user.ToJSONStruct())
 }
 
 func UpdateProfileHandler(c *fiber.Ctx) error {

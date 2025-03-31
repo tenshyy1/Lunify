@@ -14,12 +14,31 @@ var DB *sql.DB
 var jwtKey = []byte("my_secret_key")
 
 type User struct {
-	ID        int    `json:"id"`
-	Login     string `json:"login"`
-	Password  string `json:"password"`
-	Email     string `json:"email,omitempty"`
-	FirstName string `json:"first_name,omitempty"`
-	LastName  string `json:"last_name,omitempty"`
+	ID        int     `json:"id"`
+	Login     string  `json:"login"`
+	Password  string  `json:"password"`
+	Email     *string `json:"email,omitempty"`
+	FirstName *string `json:"first_name,omitempty"`
+	LastName  *string `json:"last_name,omitempty"`
+}
+
+// ToJSONStruct
+func (u *User) ToJSONStruct() map[string]interface{} {
+	return map[string]interface{}{
+		"id":         u.ID,
+		"login":      u.Login,
+		"password":   u.Password,
+		"email":      stringOrEmpty(u.Email),
+		"first_name": stringOrEmpty(u.FirstName),
+		"last_name":  stringOrEmpty(u.LastName),
+	}
+}
+
+func stringOrEmpty(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
 }
 
 type Response struct {
