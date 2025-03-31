@@ -1,14 +1,34 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom'; 
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip, Legend } from 'chart.js';
 import '../styles/home.css';
+import { getProfile } from '../services/profile'; 
 
-
-// Регистрируем компоненты Chart.js
 ChartJS.register(LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip, Legend);
 
 const Home = () => {
+  const [login, setLogin] = useState(''); 
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token')); 
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      getProfile(token)
+        .then(data => {
+          setLogin(data.login || 'User'); 
+          setIsLoggedIn(true); 
+        })
+        .catch(error => {
+          console.error('Error fetching profile:', error);
+          setIsLoggedIn(false); 
+          localStorage.removeItem('token'); 
+          navigate('/login'); 
+        });
+    }
+  }, [navigate]);
+
   const popularCryptos = [
     {
       name: 'BTC',
@@ -135,40 +155,36 @@ const Home = () => {
 
   return (
     <div className="home-container">
-
       {/* Navbar */}
       <nav className="navbar">
         <div className="navbar-logo">
           <h1>LUNIFY</h1>
         </div>
         <ul className="navbar-links">
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/market">Market</Link>
-          </li>
-          <li>
-            <Link to="/learn">Learn</Link>
-          </li>
+          <li><Link to="/">Home</Link></li>
+          <li><Link to="/market">Market</Link></li>
+          <li><Link to="/learn">Learn</Link></li>
         </ul>
         <div className="navbar-actions">
-          <Link to="/login" className="sign-in-btn">
-            Sign in
-          </Link>
-          <Link to="/register" className="get-started-btn">
-            Get started
-          </Link>
+          {isLoggedIn ? (
+            <div className="user-info">
+              <span className="user-avatar">👤</span> {/* Заглушка для аватара */}
+              <span className="user-login">{login || 'User'}</span>
+            </div>
+          ) : (
+            <>
+              <Link to="/login" className="sign-in-btn">Sign in</Link>
+              <Link to="/register" className="get-started-btn">Get started</Link>
+            </>
+          )}
         </div>
       </nav>
 
       {/* Hero Section */}
       <section className="hero-section">
-        <h1>
-          Start and Build Your <span>Crypto Portfolio</span> Here
-        </h1>
+        <h1>Start and Build Your <span>Crypto Portfolio</span> Here</h1>
         <p>Only at Lunify, you can build a good portfolio & learn the best practices about cryptocurrency.</p>
-        <button className="hero-btn">Get Started</button>
+        {!isLoggedIn && <button className="hero-btn">Get Started</button>}
       </section>
 
       {/* Most Popular Section */}
@@ -202,48 +218,26 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Features */}
-      {/* Market UPDATE */}
-      {/* Learn Crypto */}
-      {/* New generation */}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      
-      {/*Footer*/}
+      {/* Footer */}
       <footer className="footer">
-      <div className="footer-content">
-        <div className="footer-logo">
-          <span>LUNIFY</span>
-          <span className="dot">.</span>
-        </div>
-        <div className="footer-socials">
-          <span className="socials-label">SOCIALS</span>
-          <div className="socials-icons">
-            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
-            </a>
-            <a href="https://discord.com" target="_blank" rel="noopener noreferrer">
-            </a>
-            <a href="https://youtube.com" target="_blank" rel="noopener noreferrer">
-            </a>
+        <div className="footer-content">
+          <div className="footer-logo">
+            <span>LUNIFY</span>
+            <span className="dot">.</span>
+          </div>
+          <div className="footer-socials">
+            <span className="socials-label">SOCIALS</span>
+            <div className="socials-icons">
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer"></a>
+              <a href="https://discord.com" target="_blank" rel="noopener noreferrer"></a>
+              <a href="https://youtube.com" target="_blank" rel="noopener noreferrer"></a>
+            </div>
           </div>
         </div>
-      </div>
-      <div className="footer-copyright">
-        <p>Copyright © 2025 LUNIFY | ALL RIGHTS RESERVED</p>
-      </div>
-    </footer>
+        <div className="footer-copyright">
+          <p>Copyright © 2025 LUNIFY | ALL RIGHTS RESERVED</p>
+        </div>
+      </footer>
     </div>
   );
 };

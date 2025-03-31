@@ -47,7 +47,6 @@ const Login = () => {
     const value = e.target.value;
     setLogin(value);
     validateLogin(value);
-    // Сбрасываем серверную ошибку при изменении поля
     if (loginError && loginError !== 'Login must be at least 3 characters') {
       setLoginError('');
     }
@@ -57,7 +56,6 @@ const Login = () => {
     const value = e.target.value;
     setPassword(value);
     validatePassword(value);
-    // Сбрасываем серверную ошибку при изменении поля
     if (passwordError && passwordError !== 'Password must be at least 3 characters') {
       setPasswordError('');
     }
@@ -88,7 +86,6 @@ const Login = () => {
       } catch (error) {
         console.error("Login error:", error);
         const errorMessage = error.message || 'Login failed';
-        // Разделяем ошибки от бэка
         if (errorMessage === 'Invalid login') {
           setLoginError('Invalid login');
           toast.error('Invalid login', {
@@ -102,7 +99,7 @@ const Login = () => {
             autoClose: 3000,
           });
         } else {
-          setLoginError(errorMessage); // Другие ошибки покажем под логином
+          setLoginError(errorMessage);
           toast.error(errorMessage, {
             position: "top-right",
             autoClose: 3000,

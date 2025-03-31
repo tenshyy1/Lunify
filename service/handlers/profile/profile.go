@@ -1,6 +1,7 @@
 package profile
 
 import (
+	"log"
 	"service/common"
 
 	"github.com/gofiber/fiber/v2"
@@ -14,17 +15,19 @@ func GetProfileHandler(c *fiber.Ctx) error {
 
 	claims, err := common.ParseJWT(tokenString)
 	if err != nil {
+		log.Printf("ParseJWT error: %v", err)
 		return common.SendError(c, "Invalid token", fiber.StatusUnauthorized)
 	}
 
 	var user common.User
 	err = common.DB.QueryRow(
-		"SELECT u.id, u.login, u.email, ud.first_name, ud.last_name "+
+		"SELECT u.id, u.login, ud.email, ud.first_name, ud.last_name "+
 			"FROM users u LEFT JOIN user_details ud ON u.id = ud.user_id "+
 			"WHERE u.id = $1",
 		claims.UserID,
 	).Scan(&user.ID, &user.Login, &user.Email, &user.FirstName, &user.LastName)
 	if err != nil {
+		log.Printf("Database error for user_id %d: %v", claims.UserID, err)
 		return common.SendError(c, "User not found", fiber.StatusNotFound)
 	}
 
@@ -39,6 +42,7 @@ func UpdateProfileHandler(c *fiber.Ctx) error {
 
 	claims, err := common.ParseJWT(tokenString)
 	if err != nil {
+		log.Printf("ParseJWT error: %v", err)
 		return common.SendError(c, "Invalid token", fiber.StatusUnauthorized)
 	}
 
@@ -48,19 +52,12 @@ func UpdateProfileHandler(c *fiber.Ctx) error {
 	}
 
 	_, err = common.DB.Exec(
-		"UPDATE users SET email = $1 WHERE id = $2",
-		user.Email, claims.UserID,
+		"INSERT INTO user_details (user_id, first_name, last_name, email) VALUES ($1, $2, $3, $4) "+
+			"ON CONFLICT (user_id) DO UPDATE SET first_name = $2, last_name = $3, email = $4",
+		claims.UserID, user.FirstName, user.LastName, user.Email,
 	)
 	if err != nil {
-		return common.SendError(c, "Failed to update email", fiber.StatusInternalServerError)
-	}
-
-	_, err = common.DB.Exec(
-		"INSERT INTO user_details (user_id, first_name, last_name) VALUES ($1, $2, $3) "+
-			"ON CONFLICT (user_id) DO UPDATE SET first_name = $2, last_name = $3",
-		claims.UserID, user.FirstName, user.LastName,
-	)
-	if err != nil {
+		log.Printf("Failed to update user_details for user_id %d: %v", claims.UserID, err)
 		return common.SendError(c, "Failed to update user details", fiber.StatusInternalServerError)
 	}
 
