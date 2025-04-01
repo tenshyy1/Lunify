@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { registerUser } from "../services/authService";
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify'; 
+import { Toaster, toast } from 'react-hot-toast'; 
 import '../styles/register.css';
 import favicon from '../assets/favicon.png';
 
@@ -15,6 +15,7 @@ const Register = () => {
   const [registerPasswordError, setRegisterPasswordError] = useState('');
   const [registerConfirmPasswordError, setRegisterConfirmPasswordError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isRegistered, setIsRegistered] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -68,55 +69,77 @@ const Register = () => {
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     if (
-      login.length >= 3 &&
-      password.length >= 3 &&
-      confirmPassword === password &&
-      !registerLoginError &&
-      !registerPasswordError &&
-      !registerConfirmPasswordError
+      isRegistered ||
+      isLoading ||
+      login.length < 3 ||
+      password.length < 3 ||
+      confirmPassword !== password ||
+      registerLoginError ||
+      registerPasswordError ||
+      registerConfirmPasswordError
     ) {
-      setIsLoading(true);
-      try {
-        const result = await registerUser(login, password);
-        if (result && result.token) {
-          console.log("Registration successful:", result);
-          localStorage.setItem('token', result.token);
-          toast.success('Registration successful! Please log in.', {
-            position: "top-right",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-          });
-          setTimeout(() => navigate('/login'), 3000); 
-        } else {
-          throw new Error(result?.message || 'Registration failed');
-        }
-      } catch (error) {
-        console.error("Registration error:", error);
-        if (error.message === 'Login already exists') {
-          setRegisterLoginError('This login is already taken');
-          toast.error('This login is already taken.', {
-            position: "top-right",
-            autoClose: 3000,
-          });
-        } else {
-          setRegisterLoginError(error.message || 'An error occurred during registration');
-          toast.error(error.message || 'An error occurred during registration', {
-            position: "top-right",
-            autoClose: 3000,
-          });
-        }
-      } finally {
-        setIsLoading(false);
+      return; 
+    }
+
+    setIsLoading(true);
+    try {
+      const result = await registerUser(login, password);
+      if (result && result.token) {
+        console.log("Registration successful:", result);
+        localStorage.setItem('token', result.token);
+        setIsRegistered(true); 
+        toast.success('Registration successful! Please log in.', {
+          duration: 3000,
+          position: 'top-right',
+          style: {
+            background: '#1a1a1a',
+            color: '#fff',
+            border: '1px solid #00ffcc',
+            borderRadius: '12px',
+            padding: '16px',
+            boxShadow: '0 8px 24px rgba(0, 255, 204, 0.2)',
+          },
+          iconTheme: {
+            primary: '#00ffcc',
+            secondary: '#fff',
+          },
+        });
+        setTimeout(() => navigate('/login'), 2000);
+      } else {
+        throw new Error(result?.message || 'Registration failed');
       }
+    } catch (error) {
+      console.error("Registration error:", error);
+      const errorMessage = error.message || 'An error occurred during registration';
+      toast.error(errorMessage, {
+        duration: 3000,
+        position: 'top-right',
+        style: {
+          background: '#1a1a1a',
+          color: '#fff',
+          border: '1px solid #ff4d4d',
+          borderRadius: '12px',
+          padding: '16px',
+          boxShadow: '0 8px 24px rgba(255, 77, 77, 0.2)',
+        },
+        iconTheme: {
+          primary: '#ff4d4d',
+          secondary: '#fff',
+        },
+      });
+      if (errorMessage === 'Login already exists') {
+        setRegisterLoginError('This login is already taken');
+      } else {
+        setRegisterLoginError(errorMessage);
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="register-container">
+      <Toaster /> {}
       <div className="register-left">
         <div className="logo">LUNIFY<span>.</span></div>
         <div className="welcome-text">
@@ -200,7 +223,7 @@ const Register = () => {
             <button
               type="submit"
               className="register-submit-button"
-              disabled={isLoading}
+              disabled={isLoading || isRegistered} 
             >
               {isLoading ? 'Creating account...' : 'Create account'}
             </button>

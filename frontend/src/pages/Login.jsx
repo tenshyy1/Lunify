@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { loginUser } from "../services/authService";
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { Toaster, toast } from 'react-hot-toast';
 import '../styles/login.css';
 import favicon from '../assets/favicon.png';
 
@@ -12,6 +12,7 @@ const Login = () => {
   const [loginError, setLoginError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -63,56 +64,71 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (login.length >= 3 && password.length >= 3 && !loginError && !passwordError) {
-      setIsLoading(true);
-      try {
-        const result = await loginUser(login, password);
-        if (result && result.token) {
-          console.log("Successful login:", result);
-          localStorage.setItem('token', result.token);
-          toast.success('Login successful! Welcome back!', {
-            position: "top-right",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-          });
-          setTimeout(() => navigate('/profile'), 3000);
-        } else {
-          throw new Error(result?.message || 'Login failed');
-        }
-      } catch (error) {
-        console.error("Login error:", error);
-        const errorMessage = error.message || 'Login failed';
-        if (errorMessage === 'Invalid login') {
-          setLoginError('Invalid login');
-          toast.error('Invalid login', {
-            position: "top-right",
-            autoClose: 3000,
-          });
-        } else if (errorMessage === 'Invalid password') {
-          setPasswordError('Invalid password');
-          toast.error('Invalid password', {
-            position: "top-right",
-            autoClose: 3000,
-          });
-        } else {
-          setLoginError(errorMessage);
-          toast.error(errorMessage, {
-            position: "top-right",
-            autoClose: 3000,
-          });
-        }
-      } finally {
-        setIsLoading(false);
+    if (isLoggedIn || isLoading || login.length < 3 || password.length < 3 || loginError || passwordError) {
+      return; 
+    }
+
+    setIsLoading(true);
+    try {
+      const result = await loginUser(login, password);
+      if (result && result.token) {
+        console.log("Successful login:", result);
+        localStorage.setItem('token', result.token);
+        setIsLoggedIn(true); 
+        toast.success('Login successful! Welcome back!', {
+          duration: 3000,
+          position: 'top-right',
+          style: {
+            background: '#1a1a1a',
+            color: '#fff',
+            border: '1px solid #00ffcc',
+            borderRadius: '12px',
+            padding: '16px',
+            boxShadow: '0 8px 24px rgba(0, 255, 204, 0.2)',
+          },
+          iconTheme: {
+            primary: '#00ffcc',
+            secondary: '#fff',
+          },
+        });
+        setTimeout(() => navigate('/profile'), 2000); 
+      } else {
+        throw new Error(result?.message || 'Login failed');
       }
+    } catch (error) {
+      console.error("Login error:", error);
+      const errorMessage = error.message || 'Login failed';
+      toast.error(errorMessage, {
+        duration: 3000,
+        position: 'top-right',
+        style: {
+          background: '#1a1a1a',
+          color: '#fff',
+          border: '1px solid #ff4d4d',
+          borderRadius: '12px',
+          padding: '16px',
+          boxShadow: '0 8px 24px rgba(255, 77, 77, 0.2)',
+        },
+        iconTheme: {
+          primary: '#ff4d4d',
+          secondary: '#fff',
+        },
+      });
+      if (errorMessage === 'Invalid login') {
+        setLoginError('Invalid login');
+      } else if (errorMessage === 'Invalid password') {
+        setPasswordError('Invalid password');
+      } else {
+        setLoginError(errorMessage);
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="login-container">
+      <Toaster />
       <div className="logo">LUNIFY<span>.</span></div>
       <div className="login-box">
         <h2>Login to your account</h2>
@@ -161,7 +177,7 @@ const Login = () => {
           <button
             type="submit"
             className="login-button"
-            disabled={isLoading || login.length < 3 || password.length < 3}
+            disabled={isLoading || isLoggedIn || login.length < 3 || password.length < 3} // Добавляем isLoggedIn в disabled
           >
             {isLoading ? 'Logging in...' : 'Login now'}
           </button>
