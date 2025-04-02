@@ -4,6 +4,7 @@ import Register from './pages/Register';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
 import Swap from './pages/Swap';
+import ProtectedRoute from '../src/context/ProtectedRoute'; 
 
 function App() {
   const AppContent = () => {
@@ -44,8 +45,22 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/profile" element={<Profile onLogout={handleLogout} />} />
-        <Route path="/swap" element={<Swap onLogout={handleLogout} />} />
+        <Route 
+          path="/profile" 
+          element={
+            <ProtectedRoute>
+              <Profile onLogout={handleLogout} />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/swap" 
+          element={
+            <ProtectedRoute>
+              <Swap onLogout={handleLogout} />
+            </ProtectedRoute>
+          } 
+        />
       </Routes>
     );
   };
