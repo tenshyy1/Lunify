@@ -162,6 +162,7 @@ const Home = () => {
 
   return (
     <div className="home-container">
+
       {/* Navbar */}
       <nav className="navbar">
         <div className="navbar-logo">
@@ -226,6 +227,45 @@ const Home = () => {
         </div>
       </section>
 
+      {/*Features section */}
+      <section className="features-section">
+      <h2>Lunify Amazing Features</h2>
+      <p>Explore sensational features to prepare your best investment in cryptocurrency</p>
+      <div className="features-grid">
+        <div className="feature-card">
+          <div className="feature-icon">
+            <span>C</span>
+          </div>
+          <h3>Manage Portfolio</h3>
+          <p>Buy and sell popular digital currencies, keep track of them in the one place.</p>
+          <a href="#" className="feature-link">
+            See Explained <span className="arrow">→</span>
+          </a>
+        </div>
+        <div className="feature-card">
+          <div className="feature-icon">
+            <span>₿</span>
+          </div>
+          <h3>Cryptocurrency Variety</h3>
+          <p>Supports a variety of the most popular digital currencies and always up-to-date.</p>
+          <a href="#" className="feature-link">
+            See Explained <span className="arrow">→</span>
+          </a>
+        </div>
+        <div className="feature-card">
+          <div className="feature-icon">
+            <span>📖</span>
+          </div>
+          <h3>Learn Best Practice</h3>
+          <p>Easy to know how to cryptocurrency works and friendly to newbie.</p>
+          <a href="#" className="feature-link">
+            See Explained <span className="arrow">→</span>
+          </a>
+        </div>
+      </div>
+      </section>
+
+
       {/* Footer */}
       <footer className="footer">
         <div className="footer-content">
@@ -246,6 +286,7 @@ const Home = () => {
           <p>Copyright © 2025 LUNIFY | ALL RIGHTS RESERVED</p>
         </div>
       </footer>
+
     </div>
   );
 };

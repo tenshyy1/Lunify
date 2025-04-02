@@ -29,7 +29,6 @@
 .crypto-card:nth-child(4) { animation-delay: 0.8s; }
 
 
-
 /* all style */
 .home-container {
   font-family: 'Poppins', sans-serif;
@@ -142,6 +141,14 @@
   top: 0;
 }
 
+
+.user-login {
+  color: black; 
+  font-size: 17px;
+  font-weight: 500; 
+  text-transform: capitalize;
+  letter-spacing: 0.5px; 
+}
 
 
 
@@ -284,6 +291,99 @@
   border-radius: 10px;
   padding: 5px;
   box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.1), inset -2px -2px 5px rgba(255, 255, 255, 0.7);
+}
+
+
+/* features-section */
+.features-section {
+  background-color: #fff;
+  padding: 60px 20px;
+  text-align: center;
+  opacity: 0; 
+  animation: fadeInUp 0.6s ease-out forwards;
+  animation-delay: 1.4s; 
+}
+
+.features-section h2 {
+  font-size: 2.7rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 15px;
+}
+
+.features-section p {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 40px;
+}
+
+.features-grid {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  flex-wrap: wrap;
+}
+
+.feature-card {
+  max-width: 350px;
+  text-align: left;
+  opacity: 0; 
+  animation: fadeInUp 0.6s ease-out forwards; 
+}
+
+.feature-card:nth-child(1) {
+  animation-delay: 1.6s; 
+}
+
+.feature-card:nth-child(2) {
+  animation-delay: 1.8s;
+}
+
+.feature-card:nth-child(3) {
+  animation-delay: 2s; 
+}
+
+.feature-icon {
+  width: 60px;
+  height: 60px;
+  background-color: #1a1a1a;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  margin-bottom: 20px;
+}
+
+.feature-card h3 {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 10px;
+}
+
+.feature-card p {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 15px;
+}
+
+.feature-link {
+  font-size: 1rem;
+  color: #007bff;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.feature-link .arrow {
+  margin-left: 5px;
+  font-size: 1.2rem;
+}
+
+.feature-link:hover {
+  text-decoration: underline;
 }
 
 
