@@ -39,5 +39,5 @@ func main() {
 	app.Put("/profile", profile.UpdateProfileHandler)
 
 	// Запуск сервера
-	log.Fatal(app.Listen(":8080"))
+	log.Fatal(app.Listen(":8099"))
 }

@@ -18,7 +18,7 @@ function App() {
         return;
       }
 
-      fetch('http://localhost:8080/logout', {
+      fetch('http://localhost:8099/logout', {
         method: 'POST',
         headers: {
           'Authorization': token,
