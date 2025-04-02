@@ -6,6 +6,13 @@ import '../styles/home.css';
 import { getProfile } from '../services/profile';
 import favicon from '../assets/favicon.png';
 import nftInvesting from '../assets/news/nft-investing.jpg';
+import news2 from '../assets/news/news2.jpg';
+import news3 from '../assets/news/news3.jpeg';
+import news4 from '../assets/news/news4.png';
+import news5 from '../assets/news/news5.jpg';
+import x from '../assets/socials/x.svg';
+import telegram from '../assets/socials/telegram.svg';
+import youtube from '../assets/socials/youtube.svg';
 
 ChartJS.register(LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip, Legend);
 
@@ -228,28 +235,28 @@ const Home = () => {
       category: 'CRYPTO BASIC',
       title: 'Cryptocurrencies are basically digital assets. It is secured by cryptography',
       description: '',
-      image: nftInvesting,
+      image: news2,
       isLarge: false,
     },
     {
       category: 'CRYPTO BASIC',
       title: 'From direct deposit to earning yield, key ways crypto can help take control',
       description: '',
-      image: nftInvesting,
+      image: news3,
       isLarge: false,
     },
     {
       category: 'TIPS & TRICKS',
       title: 'When prices are fluctuating, how do you know when to buy?',
       description: '',
-      image: nftInvesting,
+      image: news4,
       isLarge: false,
     },
     {
       category: 'TIPS & TRICKS',
       title: 'Welcome to decentralized finance (DeFi), the new frontier of crypto that',
       description: '',
-      image: nftInvesting,
+      image: news5,
       isLarge: false,
     },
   ];
@@ -331,9 +338,6 @@ const Home = () => {
             </div>
             <h3>Manage Portfolio</h3>
             <p>Buy and sell popular digital currencies, keep track of them in the one place.</p>
-            <a href="#" className="feature-link">
-              See Explained <span className="arrow">→</span>
-            </a>
           </div>
           <div className="feature-card">
             <div className="feature-icon">
@@ -341,9 +345,6 @@ const Home = () => {
             </div>
             <h3>Cryptocurrency Variety</h3>
             <p>Supports a variety of the most popular digital currencies and always up-to-date.</p>
-            <a href="#" className="feature-link">
-              See Explained <span className="arrow">→</span>
-            </a>
           </div>
           <div className="feature-card">
             <div className="feature-icon">
@@ -351,9 +352,6 @@ const Home = () => {
             </div>
             <h3>Learn Best Practice</h3>
             <p>Easy to know how to cryptocurrency works and friendly to newbie.</p>
-            <a href="#" className="feature-link">
-              See Explained <span className="arrow">→</span>
-            </a>
           </div>
         </div>
       </section>
@@ -450,9 +448,15 @@ const Home = () => {
           <div className="footer-socials">
             <span className="socials-label">SOCIALS</span>
             <div className="socials-icons">
-              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer"></a>
-              <a href="https://discord.com" target="_blank" rel="noopener noreferrer"></a>
-              <a href="https://youtube.com" target="_blank" rel="noopener noreferrer"></a>
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+                <img src={x} alt="Twitter" className="social-icon" />
+              </a>
+              <a href="https://discord.com" target="_blank" rel="noopener noreferrer">
+                <img src={telegram} alt="Discord" className="social-icon" />
+              </a>
+              <a href="https://youtube.com" target="_blank" rel="noopener noreferrer">
+                <img src={youtube} alt="YouTube" className="social-icon" />
+              </a>
             </div>
           </div>
         </div>
