@@ -15,6 +15,12 @@ const Profile = ({ onLogout }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    document.title = 'Profile';
+    const link = document.createElement('link');
+    link.rel = 'icon';
+    link.href = foto;
+    link.type = 'image/png';
+    document.head.appendChild(link);
     const token = localStorage.getItem('token');
     if (!token) {
       console.error('No token found');

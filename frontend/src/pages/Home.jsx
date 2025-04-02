@@ -4,6 +4,7 @@ import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip, Legend } from 'chart.js';
 import '../styles/home.css';
 import { getProfile } from '../services/profile'; 
+import favicon from '../assets/favicon.png'
 
 ChartJS.register(LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip, Legend);
 
@@ -13,6 +14,12 @@ const Home = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    document.title = 'Home Page';
+    const link = document.createElement('link');
+    link.rel = 'icon';
+    link.href = favicon;
+    link.type = 'image/png';
+    document.head.appendChild(link);
     const token = localStorage.getItem('token');
     if (token) {
       getProfile(token)
@@ -162,13 +169,14 @@ const Home = () => {
         </div>
         <ul className="navbar-links">
           <li><Link to="/">Home</Link></li>
-          <li><Link to="/market">Market</Link></li>
-          <li><Link to="/learn">Learn</Link></li>
+          <li><Link to="/trade">Trade</Link></li>
+          <li><Link to="/wallet">Wallet</Link></li>
+          <li><Link to="/swap">Swap</Link></li>
+          <li><Link to="/profile">Profile</Link></li>
         </ul>
         <div className="navbar-actions">
           {isLoggedIn ? (
             <div className="user-info">
-              <span className="user-avatar">👤</span> {/* Заглушка для аватара */}
               <span className="user-login">{login || 'User'}</span>
             </div>
           ) : (
