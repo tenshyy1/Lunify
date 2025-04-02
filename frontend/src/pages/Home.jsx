@@ -63,7 +63,7 @@ const CryptoIcon = ({ name, iconFromApi }) => {
         <rect width="18" height="5" x="15" y="13" fill="#fff"/>
         <path fill="#fff" d="M24,21c-4.457,0-12,0.737-12,3.5S19.543,28,24,28s12-0.737,12-3.5S28.457,21,24,21z M24,26 c-5.523,0-10-0.895-10-2c0-1.105,4.477-2,10-2s10,0.895,10,2C34,25.105,29.523,26,24,26z"/>
         <path fill="#fff" d="M24,24c1.095,0,2.093-0.037,3-0.098V13h-6v10.902C21.907,23.963,22.905,24,24,24z"/>
-        <path fill="#fff" d="M25.723,25.968c-0.111,0.004-0.223,0.007-0.336,0.01C24.932,25.991,24.472,26,24,26 s-0.932-0.009-1.387-0.021c-0.113-0.003-0.225-0.006-0.336-0.01c-0.435-0.015-0.863-0.034-1.277-0.06V36h6V25.908 C26.586,25.934,26.158,25.953,25.723,25.968z"/>
+        <path fill="#fff" d="M25.723,25.968c-0.111,0.004-0.223,0.007-0.336,0.01C24.932,25.991,24.472,26,24,26 s-0.932-0.009-1.387-0.021c-0.113-0.003-0.225-0.006-0.336-0.10c-0.435-0.015-0.863-0.034-1.277-0.06V36h6V25.908 C26.586,25.934,26.158,25.953,25.723,25.968z"/>
       </svg>
     )
   };
@@ -73,7 +73,6 @@ const CryptoIcon = ({ name, iconFromApi }) => {
   //   return <img src={iconFromApi} alt={name} style={{ width: '40px', height: '45px' }} />;
   // }
 
-  // серый круг для неизвестных криптовалют
   return fallbackIcons[name.toLowerCase()] || (
     <svg width="40px" height="45px" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
       <circle cx="16" cy="16" r="16" fill="#ccc" />
@@ -85,7 +84,31 @@ const Home = () => {
   const [login, setLogin] = useState('');
   const [activeCategory, setActiveCategory] = useState("Popular");
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
+  const [isNavVisible, setIsNavVisible] = useState(true);
+  const [prevScrollPos, setPrevScrollPos] = useState(0);
+  const [hasScrolled, setHasScrolled] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollPos = window.pageYOffset;
+      
+      if (currentScrollPos > 0) {
+        setHasScrolled(true);
+      }
+
+      if (hasScrolled) {
+        setIsNavVisible(
+          prevScrollPos > currentScrollPos || currentScrollPos < 50
+        );
+      }
+      
+      setPrevScrollPos(currentScrollPos);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [prevScrollPos, hasScrolled]);
 
   useEffect(() => {
     document.title = 'Home Page';
@@ -264,7 +287,7 @@ const Home = () => {
   return (
     <div className="home-container">
       {/* Navbar */}
-      <nav className="navbar">
+      <nav className={`navbar ${isNavVisible ? 'navbar-visible' : 'navbar-hidden'}`}>
         <div className="navbar-logo">
           <h1>LUNIFY</h1>
         </div>
@@ -326,7 +349,7 @@ const Home = () => {
           ))}
         </div>
       </section>
-
+      
       {/* Features Section */}
       <section className="features-section">
         <h2>Lunify Amazing Features</h2>
@@ -400,7 +423,15 @@ const Home = () => {
                 <span className="mu-market-stats">
                   <div className="mu-chart-placeholder"></div>
                 </span>
-                <button className="mu-trade-btn">Trade</button>
+                {isLoggedIn ? (
+                  <Link to="/trade">
+                    <button className="mu-trade-btn">Trade</button>
+                  </Link>
+                ) : (
+                  <button className="mu-trade-btn mu-trade-btn-disabled" disabled title="Please login to trade">
+                    Trade
+                  </button>
+                )}
               </div>
             ))}
           </div>
