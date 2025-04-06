@@ -6,6 +6,7 @@ import '../styles/profile.css';
 import Header from '../components/Header';
 import SideHeader from '../components/SideHeader';
 import foto from '../assets/favicon.png';
+import penIcon from '../assets/pen.svg';
 import { getProfile, updateProfile, updateAvatar } from '../services/profile';
 
 const API_URL = "http://localhost:8099";
@@ -20,6 +21,8 @@ const Profile = ({ onLogout }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newAvatarPreview, setNewAvatarPreview] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [initialData, setInitialData] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -45,6 +48,11 @@ const Profile = ({ onLogout }) => {
         setLogin(data.login || '');
         const avatarUrl = data.avatar_url ? `${API_URL}${data.avatar_url}` : foto;
         setAvatar(avatarUrl);
+        setInitialData({
+          first_name: data.first_name || '',
+          last_name: data.last_name || '',
+          email: data.email || '',
+        });
         console.log('Avatar URL set to:', avatarUrl);
         setLoading(false);
       })
@@ -54,10 +62,21 @@ const Profile = ({ onLogout }) => {
       });
   }, [navigate]);
 
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleCancel = () => {
+    setFirstName(initialData.first_name);
+    setLastName(initialData.last_name);
+    setEmail(initialData.email);
+    setIsEditing(false);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
-    if (!token) {
+  if (!token) {
       console.error('No token found');
       return;
     }
@@ -72,6 +91,8 @@ const Profile = ({ onLogout }) => {
       .then(data => {
         console.log('Profile updated:', data);
         toast.success('Profile updated successfully');
+        setInitialData(profileData);
+        setIsEditing(false);
       })
       .catch(error => {
         console.error('Error updating profile:', error);
@@ -136,69 +157,106 @@ const Profile = ({ onLogout }) => {
             <div className="profile-header">
               <div className="profile-profile-picture">
                 <img src={avatar} alt="Profile" onError={() => console.log('Failed to load avatar:', avatar)} />
-                <button
-                  className="profile-edit-avatar-btn"
-                  onClick={() => setIsModalOpen(true)}
-                >
-                  Edit Avatar
-                </button>
+                {isEditing && (
+                  <button
+                    className="profile-edit-avatar-btn"
+                    onClick={() => setIsModalOpen(true)}
+                  >
+                    <img src={penIcon} alt="Edit" className="pen-icon" />
+                  </button>
+                )}
               </div>
               <h2>{firstName && lastName ? `${firstName} ${lastName}` : 'Your Name'}</h2>
             </div>
 
-            <form onSubmit={handleSubmit}>
-              <label>
-                Last Name
+            <form onSubmit={handleSubmit} className="profile-form">
+              <div className="profile-form-group">
+                <label>Last Name</label>
                 <input
                   type="text"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
+                  disabled={!isEditing}
+                  className={isEditing ? 'editable' : 'disabled'}
                 />
-              </label>
-              <label>
-                First Name
+              </div>
+              <div className="profile-form-group">
+                <label>First Name</label>
                 <input
                   type="text"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
+                  disabled={!isEditing}
+                  className={isEditing ? 'editable' : 'disabled'}
                 />
-              </label>
-              <label>
-                Email
+              </div>
+              <div className="profile-form-group">
+                <label style={{ marginLeft: "-66%" }}>Email Address</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  disabled={!isEditing}
+                  className={isEditing ? 'editable' : 'disabled'}
                 />
-              </label>
-              <button type="submit">Save</button>
+              </div>
+
+              {isEditing && (
+                <div className="profile-edit-buttons">
+                  <button type="button" onClick={handleCancel} className="profile-cancel-btn">
+                    Cancel
+                  </button>
+                  <button type="submit" className="profile-confirm-btn">
+                    Save Change
+                  </button>
+                </div>
+              )}
             </form>
+
+            {!isEditing && (
+              <div className="profile-edit-btn-wrapper">
+                <button type="button" onClick={handleEditClick} className="profile-edit-btn">
+                  <img src={penIcon} alt="Edit" className="pen-icon" />
+                </button>
+              </div>
+            )}
           </section>
 
           {isModalOpen && (
             <div className="profile-modal-overlay">
               <div className="profile-modal">
                 {!newAvatarPreview ? (
-                  <>
+                  <div className="profile-modal-content">
                     <h3>Change Avatar</h3>
                     <input type="file" accept="image/*" onChange={handleAvatarChange} />
-                  </>
+                    <button 
+                      className="profile-modal-close" 
+                      onClick={() => { setIsModalOpen(false); setNewAvatarPreview(null); setSelectedFile(null); }}
+                    >
+                      Close
+                    </button>
+                  </div>
                 ) : (
                   <>
                     <h3>Preview</h3>
                     <div className="profile-avatar-preview">
-                      <img src={newAvatarPreview} alt="32x32" style={{ width: '32px', height: '32px' }} />
-                      <img src={newAvatarPreview} alt="128x128" style={{ width: '128px', height: '128px' }} />
+                      <div className="profile-preview-item">
+                        <img src={newAvatarPreview} alt="32x32" style={{ width: '32px', height: '32px' }} />
+                        <span>32 x 32</span>
+                      </div>
+                      <div className="profile-preview-item">
+                        <img src={newAvatarPreview} alt="128x128" style={{ width: '128px', height: '128px' }} />
+                        <span>128 x 128</span>
+                      </div>
                     </div>
-                    <button onClick={handleAvatarUpdate}>Update</button>
-                    <button onClick={() => { setNewAvatarPreview(null); setSelectedFile(null); }}>
-                      Cancel
-                    </button>
+                    <div className="profile-modal-buttons">
+                      <button onClick={handleAvatarUpdate}>Update</button>
+                      <button onClick={() => { setNewAvatarPreview(null); setSelectedFile(null); }}>
+                        Cancel
+                      </button>
+                    </div>
                   </>
                 )}
-                <button className="profile-modal-close" onClick={() => { setIsModalOpen(false); setNewAvatarPreview(null); setSelectedFile(null); }}>
-                  Close
-                </button>
               </div>
             </div>
           )}
