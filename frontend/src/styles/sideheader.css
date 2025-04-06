@@ -1,22 +1,22 @@
 .profile-sidebar {
-    width: 200px; 
-    background-color: #1A1D1F; /* Тёмный фон */
+    width: 500px; 
+    background-color: #1A1D1F; 
     color: #FFFFFF;
-    padding: 25px;
-    padding-right: 120px;
+    padding: 35px;
+    padding-right: 110px;
     display: flex;
     flex-direction: column;
   }
   .profile-logo {
-    font-size: 24px;
+    font-size: 26px;
     font-weight: bold;
-    margin-bottom: 40px;
+    margin-bottom: 20px;
     text-align: center;
   }
   
   .profile-navigation ul, .profile-bottom-nav ul {
     list-style: none;
-    padding: 0;
+    padding: 0px;
   }
   
   .profile-navigation li, .profile-bottom-nav li {
@@ -26,21 +26,25 @@
   .profile-navigation a, .profile-bottom-nav a {
     color: #FFFFFF;
     text-decoration: none;
-    font-size: 16px;
+    font-size: 17px;
+    width: 170%;
     display: block;
     padding: 10px;
     border-radius: 5px;
   }
   
   .profile-navigation a:hover, .profile-bottom-nav a:hover {
-    background-color: #2D3748; /* Эффект при наведении */
+    background-color: #2D3748; 
   }
   
   .profile-navigation .profile-active a {
-    background-color: #3B82F6; /* Активный пункт меню */
+    background-color: #3B82F6; 
     color: #FFFFFF;
   }
   
   .profile-bottom-nav {
-    margin-top: auto; /* Нижняя навигация прижата к низу */
+    margin-top: auto; 
+  }
+  .profile-bottom-nav button{
+    background-color: #1A1D1F; 
   }

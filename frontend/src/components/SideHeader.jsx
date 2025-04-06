@@ -4,7 +4,7 @@ import '../styles/sideheader.css';
 
 export default function SideHeader({ onLogout }) {
   const navigate = useNavigate();
-  const location = useLocation(); // Получаем текущий путь
+  const location = useLocation();
 
   const handleSwapClick = () => {
     navigate('/swap'); 
