@@ -8,6 +8,7 @@
   overflow: hidden;
 }
 
+/* Main Content */
 .profile-main-content {
   flex-grow: 1;
   background-color: #F3F4F6;
@@ -19,6 +20,7 @@
   gap: 20px;
 }
 
+/* Profile Details */
 .profile-profile-details {
   width: 45%;
   height: 700px;
@@ -29,6 +31,7 @@
   position: relative;
 }
 
+/* Balance and Transactions */
 .profile-balance-transactions {
   width: 40%;
   display: flex;
@@ -36,11 +39,11 @@
   gap: 20px;
 }
 
+/* Profile Header */
 .profile-header {
   text-align: center;
 }
 
-/*profile-main*/
 .profile-profile-picture {
   position: relative;
   display: inline-block;
@@ -57,8 +60,8 @@
 
 .profile-edit-avatar-btn {
   position: absolute;
-  bottom: -5px; 
-  right: -15px; 
+  bottom: -5px;
+  right: -15px;
   background-color: #3B82F6;
   border: none;
   border-radius: 50%;
@@ -71,7 +74,7 @@
 }
 
 .profile-edit-avatar-btn .pen-icon {
-  width: 20px; 
+  width: 20px;
   height: 20px;
 }
 
@@ -87,6 +90,7 @@
   margin-bottom: 20px;
 }
 
+/* Profile Form */
 .profile-form {
   display: flex;
   flex-direction: column;
@@ -99,7 +103,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 85%; 
+  width: 85%;
 }
 
 .profile-form-group label {
@@ -110,17 +114,15 @@
 }
 
 .profile-form-group input {
-  width: 100%; 
-  max-width: 500px; 
-  padding: 10px; 
+  width: 100%;
+  max-width: 500px;
+  padding: 10px;
   background-color: #F3F4F6;
   border: 1px solid #D1D5DB;
   border-radius: 5px;
   font-size: 14px;
 }
 
-
-/* Styles for disabled inputs */
 .profile-form-group input.disabled {
   background-color: #E5E7EB;
   color: #6B7280;
@@ -128,13 +130,13 @@
   opacity: 0.9;
 }
 
-/* Styles for editable inputs */
 .profile-form-group input.editable {
   background-color: #FFFFFF;
   color: #1C2526;
   border: 2px solid #3B82F6;
 }
 
+/* Edit Profile Button */
 .profile-edit-btn-wrapper {
   position: absolute;
   bottom: 20px;
@@ -159,6 +161,7 @@
   height: 16px;
 }
 
+/* Edit Form Buttons */
 .profile-edit-buttons {
   display: flex;
   gap: 10px;
@@ -193,6 +196,7 @@
   background-color: #2563EB;
 }
 
+/* Balance Card */
 .profile-balance-card {
   background-color: #FFFFFF;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -259,6 +263,7 @@
   font-size: 14px;
 }
 
+/* Transactions Table */
 .profile-transactions {
   background-color: #FFFFFF;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -315,11 +320,7 @@
   text-decoration: underline;
 }
 
-
-
-
-
-/*modal*/
+/* Avatar Modal */
 .profile-modal-overlay {
   position: fixed;
   top: 0;
@@ -360,7 +361,7 @@
 .profile-avatar-preview {
   display: flex;
   justify-content: center;
-  gap: 30px; 
+  gap: 30px;
   margin: 20px 0;
 }
 
@@ -368,7 +369,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px; 
+  gap: 10px;
 }
 
 .profile-preview-item span {
@@ -377,7 +378,7 @@
 }
 
 .profile-modal input[type="file"] {
-  margin: 20px 0 0 0; 
+  margin: 20px 0 0 0;
 }
 
 .profile-modal button {
@@ -396,7 +397,7 @@
 
 .profile-modal-close {
   background-color: #EF4444;
-  margin-top: 15px; 
+  margin-top: 15px;
 }
 
 .profile-modal-close:hover {
@@ -410,6 +411,7 @@
   margin-top: 20px;
 }
 
+/* Animations */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -420,7 +422,7 @@
   to { transform: translateY(0); }
 }
 
-
+/* Toast Notifications */
 .Toastify__toast--success {
   background-color: #10B981 !important;
   color: #FFFFFF !important;

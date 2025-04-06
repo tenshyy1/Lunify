@@ -34,7 +34,6 @@ const Profile = ({ onLogout }) => {
     document.head.appendChild(link);
     const token = localStorage.getItem('token');
     if (!token) {
-      console.error('No token found');
       setLoading(false);
       navigate('/login');
       return;
@@ -53,81 +52,54 @@ const Profile = ({ onLogout }) => {
           last_name: data.last_name || '',
           email: data.email || '',
         });
-        console.log('Avatar URL set to:', avatarUrl);
         setLoading(false);
       })
       .catch(error => {
-        console.error('Error fetching profile:', error);
         setLoading(false);
       });
   }, [navigate]);
 
-  const handleEditClick = () => {
-    setIsEditing(true);
-  };
-
+  const handleEditClick = () => setIsEditing(true);
   const handleCancel = () => {
     setFirstName(initialData.first_name);
     setLastName(initialData.last_name);
     setEmail(initialData.email);
     setIsEditing(false);
   };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
-  if (!token) {
-      console.error('No token found');
-      return;
-    }
+    if (!token) return;
 
-    const profileData = {
-      first_name: firstName,
-      last_name: lastName,
-      email: email,
-    };
-
+    const profileData = { first_name: firstName, last_name: lastName, email };
     updateProfile(token, profileData)
       .then(data => {
-        console.log('Profile updated:', data);
         toast.success('Profile updated successfully');
         setInitialData(profileData);
         setIsEditing(false);
       })
-      .catch(error => {
-        console.error('Error updating profile:', error);
-        toast.error('Failed to update profile');
-      });
+      .catch(() => toast.error('Failed to update profile'));
   };
-
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setSelectedFile(file);
       const reader = new FileReader();
-      reader.onload = () => {
-        setNewAvatarPreview(reader.result);
-      };
+      reader.onload = () => setNewAvatarPreview(reader.result);
       reader.readAsDataURL(file);
     } else {
       toast.error('No file selected');
     }
   };
-
   const handleAvatarUpdate = async () => {
     const token = localStorage.getItem('token');
-    if (!token) {
-      toast.error('No token found');
-      return;
-    }
-    if (!selectedFile) {
-      toast.error('Please select a file');
+    if (!token || !selectedFile) {
+      toast.error(!token ? 'No token found' : 'Please select a file');
       return;
     }
 
     const formData = new FormData();
     formData.append('avatar', selectedFile);
-
     try {
       const data = await updateAvatar(token, formData);
       const newAvatarUrl = `${API_URL}${data.avatar_url}`;
@@ -135,33 +107,32 @@ const Profile = ({ onLogout }) => {
       setIsModalOpen(false);
       setNewAvatarPreview(null);
       setSelectedFile(null);
-      console.log('New avatar URL set to:', newAvatarUrl);
       toast.success('Avatar updated successfully');
     } catch (error) {
-      console.error('Error updating avatar:', error);
       toast.error(`Failed to update avatar: ${error.message}`);
     }
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div className="profile-profile-container">
+      {/* Sidebar */}
       <SideHeader onLogout={onLogout} activePage="profile" />
+
+      {/* Main Content */}
       <main className="profile-main-content">
+        {/* Header */}
         <Header login={login} />
+
         <div className="profile-content-wrapper">
+          {/* Profile Details */}
           <section className="profile-profile-details">
             <div className="profile-header">
               <div className="profile-profile-picture">
-                <img src={avatar} alt="Profile" onError={() => console.log('Failed to load avatar:', avatar)} />
+                <img src={avatar} alt="Profile" />
                 {isEditing && (
-                  <button
-                    className="profile-edit-avatar-btn"
-                    onClick={() => setIsModalOpen(true)}
-                  >
+                  <button className="profile-edit-avatar-btn" onClick={() => setIsModalOpen(true)}>
                     <img src={penIcon} alt="Edit" className="pen-icon" />
                   </button>
                 )}
@@ -169,6 +140,7 @@ const Profile = ({ onLogout }) => {
               <h2>{firstName && lastName ? `${firstName} ${lastName}` : 'Your Name'}</h2>
             </div>
 
+            {/* Profile Form */}
             <form onSubmit={handleSubmit} className="profile-form">
               <div className="profile-form-group">
                 <label>Last Name</label>
@@ -201,18 +173,16 @@ const Profile = ({ onLogout }) => {
                 />
               </div>
 
+              {/* Edit Buttons */}
               {isEditing && (
                 <div className="profile-edit-buttons">
-                  <button type="button" onClick={handleCancel} className="profile-cancel-btn">
-                    Cancel
-                  </button>
-                  <button type="submit" className="profile-confirm-btn">
-                    Save Change
-                  </button>
+                  <button type="button" onClick={handleCancel} className="profile-cancel-btn">Cancel</button>
+                  <button type="submit" className="profile-confirm-btn">Save Change</button>
                 </div>
               )}
             </form>
 
+            {/* Edit Profile Button */}
             {!isEditing && (
               <div className="profile-edit-btn-wrapper">
                 <button type="button" onClick={handleEditClick} className="profile-edit-btn">
@@ -222,6 +192,7 @@ const Profile = ({ onLogout }) => {
             )}
           </section>
 
+          {/* Avatar Modal */}
           {isModalOpen && (
             <div className="profile-modal-overlay">
               <div className="profile-modal">
@@ -229,8 +200,8 @@ const Profile = ({ onLogout }) => {
                   <div className="profile-modal-content">
                     <h3>Change Avatar</h3>
                     <input type="file" accept="image/*" onChange={handleAvatarChange} />
-                    <button 
-                      className="profile-modal-close" 
+                    <button
+                      className="profile-modal-close"
                       onClick={() => { setIsModalOpen(false); setNewAvatarPreview(null); setSelectedFile(null); }}
                     >
                       Close
@@ -251,9 +222,7 @@ const Profile = ({ onLogout }) => {
                     </div>
                     <div className="profile-modal-buttons">
                       <button onClick={handleAvatarUpdate}>Update</button>
-                      <button onClick={() => { setNewAvatarPreview(null); setSelectedFile(null); }}>
-                        Cancel
-                      </button>
+                      <button onClick={() => { setNewAvatarPreview(null); setSelectedFile(null); }}>Cancel</button>
                     </div>
                   </>
                 )}
@@ -261,7 +230,9 @@ const Profile = ({ onLogout }) => {
             </div>
           )}
 
+          {/* Balance and Transactions */}
           <section className="profile-balance-transactions">
+            {/* Balance Card */}
             <div className="profile-balance-card">
               <h3>Total Balance</h3>
               <div className="profile-tabs">
@@ -274,68 +245,22 @@ const Profile = ({ onLogout }) => {
               </div>
               <div className="profile-graph">Graph Placeholder</div>
             </div>
+
+            {/* Transactions Table */}
             <div className="profile-transactions">
               <h3>Last 10 Transactions</h3>
               <table>
                 <thead>
-                  <tr>
-                    <th>NO</th>
-                    <th>COIN NAME</th>
-                    <th>TOTAL QTY</th>
-                    <th>AMOUNT</th>
-                    <th>SIDE</th>
-                  </tr>
+                  <tr><th>NO</th><th>COIN NAME</th><th>TOTAL QTY</th><th>AMOUNT</th><th>SIDE</th></tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>1</td>
-                    <td>Bitcoin</td>
-                    <td>0.221231</td>
-                    <td>$45230.00</td>
-                    <td><span className="profile-sell">SELL</span></td>
-                  </tr>
-                  <tr>
-                    <td>2</td>
-                    <td>Ethereum</td>
-                    <td>0.221231</td>
-                    <td>$45230.00</td>
-                    <td><span className="profile-buy">BUY</span></td>
-                  </tr>
-                  <tr>
-                    <td>3</td>
-                    <td>Binance</td>
-                    <td>0.221231</td>
-                    <td>$45230.00</td>
-                    <td><span className="profile-sell">SELL</span></td>
-                  </tr>
-                  <tr>
-                    <td>4</td>
-                    <td>Tether</td>
-                    <td>0.221231</td>
-                    <td>$45230.00</td>
-                    <td><span className="profile-sell">SELL</span></td>
-                  </tr>
-                  <tr>
-                    <td>5</td>
-                    <td>Solana</td>
-                    <td>0.221231</td>
-                    <td>$45230.00</td>
-                    <td><span className="profile-sell">SELL</span></td>
-                  </tr>
-                  <tr>
-                    <td>6</td>
-                    <td>XRP</td>
-                    <td>0.221231</td>
-                    <td>$45230.00</td>
-                    <td><span className="profile-sell">SELL</span></td>
-                  </tr>
-                  <tr>
-                    <td>7</td>
-                    <td>USD</td>
-                    <td>0.221231</td>
-                    <td>$45230.00</td>
-                    <td><span className="profile-sell">SELL</span></td>
-                  </tr>
+                  <tr><td>1</td><td>Bitcoin</td><td>0.221231</td><td>$45230.00</td><td><span className="profile-sell">SELL</span></td></tr>
+                  <tr><td>2</td><td>Ethereum</td><td>0.221231</td><td>$45230.00</td><td><span className="profile-buy">BUY</span></td></tr>
+                  <tr><td>3</td><td>Binance</td><td>0.221231</td><td>$45230.00</td><td><span className="profile-sell">SELL</span></td></tr>
+                  <tr><td>4</td><td>Tether</td><td>0.221231</td><td>$45230.00</td><td><span className="profile-sell">SELL</span></td></tr>
+                  <tr><td>5</td><td>Solana</td><td>0.221231</td><td>$45230.00</td><td><span className="profile-sell">SELL</span></td></tr>
+                  <tr><td>6</td><td>XRP</td><td>0.221231</td><td>$45230.00</td><td><span className="profile-sell">SELL</span></td></tr>
+                  <tr><td>7</td><td>USD</td><td>0.221231</td><td>$45230.00</td><td><span className="profile-sell">SELL</span></td></tr>
                 </tbody>
               </table>
               <a href="#" className="profile-see-all">See All Transactions</a>
@@ -343,6 +268,7 @@ const Profile = ({ onLogout }) => {
           </section>
         </div>
       </main>
+
       <ToastContainer />
     </div>
   );

@@ -13,7 +13,6 @@ export const getProfile = async (token) => {
     if (!response.ok) {
       throw new Error(data.message || "Failed to fetch profile");
     }
-
     return data;
   } catch (error) {
     console.error("Get profile error:", error);
@@ -36,7 +35,6 @@ export const updateProfile = async (token, profileData) => {
     if (!response.ok) {
       throw new Error(data.message || "Failed to update profile");
     }
-
     return data;
   } catch (error) {
     console.error("Update profile error:", error);
@@ -58,10 +56,24 @@ export const updateAvatar = async (token, formData) => {
     if (!response.ok) {
       throw new Error(data.message || "Failed to update avatar");
     }
-
     return data;
   } catch (error) {
     console.error("Update avatar error:", error);
     throw error;
   }
+};
+
+// use avatar
+export const handleAvatarUpload = async (token, file, callback) => {
+  if (!file) {
+    throw new Error("No file selected");
+  }
+
+  const formData = new FormData();
+  formData.append("avatar", file);
+
+  const data = await updateAvatar(token, formData);
+  const newAvatarUrl = `${API_URL}${data.avatar_url}`;
+  callback(newAvatarUrl); // new url
+  return newAvatarUrl;
 };
