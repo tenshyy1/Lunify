@@ -197,27 +197,31 @@ const Profile = ({ onLogout }) => {
             <div className="profile-modal-overlay">
               <div className="profile-modal">
                 {!newAvatarPreview ? (
-                  <div className="profile-modal-content">
+                 <div className="profile-modal-content">
                     <h3>Change Avatar</h3>
-                    <input type="file" accept="image/*" onChange={handleAvatarChange} />
+                    <label className="profile-modal-input">
+                      <input type="file" accept="image/*" onChange={handleAvatarChange} />
+                      <span>Choose File</span>
+                    </label>
                     <button
+                      style={{ marginTop: '100px'}}
                       className="profile-modal-close"
                       onClick={() => { setIsModalOpen(false); setNewAvatarPreview(null); setSelectedFile(null); }}
                     >
                       Close
                     </button>
-                  </div>
+               </div>
                 ) : (
                   <>
                     <h3>Preview</h3>
                     <div className="profile-avatar-preview">
                       <div className="profile-preview-item">
-                        <img src={newAvatarPreview} alt="32x32" style={{ width: '32px', height: '32px' }} />
-                        <span>32 x 32</span>
+                        <img src={newAvatarPreview} alt="64x64" style={{ width: '40px', height: '40px', marginTop: '160px'}} />
+                        <span>40 x 40</span>
                       </div>
                       <div className="profile-preview-item">
-                        <img src={newAvatarPreview} alt="128x128" style={{ width: '128px', height: '128px' }} />
-                        <span>128 x 128</span>
+                        <img src={newAvatarPreview} alt="200x200" style={{ width: '200px', height: '200px' }} />
+                        <span>200 x 200</span>
                       </div>
                     </div>
                     <div className="profile-modal-buttons">

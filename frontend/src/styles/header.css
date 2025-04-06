@@ -34,8 +34,8 @@
   }
   
   .profile-user-info .profile-avatar {
-    width: 35px;
-    height: 35px;
+    width: 40px;
+    height: 40px;
     border-radius: 15%;
     object-fit: cover;
   }
