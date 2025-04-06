@@ -20,6 +20,7 @@ type User struct {
 	Email     *string `json:"email,omitempty"`
 	FirstName *string `json:"first_name,omitempty"`
 	LastName  *string `json:"last_name,omitempty"`
+	AvatarURL *string `json:"avatar_url,omitempty"`
 }
 
 // ToJSONStruct
@@ -31,6 +32,7 @@ func (u *User) ToJSONStruct() map[string]interface{} {
 		"email":      stringOrEmpty(u.Email),
 		"first_name": stringOrEmpty(u.FirstName),
 		"last_name":  stringOrEmpty(u.LastName),
+		"avatar_url": stringOrEmpty(u.AvatarURL),
 	}
 }
 

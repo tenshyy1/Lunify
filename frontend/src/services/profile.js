@@ -43,3 +43,25 @@ export const updateProfile = async (token, profileData) => {
     throw error;
   }
 };
+
+export const updateAvatar = async (token, formData) => {
+  try {
+    const response = await fetch(`${API_URL}/profile/avatar`, {
+      method: "POST",
+      headers: {
+        "Authorization": token,
+      },
+      body: formData,
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to update avatar");
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Update avatar error:", error);
+    throw error;
+  }
+};

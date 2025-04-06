@@ -56,7 +56,8 @@ func InitDB() *sql.DB {
             user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
             first_name VARCHAR(50),
             last_name VARCHAR(50),
-            email VARCHAR(100)
+            email VARCHAR(100),
+            avatar_url TEXT -- Добавлено поле для URL аватарки
         );
     `)
 	if err != nil {
@@ -85,6 +86,28 @@ func InitDB() *sql.DB {
 		log.Println("Email column added to user_details.")
 	}
 
+	var avatarColumnExistsInUserDetails bool
+	err = db.QueryRow(`
+        SELECT EXISTS (
+            SELECT 1
+            FROM information_schema.columns
+            WHERE table_name = 'user_details' AND column_name = 'avatar_url'
+        );
+    `).Scan(&avatarColumnExistsInUserDetails)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if !avatarColumnExistsInUserDetails {
+		log.Println("Adding avatar_url column to user_details...")
+		_, err = db.Exec(`ALTER TABLE user_details ADD COLUMN avatar_url TEXT;`)
+		if err != nil {
+			log.Printf("Failed to add avatar_url column to user_details: %v", err)
+			log.Fatal(err)
+		}
+		log.Println("Avatar_url column added to user_details.")
+	}
+
 	var emailColumnExistsInUsers bool
 	err = db.QueryRow(`
         SELECT EXISTS (
@@ -99,7 +122,6 @@ func InitDB() *sql.DB {
 
 	if emailColumnExistsInUsers {
 		log.Println("Migrating email from users to user_details...")
-
 		_, err = db.Exec(`
             INSERT INTO user_details (user_id, email)
             SELECT id, email FROM users
@@ -115,7 +137,6 @@ func InitDB() *sql.DB {
 			log.Printf("Failed to drop email column from users: %v", err)
 			log.Fatal(err)
 		}
-
 		log.Println("Email migration completed successfully.")
 	} else {
 		log.Println("Email column in users does not exist, no migration needed.")
