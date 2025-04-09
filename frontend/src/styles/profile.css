@@ -724,7 +724,6 @@
   transition: transform 0.2s ease;
 }
 
-
 .profile-transactions-header {
   display: flex;
   justify-content: space-between;
@@ -803,6 +802,7 @@
   background: #f9fafb;
   position: sticky;
   top: 0;
+  z-index: 10;
 }
 
 .profile-transactions tr:hover td {
@@ -848,6 +848,9 @@
   position: relative; 
   padding: 4px 8px; 
   border-radius: 6px; 
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
 .profile-see-all::after {
@@ -890,10 +893,183 @@
   opacity: 0.8;
 }
 
+
+/*Transactions-modal*/
+.transactions-modal {
+  width: 90%;
+  max-width: 1400px;
+  max-height: 90vh;
+  overflow: hidden;
+  animation: slideInFromBottom 0.5s ease-out;
+}
+
+.profile-modal-content {
+  position: relative;
+  padding: 20px;
+}
+
+.profile-modal-close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #4b5563;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.profile-modal-close-btn:hover {
+  color: #dc2626;
+}
+
+.profile-transactions-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.profile-items-per-page {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-items-per-page label {
+  font-size: 14px;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+.profile-items-per-page select {
+  padding: 6px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #f9fafb;
+  font-size: 14px;
+  color: #1e293b;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.profile-items-per-page select:hover {
+  border-color: #2563eb;
+}
+
+.profile-search-bar {
+  position: relative;
+}
+
+.profile-search-bar input {
+  padding: 8px 12px;
+  width: 250px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #1e293b;
+  background: #f9fafb;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profile-search-bar input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.profile-table-wrapper {
+  max-height: 70vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.profile-all-transactions-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.profile-all-transactions-table th,
+.profile-all-transactions-table td {
+  padding: 10px 15px;
+  text-align: left;
+  font-size: 15px;
+  color: #4b5563;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.profile-all-transactions-table th {
+  font-weight: 600;
+  font-size: 16px;
+  color: #1e293b;
+  background: #f9fafb;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.profile-all-transactions-table tr:hover td {
+  background: #f1f5f9;
+}
+
+.profile-all-transactions-table .profile-sell,
+.profile-all-transactions-table .profile-buy {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: transform 0.2s ease;
+}
+
+.profile-all-transactions-table .profile-sell {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+.profile-all-transactions-table .profile-buy {
+  background-color: #ecfdf5;
+  color: #059669;
+}
+
+.profile-all-transactions-table .profile-sell:hover,
+.profile-all-transactions-table .profile-buy:hover {
+  transform: scale(1.05);
+}
+
+.profile-modal-close {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+
+.profile-modal-close:hover {
+  background: #1e40af;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
     transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(100px);
   }
   to {
     opacity: 1;

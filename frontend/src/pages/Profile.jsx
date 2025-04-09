@@ -26,9 +26,11 @@ const Profile = ({ onLogout }) => {
   const [activePeriod, setActivePeriod] = useState('Week');
   const [showChangeInDollars, setShowChangeInDollars] = useState(false);
   const [activeSection, setActiveSection] = useState('Transactions');
+  const [isTransactionsModalOpen, setIsTransactionsModalOpen] = useState(false);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [searchQuery, setSearchQuery] = useState('');
   const graphRef = useRef(null);
   const navigate = useNavigate();
-
 
   //заглушки для balance card
   const portfolioValue = '$1,025,000';
@@ -37,6 +39,24 @@ const Profile = ({ onLogout }) => {
     Week: { total: '$1,025,000', change: '$0', percentage: '0.00%' },
     Year: { total: '$1,177,780', change: '+$152,780', percentage: '+12.45%' },
   };
+
+  // transactions
+  const allTransactions = [
+    { id: 1, coin: "Bitcoin", qty: "0.221231", amount: "$45230.00", portfolio: "Portfolio 1", side: "SELL" },
+    { id: 2, coin: "Ethereum", qty: "0.221231", amount: "$45230.00", portfolio: "Portfolio 2", side: "BUY" },
+    { id: 3, coin: "Binance", qty: "0.221231", amount: "$45230.00", portfolio:  "Portfolio 1", side: "SELL" },
+    { id: 4, coin: "Tether", qty: "0.221231", amount: "$45230.00", portfolio: "Portfolio 2", side: "SELL" },
+    { id: 5, coin: "Solana", qty: "0.221231", amount: "$45230.00", portfolio: "Portfolio 1", side: "SELL" },
+    { id: 6, coin: "Cardano", qty: "0.221231", amount: "$45230.00", portfolio: "Portfolio 2", side: "BUY" },
+    { id: 7, coin: "XRP", qty: "0.221231", amount: "$45230.00", portfolio: "Portfolio 1", side: "SELL" },
+  ];
+  const lastFiveTransactions = allTransactions.slice(0, 5); 
+
+  const filteredTransactions = allTransactions.filter(transaction =>
+    transaction.coin.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const displayedTransactions = filteredTransactions.slice(0, itemsPerPage);
 
   useEffect(() => {
     document.title = 'Profile';
@@ -125,7 +145,6 @@ const Profile = ({ onLogout }) => {
       toast.error(`Failed to update avatar: ${error.message}`);
     }
   };
-
 
   const getAmountClass = (change) => {
     if (change === '$0') return 'profile-neutral'; 
@@ -303,14 +322,6 @@ const Profile = ({ onLogout }) => {
               </div>
             </div>
 
-
-
-
-
-
-
-
-
             {/* Transactions and Achievments */}
             <div className="profile-transactions">
               <div className="profile-transactions-header">
@@ -342,49 +353,28 @@ const Profile = ({ onLogout }) => {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <td>1</td>
-                        <td>Bitcoin</td>
-                        <td>0.221231</td>
-                        <td>$45230.00</td>
-                        <td>Portfolio 1</td> 
-                        <td><span className="profile-sell">SELL</span></td>
-                      </tr>
-                      <tr>
-                        <td>2</td>
-                        <td>Ethereum</td>
-                        <td>0.221231</td>
-                        <td>$45230.00</td>
-                        <td>Portfolio 2</td>
-                        <td><span className="profile-buy">BUY</span></td>
-                      </tr>
-                      <tr>
-                        <td>3</td>
-                        <td>Binance</td>
-                        <td>0.221231</td>
-                        <td>$45230.00</td>
-                        <td>Portfolio 1</td>
-                        <td><span className="profile-sell">SELL</span></td>
-                      </tr>
-                      <tr>
-                        <td>4</td>
-                        <td>Tether</td>
-                        <td>0.221231</td>
-                        <td>$45230.00</td>
-                        <td>Portfolio 2</td>
-                        <td><span className="profile-sell">SELL</span></td>
-                      </tr>
-                      <tr>
-                        <td>5</td>
-                        <td>Solana</td>
-                        <td>0.221231</td>
-                        <td>$45230.00</td>
-                        <td>Portfolio 1</td>
-                        <td><span className="profile-sell">SELL</span></td>
-                      </tr>
+                      {lastFiveTransactions.map((transaction, index) => (
+                        <tr key={transaction.id}>
+                          <td>{index + 1}</td>
+                          <td>{transaction.coin}</td>
+                          <td>{transaction.qty}</td>
+                          <td>{transaction.amount}</td>
+                          <td>{transaction.portfolio}</td>
+                          <td>
+                            <span className={`profile-${transaction.side.toLowerCase()}`}>
+                              {transaction.side}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
-                  <a href="#" className="profile-see-all">See All Transactions</a>
+                  <button 
+                    className="profile-see-all" 
+                    onClick={() => setIsTransactionsModalOpen(true)}
+                  >
+                    See All Transactions
+                  </button>
                 </div>
               ) : (
                 <div className="profile-achievements-content">
@@ -398,6 +388,74 @@ const Profile = ({ onLogout }) => {
           </section>
         </div>
       </main>
+      
+      {/*Transactions-modal*/}
+      {isTransactionsModalOpen && (
+  <div className="profile-modal-overlay">
+    <div className="profile-modal transactions-modal">
+      <div className="profile-modal-content">
+        <h3>All Transactions</h3>
+        <button
+          className="profile-modal-close-btn"
+          onClick={() => setIsTransactionsModalOpen(false)}
+        >
+          ×
+        </button>
+        <div className="profile-transactions-controls">
+          <div className="profile-search-bar">
+            <input
+              type="text"
+              placeholder="Search by coin (e.g., BTC)"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div className="profile-items-per-page">
+            <label>Show: </label>
+            <select
+              value={itemsPerPage}
+              onChange={(e) => setItemsPerPage(Number(e.target.value))}
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={100}>100</option>
+            </select>
+          </div>
+        </div>
+        <div className="profile-table-wrapper">
+          <table className="profile-all-transactions-table">
+            <thead>
+              <tr>
+                <th>NO</th>
+                <th>COIN NAME</th>
+                <th>TOTAL QTY</th>
+                <th>AMOUNT</th>
+                <th>PORTFOLIO</th>
+                <th>SIDE</th>
+              </tr>
+            </thead>
+            <tbody>
+              {displayedTransactions.map((transaction) => (
+                <tr key={transaction.id}>
+                  <td>{transaction.id}</td>
+                  <td>{transaction.coin}</td>
+                  <td>{transaction.qty}</td>
+                  <td>{transaction.amount}</td>
+                  <td>{transaction.portfolio}</td>
+                  <td>
+                    <span className={`profile-${transaction.side.toLowerCase()}`}>
+                      {transaction.side}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
       <ToastContainer />
     </div>
