@@ -391,71 +391,71 @@ const Profile = ({ onLogout }) => {
       
       {/*Transactions-modal*/}
       {isTransactionsModalOpen && (
-  <div className="profile-modal-overlay">
-    <div className="profile-modal transactions-modal">
-      <div className="profile-modal-content">
-        <h3>All Transactions</h3>
-        <button
-          className="profile-modal-close-btn"
-          onClick={() => setIsTransactionsModalOpen(false)}
-        >
-          ×
-        </button>
-        <div className="profile-transactions-controls">
-          <div className="profile-search-bar">
-            <input
-              type="text"
-              placeholder="Search by coin (e.g., BTC)"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          <div className="profile-items-per-page">
-            <label>Show: </label>
-            <select
-              value={itemsPerPage}
-              onChange={(e) => setItemsPerPage(Number(e.target.value))}
-            >
-              <option value={10}>10</option>
-              <option value={25}>25</option>
-              <option value={100}>100</option>
-            </select>
+        <div className="profile-modal-overlay">
+          <div className="profile-modal transactions-modal">
+            <div className="profile-modal-content">
+              <h3>All Transactions</h3>
+              <button
+                className="profile-modal-close-btn"
+                onClick={() => setIsTransactionsModalOpen(false)}
+              >
+                ×
+              </button>
+              <div className="profile-transactions-controls">
+                <div className="profile-search-bar">
+                  <input
+                    type="text"
+                    placeholder="Search by coin (e.g., BTC)"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                <div className="profile-items-per-page">
+                  <label>Show: </label>
+                  <select
+                    value={itemsPerPage}
+                    onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                  >
+                    <option value={10}>10</option>
+                    <option value={25}>25</option>
+                    <option value={100}>100</option>
+                  </select>
+                </div>
+              </div>
+              <div className="profile-table-wrapper">
+                <table className="profile-all-transactions-table">
+                  <thead>
+                    <tr>
+                      <th>NO</th>
+                      <th>COIN NAME</th>
+                      <th>TOTAL QTY</th>
+                      <th>AMOUNT</th>
+                      <th>PORTFOLIO</th>
+                      <th>SIDE</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {displayedTransactions.map((transaction) => (
+                      <tr key={transaction.id}>
+                        <td>{transaction.id}</td>
+                        <td>{transaction.coin}</td>
+                        <td>{transaction.qty}</td>
+                        <td>{transaction.amount}</td>
+                        <td>{transaction.portfolio}</td>
+                        <td>
+                          <span className={`profile-${transaction.side.toLowerCase()}`}>
+                            {transaction.side}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
-        <div className="profile-table-wrapper">
-          <table className="profile-all-transactions-table">
-            <thead>
-              <tr>
-                <th>NO</th>
-                <th>COIN NAME</th>
-                <th>TOTAL QTY</th>
-                <th>AMOUNT</th>
-                <th>PORTFOLIO</th>
-                <th>SIDE</th>
-              </tr>
-            </thead>
-            <tbody>
-              {displayedTransactions.map((transaction) => (
-                <tr key={transaction.id}>
-                  <td>{transaction.id}</td>
-                  <td>{transaction.coin}</td>
-                  <td>{transaction.qty}</td>
-                  <td>{transaction.amount}</td>
-                  <td>{transaction.portfolio}</td>
-                  <td>
-                    <span className={`profile-${transaction.side.toLowerCase()}`}>
-                      {transaction.side}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
+      )}
 
       <ToastContainer />
     </div>
