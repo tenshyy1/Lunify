@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -23,7 +23,20 @@ const Profile = ({ onLogout }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [initialData, setInitialData] = useState({});
+  const [activePeriod, setActivePeriod] = useState('Week');
+  const [showChangeInDollars, setShowChangeInDollars] = useState(false);
+  const [activeSection, setActiveSection] = useState('Transactions');
+  const graphRef = useRef(null);
   const navigate = useNavigate();
+
+
+  //заглушки для balance card
+  const portfolioValue = '$1,025,000';
+  const balanceData = {
+    Day: { total: '$1,023,460', change: '-$1,540', percentage: '-0.15%' },
+    Week: { total: '$1,025,000', change: '$0', percentage: '0.00%' },
+    Year: { total: '$1,177,780', change: '+$152,780', percentage: '+12.45%' },
+  };
 
   useEffect(() => {
     document.title = 'Profile';
@@ -111,6 +124,17 @@ const Profile = ({ onLogout }) => {
     } catch (error) {
       toast.error(`Failed to update avatar: ${error.message}`);
     }
+  };
+
+
+  const getAmountClass = (change) => {
+    if (change === '$0') return 'profile-neutral'; 
+    return change.startsWith('-') ? 'profile-negative' : 'profile-positive';
+  };
+  
+  const getChangeClass = (change) => {
+    if (change === '$0' || change === '0.00%') return 'profile-neutral'; 
+    return change.startsWith('-') ? 'profile-negative-change' : 'profile-positive-change';
   };
 
   if (loading) return <div>Loading...</div>;
@@ -236,38 +260,140 @@ const Profile = ({ onLogout }) => {
 
           {/* Balance and Transactions */}
           <section className="profile-balance-transactions">
+
             {/* Balance Card */}
             <div className="profile-balance-card">
-              <h3>Total Balance</h3>
-              <div className="profile-tabs">
-                <button>Day</button>
-                <button className="profile-active">Week</button>
+              <div className="profile-balance-header">
+                <h3>Total Balance</h3>
+                <div className="profile-tabs">
+                  {['Day', 'Week', 'Year'].map((period) => (
+                    <button
+                      key={period}
+                      className={`profile-tab ${activePeriod === period ? 'profile-active' : ''}`}
+                      onClick={() => setActivePeriod(period)}
+                    >
+                      {period}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="profile-portfolio-value">
+                <span>Portfolio 1 Value: </span>
+                <span className="profile-portfolio-amount">{portfolioValue}</span>
               </div>
               <div className="profile-balance-amount">
-                <span className="profile-positive">+$28,320</span>
-                <span className="profile-percentage">+0.82%</span>
+                <span className={getAmountClass(balanceData[activePeriod].change)}>
+                  {balanceData[activePeriod].total}
+                </span>
+                <div className="profile-change-wrapper">
+                  <span
+                    className={getChangeClass(showChangeInDollars ? balanceData[activePeriod].change : balanceData[activePeriod].percentage)}
+                    onClick={() => setShowChangeInDollars(!showChangeInDollars)} 
+                    style={{ cursor: 'pointer' }}
+                    onContextMenu={(e) => e.preventDefault()}
+                  >
+                    {showChangeInDollars
+                      ? balanceData[activePeriod].change
+                      : balanceData[activePeriod].percentage}
+                  </span>
+                </div>
               </div>
-              <div className="profile-graph">Graph Placeholder</div>
+              <div className="profile-graph" ref={graphRef}>
+                Graph Placeholder
+              </div>
             </div>
 
-            {/* Transactions Table */}
+
+
+
+
+
+
+
+
+            {/* Transactions and Achievments */}
             <div className="profile-transactions">
-              <h3>Last 10 Transactions</h3>
-              <table>
-                <thead>
-                  <tr><th>NO</th><th>COIN NAME</th><th>TOTAL QTY</th><th>AMOUNT</th><th>SIDE</th></tr>
-                </thead>
-                <tbody>
-                  <tr><td>1</td><td>Bitcoin</td><td>0.221231</td><td>$45230.00</td><td><span className="profile-sell">SELL</span></td></tr>
-                  <tr><td>2</td><td>Ethereum</td><td>0.221231</td><td>$45230.00</td><td><span className="profile-buy">BUY</span></td></tr>
-                  <tr><td>3</td><td>Binance</td><td>0.221231</td><td>$45230.00</td><td><span className="profile-sell">SELL</span></td></tr>
-                  <tr><td>4</td><td>Tether</td><td>0.221231</td><td>$45230.00</td><td><span className="profile-sell">SELL</span></td></tr>
-                  <tr><td>5</td><td>Solana</td><td>0.221231</td><td>$45230.00</td><td><span className="profile-sell">SELL</span></td></tr>
-                  <tr><td>6</td><td>XRP</td><td>0.221231</td><td>$45230.00</td><td><span className="profile-sell">SELL</span></td></tr>
-                  <tr><td>7</td><td>USD</td><td>0.221231</td><td>$45230.00</td><td><span className="profile-sell">SELL</span></td></tr>
-                </tbody>
-              </table>
-              <a href="#" className="profile-see-all">See All Transactions</a>
+              <div className="profile-transactions-header">
+                <h3>{activeSection === 'Transactions' ? 'Last 5 Transactions' : 'Achievements'}</h3>
+                <div className="profile-transactions-tabs">
+                  {['Transactions', 'Achievements'].map((section) => (
+                    <button
+                      key={section}
+                      className={`profile-transactions-tab ${activeSection === section ? 'profile-transactions-active' : ''}`}
+                      onClick={() => setActiveSection(section)}
+                    >
+                      {section}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {activeSection === 'Transactions' ? (
+                <div className="profile-transactions-content">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>NO</th>
+                        <th>COIN NAME</th>
+                        <th>TOTAL QTY</th>
+                        <th>AMOUNT</th>
+                        <th>PORTFOLIO</th> 
+                        <th>SIDE</th> 
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>1</td>
+                        <td>Bitcoin</td>
+                        <td>0.221231</td>
+                        <td>$45230.00</td>
+                        <td>Portfolio 1</td> 
+                        <td><span className="profile-sell">SELL</span></td>
+                      </tr>
+                      <tr>
+                        <td>2</td>
+                        <td>Ethereum</td>
+                        <td>0.221231</td>
+                        <td>$45230.00</td>
+                        <td>Portfolio 2</td>
+                        <td><span className="profile-buy">BUY</span></td>
+                      </tr>
+                      <tr>
+                        <td>3</td>
+                        <td>Binance</td>
+                        <td>0.221231</td>
+                        <td>$45230.00</td>
+                        <td>Portfolio 1</td>
+                        <td><span className="profile-sell">SELL</span></td>
+                      </tr>
+                      <tr>
+                        <td>4</td>
+                        <td>Tether</td>
+                        <td>0.221231</td>
+                        <td>$45230.00</td>
+                        <td>Portfolio 2</td>
+                        <td><span className="profile-sell">SELL</span></td>
+                      </tr>
+                      <tr>
+                        <td>5</td>
+                        <td>Solana</td>
+                        <td>0.221231</td>
+                        <td>$45230.00</td>
+                        <td>Portfolio 1</td>
+                        <td><span className="profile-sell">SELL</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <a href="#" className="profile-see-all">See All Transactions</a>
+                </div>
+              ) : (
+                <div className="profile-achievements-content">
+                  <div className="profile-achievements-placeholder">
+                    <h4>Achievements Coming Soon!</h4>
+                    <p>Stay tuned for your rewards and milestones.</p>
+                  </div>
+                </div>
+              )}
             </div>
           </section>
         </div>
