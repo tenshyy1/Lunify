@@ -5,19 +5,17 @@ import 'react-toastify/dist/ReactToastify.css';
 import '../styles/profile.css';
 import Header from '../components/Header';
 import SideHeader from '../components/SideHeader';
-import foto from '../assets/favicon.png';
+import favicon from '../assets/favicon.png';
 import penIcon from '../assets/pen.svg';
 import { getProfile, updateProfile, updateAvatar } from '../services/profile';
 
 const API_URL = "http://localhost:8099";
 
-const Profile = ({ onLogout }) => {
+const Profile = ({ onLogout, login, avatar, updateAvatarUrl }) => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
-  const [login, setLogin] = useState('');
   const [loading, setLoading] = useState(true);
-  const [avatar, setAvatar] = useState(foto);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newAvatarPreview, setNewAvatarPreview] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -44,13 +42,13 @@ const Profile = ({ onLogout }) => {
   const allTransactions = [
     { id: 1, coin: "Bitcoin", qty: "0.221231", amount: "$45230.00", portfolio: "Portfolio 1", side: "SELL" },
     { id: 2, coin: "Ethereum", qty: "0.221231", amount: "$45230.00", portfolio: "Portfolio 2", side: "BUY" },
-    { id: 3, coin: "Binance", qty: "0.221231", amount: "$45230.00", portfolio:  "Portfolio 1", side: "SELL" },
+    { id: 3, coin: "Binance", qty: "0.221231", amount: "$45230.00", portfolio: "Portfolio 1", side: "SELL" },
     { id: 4, coin: "Tether", qty: "0.221231", amount: "$45230.00", portfolio: "Portfolio 2", side: "SELL" },
     { id: 5, coin: "Solana", qty: "0.221231", amount: "$45230.00", portfolio: "Portfolio 1", side: "SELL" },
     { id: 6, coin: "Cardano", qty: "0.221231", amount: "$45230.00", portfolio: "Portfolio 2", side: "BUY" },
     { id: 7, coin: "XRP", qty: "0.221231", amount: "$45230.00", portfolio: "Portfolio 1", side: "SELL" },
   ];
-  const lastFiveTransactions = allTransactions.slice(0, 5); 
+  const lastFiveTransactions = allTransactions.slice(0, 5);
 
   const filteredTransactions = allTransactions.filter(transaction =>
     transaction.coin.toLowerCase().includes(searchQuery.toLowerCase())
@@ -62,7 +60,7 @@ const Profile = ({ onLogout }) => {
     document.title = 'Profile';
     const link = document.createElement('link');
     link.rel = 'icon';
-    link.href = foto;
+    link.href = favicon;
     link.type = 'image/png';
     document.head.appendChild(link);
     const token = localStorage.getItem('token');
@@ -77,9 +75,6 @@ const Profile = ({ onLogout }) => {
         setFirstName(data.first_name || '');
         setLastName(data.last_name || '');
         setEmail(data.email || '');
-        setLogin(data.login || '');
-        const avatarUrl = data.avatar_url ? `${API_URL}${data.avatar_url}` : foto;
-        setAvatar(avatarUrl);
         setInitialData({
           first_name: data.first_name || '',
           last_name: data.last_name || '',
@@ -136,7 +131,7 @@ const Profile = ({ onLogout }) => {
     try {
       const data = await updateAvatar(token, formData);
       const newAvatarUrl = `${API_URL}${data.avatar_url}`;
-      setAvatar(newAvatarUrl);
+      updateAvatarUrl(newAvatarUrl); 
       setIsModalOpen(false);
       setNewAvatarPreview(null);
       setSelectedFile(null);
@@ -147,12 +142,12 @@ const Profile = ({ onLogout }) => {
   };
 
   const getAmountClass = (change) => {
-    if (change === '$0') return 'profile-neutral'; 
+    if (change === '$0') return 'profile-neutral';
     return change.startsWith('-') ? 'profile-negative' : 'profile-positive';
   };
-  
+
   const getChangeClass = (change) => {
-    if (change === '$0' || change === '0.00%') return 'profile-neutral'; 
+    if (change === '$0' || change === '0.00%') return 'profile-neutral';
     return change.startsWith('-') ? 'profile-negative-change' : 'profile-positive-change';
   };
 
@@ -166,8 +161,7 @@ const Profile = ({ onLogout }) => {
       {/* Main Content */}
       <main className="profile-main-content">
         {/* Header */}
-        <Header login={login} />
-
+        <Header login={login} avatar={avatar} />
         <div className="profile-content-wrapper">
           {/* Profile Details */}
           <section className="profile-profile-details">
@@ -240,27 +234,27 @@ const Profile = ({ onLogout }) => {
             <div className="profile-modal-overlay">
               <div className="profile-modal">
                 {!newAvatarPreview ? (
-                 <div className="profile-modal-content">
+                  <div className="profile-modal-content">
                     <h3>Change Avatar</h3>
                     <label className="profile-modal-input">
                       <input type="file" accept="image/*" onChange={handleAvatarChange} />
                       <span>Choose File</span>
                     </label>
                     <button
-                      style={{ marginTop: '100px'}}
+                      style={{ marginTop: '100px' }}
                       className="profile-modal-close"
                       onClick={() => { setIsModalOpen(false); setNewAvatarPreview(null); setSelectedFile(null); }}
                     >
                       Close
                     </button>
-               </div>
+                  </div>
                 ) : (
                   <>
                     <h3>Preview</h3>
                     <div className="profile-avatar-preview">
                       <div className="profile-preview-item">
-                        <img src={newAvatarPreview} alt="64x64" style={{ width: '40px', height: '40px', marginTop: '160px'}} />
-                        <span>40 x 40</span>
+                        <img src={newAvatarPreview} alt="50x50" style={{ width: '50px', height: '50px', marginTop: '150px' }} />
+                        <span>50 x 50</span>
                       </div>
                       <div className="profile-preview-item">
                         <img src={newAvatarPreview} alt="200x200" style={{ width: '200px', height: '200px' }} />
@@ -307,7 +301,7 @@ const Profile = ({ onLogout }) => {
                 <div className="profile-change-wrapper">
                   <span
                     className={getChangeClass(showChangeInDollars ? balanceData[activePeriod].change : balanceData[activePeriod].percentage)}
-                    onClick={() => setShowChangeInDollars(!showChangeInDollars)} 
+                    onClick={() => setShowChangeInDollars(!showChangeInDollars)}
                     style={{ cursor: 'pointer' }}
                     onContextMenu={(e) => e.preventDefault()}
                   >
@@ -348,8 +342,8 @@ const Profile = ({ onLogout }) => {
                         <th>COIN NAME</th>
                         <th>TOTAL QTY</th>
                         <th>AMOUNT</th>
-                        <th>PORTFOLIO</th> 
-                        <th>SIDE</th> 
+                        <th>PORTFOLIO</th>
+                        <th>SIDE</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -369,8 +363,8 @@ const Profile = ({ onLogout }) => {
                       ))}
                     </tbody>
                   </table>
-                  <button 
-                    className="profile-see-all" 
+                  <button
+                    className="profile-see-all"
                     onClick={() => setIsTransactionsModalOpen(true)}
                   >
                     See All Transactions
@@ -388,8 +382,8 @@ const Profile = ({ onLogout }) => {
           </section>
         </div>
       </main>
-      
-      {/*Transactions-modal*/}
+
+              {/*Transactions-modal*/}
       {isTransactionsModalOpen && (
         <div className="profile-modal-overlay">
           <div className="profile-modal transactions-modal">

@@ -92,7 +92,7 @@ func UpdateAvatarHandler(c *fiber.Ctx) error {
 		return common.SendError(c, "Only JPEG or PNG images are allowed", fiber.StatusBadRequest)
 	}
 
-	var currentAvatarURL string
+	var currentAvatarURL *string
 	err = common.DB.QueryRow(
 		"SELECT avatar_url FROM user_details WHERE user_id = $1",
 		claims.UserID,
@@ -102,8 +102,8 @@ func UpdateAvatarHandler(c *fiber.Ctx) error {
 		return common.SendError(c, "Failed to fetch current avatar", fiber.StatusInternalServerError)
 	}
 
-	if currentAvatarURL != "" {
-		oldFilePath := filepath.Join("./uploads/avatars", filepath.Base(currentAvatarURL))
+	if currentAvatarURL != nil && *currentAvatarURL != "" {
+		oldFilePath := filepath.Join("./uploads/avatars", filepath.Base(*currentAvatarURL))
 		if err := os.Remove(oldFilePath); err != nil && !os.IsNotExist(err) {
 			log.Printf("Failed to delete old avatar file %s: %v", oldFilePath, err)
 		}
