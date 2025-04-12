@@ -87,6 +87,7 @@ const Home = () => {
   const [isNavVisible, setIsNavVisible] = useState(true);
   const [prevScrollPos, setPrevScrollPos] = useState(0);
   const [hasScrolled, setHasScrolled] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -132,6 +133,17 @@ const Home = () => {
         });
     }
   }, [navigate]);
+
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [isMenuOpen]);
 
   //change to api
   const popularCryptos = [
@@ -216,7 +228,7 @@ const Home = () => {
       },
     },
   ];
-  //change to api
+    //change to api
   const categories = ["Popular", "Metaverse", "Entertainment", "Energy", "Gaming", "Music"];
   const cryptoDataByCategory = {
     Popular: popularCryptos.map((crypto, index) => ({
@@ -288,17 +300,50 @@ const Home = () => {
     <div className="home-container">
       {/* Navbar */}
       <nav className={`navbar ${isNavVisible ? 'navbar-visible' : 'navbar-hidden'}`}>
-        <div className="navbar-logo">
-          <h1>LUNIFY</h1>
+        <div className="navbar-header">
+          <div className="navbar-logo">
+            <h1>LUNIFY</h1>
+          </div>
+          <div className="navbar-menu-wrapper">
+            <button className="burger-menu" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              {isMenuOpen ? (
+                <span className="close-icon">✕</span>
+              ) : (
+                <span className="burger-icon">☰</span>
+              )}
+            </button>
+          </div>
         </div>
-        <ul className="navbar-links">
+        <div className={`navbar-menu ${isMenuOpen ? 'open' : ''}`}>
+          <ul className="navbar-links">
+            <li><Link to="/" onClick={() => setIsMenuOpen(false)}>Home</Link></li>
+            <li><Link to="/trade" onClick={() => setIsMenuOpen(false)}>Trade</Link></li>
+            <li><Link to="/wallet" onClick={() => setIsMenuOpen(false)}>Wallet</Link></li>
+            <li><Link to="/swap" onClick={() => setIsMenuOpen(false)}>Swap</Link></li>
+            <li><Link to="/profile" onClick={() => setIsMenuOpen(false)}>Profile</Link></li>
+          </ul>
+          <div className="navbar-actions">
+            {isLoggedIn ? (
+              <div className="user-info">
+                <span className="user-login">{login || 'User'}</span>
+              </div>
+            ) : (
+              <>
+                <Link to="/login" className="sign-in-btn" onClick={() => setIsMenuOpen(false)}>Sign in</Link>
+                <Link to="/register" className="get-started-btn" onClick={() => setIsMenuOpen(false)}>Get started</Link>
+              </>
+            )}
+          </div>
+        </div>
+        {isMenuOpen && <div className="menu-overlay" onClick={() => setIsMenuOpen(false)}></div>}
+        <ul className="navbar-links desktop-links">
           <li><Link to="/">Home</Link></li>
           <li><Link to="/trade">Trade</Link></li>
           <li><Link to="/wallet">Wallet</Link></li>
           <li><Link to="/swap">Swap</Link></li>
           <li><Link to="/profile">Profile</Link></li>
         </ul>
-        <div className="navbar-actions">
+        <div className="navbar-actions desktop-actions">
           {isLoggedIn ? (
             <div className="user-info">
               <span className="user-login">{login || 'User'}</span>

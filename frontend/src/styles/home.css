@@ -32,14 +32,15 @@
 .crypto-card:nth-child(4) { animation-delay: 0.8s; }
 
 
-/* all style */
 .home-container {
   font-family: 'Poppins', sans-serif;
   background-color: #f5f5f5;
   color: #333;
+  overflow-x: hidden;
+  overflow-y: hidden;
 }
 
-/* Navbar */
+/* Навбар */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -62,6 +63,7 @@
 .navbar-hidden {
   transform: translateY(-100%);
 }
+
 
 .navbar-logo h1 {
   font-size: 32px;
@@ -91,7 +93,7 @@
   content: "";
   position: absolute;
   left: 0;
-  bottom: -2px; 
+  bottom: -2px;
   width: 0;
   height: 2px;
   background-color: #007bff;
@@ -105,6 +107,7 @@
 .navbar-links li a:hover::after {
   width: 100%;
 }
+
 .navbar-actions {
   display: flex;
   align-items: center;
@@ -128,7 +131,6 @@
   color: black;
 }
 
-
 .get-started-btn {
   text-decoration: none;
   position: relative;
@@ -142,7 +144,7 @@
   cursor: pointer;
   overflow: hidden;
   transition: color 0.3s ease;
-  z-index: 1; 
+  z-index: 1;
 }
 
 .get-started-btn::before {
@@ -153,31 +155,57 @@
   width: 0;
   height: 100%;
   background-color: #007bff;
-  border-radius: 5px; 
-  transition: width 0.4s ease; 
-  z-index: -1; 
+  border-radius: 5px;
+  transition: width 0.4s ease;
+  z-index: -1;
 }
 
 .get-started-btn:hover::before {
-  width: 100%; 
+  width: 100%;
 }
 
 .get-started-btn:hover {
-  color: black; 
+  color: black;
 }
 
 .user-login {
-  color: black; 
+  color: black;
   font-size: 17px;
-  font-weight: 500; 
+  font-weight: 500;
   text-transform: capitalize;
-  letter-spacing: 0.5px; 
+  letter-spacing: 0.5px;
 }
 
 .home-container {
   padding-top: 100px;
 }
 
+/* Бургер-меню */
+.burger-menu {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+.burger-icon {
+  color: #333;
+}
+
+.close-icon {
+  color: #ff0000;
+  font-size: 24px;
+}
+
+.navbar-menu-wrapper {
+  display: none;
+}
+
+.menu-overlay {
+  display: none;
+}
 
 /* Hero Section */
 .hero-section {
@@ -244,18 +272,19 @@
   border-radius: 20px;
   padding: 20px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px); 
-  border: 1px solid rgba(255, 255, 255, 0.2); 
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
   position: relative;
   overflow: hidden;
 }
 
 .crypto-card:hover {
-  transform: translateY(-8px); 
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15); 
-  background: linear-gradient(135deg, rgba(255, 255, 255, 1), rgba(240, 248, 255, 0.9)); 
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 1), rgba(240, 248, 255, 0.9));
 }
+
 .crypto-card::before {
   content: '';
   position: absolute;
@@ -270,7 +299,7 @@
 }
 
 .crypto-card:hover::before {
-  opacity: 1; 
+  opacity: 1;
 }
 
 .crypto-header {
@@ -340,8 +369,7 @@
   box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.1), inset -2px -2px 5px rgba(255, 255, 255, 0.7);
 }
 
-
-/* features-section */
+/* Features Section */
 .features-section {
   background-color: #fff;
   padding: 60px 20px;
@@ -372,12 +400,12 @@
 .feature-card {
   max-width: 350px;
   text-align: left;
-  opacity: 0; 
-  animation: fadeInUp 0.6s ease-out forwards; 
+  opacity: 0;
+  animation: fadeInUp 0.6s ease-out forwards;
 }
 
 .feature-card:nth-child(1) {
-  animation-delay: 1s; 
+  animation-delay: 1s;
 }
 
 .feature-card:nth-child(2) {
@@ -385,7 +413,7 @@
 }
 
 .feature-card:nth-child(3) {
-  animation-delay: 1.4s; 
+  animation-delay: 1.4s;
 }
 
 .feature-icon {
@@ -432,7 +460,7 @@
 }
 
 
-/* market update section*/
+/* Market Update Section */
 .mu-section {
   padding: 80px 100px;
   background-color: #fff;
@@ -543,8 +571,9 @@
 .mu-table-row:nth-child(6),
 .mu-table-row:nth-child(7),
 .mu-table-row:nth-child(8) {
-  animation-delay: 0.4s; 
+  animation-delay: 0.4s;
 }
+
 .mu-crypto-name {
   display: flex;
   align-items: center;
@@ -615,7 +644,6 @@
   text-decoration: underline;
 }
 
-
 /* Learn About Section */
 .la-section {
   padding: 30px 120px;
@@ -680,7 +708,7 @@
   font-size: 0.9rem;
   font-weight: 500;
   color: black;
-  background-color:  rgba(0, 0, 0, 0.212);
+  background-color: rgba(0, 0, 0, 0.212);
   margin-bottom: 10px;
   text-transform: uppercase;
 }
@@ -785,8 +813,7 @@
   color: #4b0082;
 }
 
-/*footer*/
-
+/* Footer */
 .footer {
   background-color: #fff;
   padding: 50px 100px;
@@ -852,21 +879,590 @@
 }
 
 .socials-icons a:hover .social-icon {
-  transform: scale(1.2); 
+  transform: scale(1.2);
 }
 
 .footer-copyright {
-  margin-top: 5%; 
-  margin-bottom: -40%;
+  margin-top: 4%;
+  margin-bottom: -2%;
   font-size: 14px;
   color: black;
   font-weight: 400;
-  text-align: center; 
+  text-align: center;
+}
+.navbar-menu {
+  display: none;
 }
 
-/*adaptive*/
+/* Адаптивные стили */
 @media (max-width: 1440px) and (min-width: 920px) {
-}
-@media (max-width: 920px) and (min-width: 200px) {
+  .navbar {
+    padding: 20px 40px;
+  }
 
+  .navbar-logo h1 {
+    font-size: 28px;
+    margin-left: 20%;
+  }
+
+  .navbar-links {
+    gap: 30px;
+  }
+
+  .navbar-links li a {
+    font-size: 16px;
+  }
+
+  .hero-section {
+    padding: 80px 20px;
+  }
+
+  .hero-section h1 {
+    font-size: 42px;
+  }
+
+  .hero-section p {
+    font-size: 16px;
+    max-width: 500px;
+  }
+
+  .popular-section {
+    padding: 40px 30px;
+  }
+
+  .crypto-cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .crypto-card {
+    padding: 15px;
+  }
+
+  .crypto-name .name {
+    font-size: 18px;
+  }
+
+  .crypto-name .full-name {
+    font-size: 14px;
+  }
+
+  .crypto-price span:first-child {
+    font-size: 18px;
+  }
+
+  .crypto-chart {
+    height: 50px;
+  }
+
+  .features-section {
+    padding: 50px 20px;
+  }
+
+  .features-grid {
+    gap: 30px;
+  }
+
+  .feature-card {
+    max-width: 300px;
+  }
+
+  .features-section h2 {
+    font-size: 2.2rem;
+  }
+
+  .mu-section {
+    padding: 60px 40px;
+  }
+
+  .mu-table-header {
+    gap: 100px;
+    font-size: 0.85rem;
+  }
+
+  .mu-table-row {
+    padding: 12px 5px;
+  }
+
+  .mu-table-row span {
+    font-size: 0.85rem;
+  }
+
+  .mu-market-stats .mu-chart-placeholder {
+    width: 60px;
+  }
+
+  .la-section {
+    padding: 30px 40px;
+  }
+
+  .la-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .la-card-large {
+    grid-column: span 2;
+  }
+
+  .la-card-large .la-image {
+    height: 200px;
+  }
+
+  .la-title {
+    font-size: 1.1rem;
+  }
+
+  .ng-section {
+    padding: 60px 40px;
+  }
+
+  .ng-content {
+    width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .ng-content h2 {
+    font-size: 1.5rem;
+  }
+
+  .footer {
+    padding: 40px 40px;
+  }
+
+  .footer-logo {
+    font-size: 28px;
+  }
+
+  .footer-content {
+    flex-direction: row;
+    gap: 20px;
+  }
+  .navbar-menu {
+    display: none;
+  }
+}
+
+@media (max-width: 920px) and (min-width: 200px) {
+  .navbar {
+    padding: 20px;
+    justify-content: flex-start;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    box-sizing: border-box;
+    height: 95px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .navbar-header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .navbar-logo {
+    margin: 0 auto;
+    position: relative;
+    z-index: 1100;
+    transform: none;
+  }
+  
+
+  .navbar-logo h1 {
+    font-size: 29px;
+    align-items: center;
+  }
+
+  .desktop-links,
+  .desktop-actions {
+    display: none;
+  }
+
+  .navbar-menu-wrapper {
+    display: block;
+    position: relative;
+  }
+
+  .burger-menu {
+    z-index: 1100; 
+    display: block;
+    position: relative; 
+    margin-left: auto;
+  }
+
+  .navbar-menu {
+    display: block;
+    position: fixed;
+    top: 0px;
+    right: 0;
+    width: 50%;
+    max-width: 50vw;
+    height: 100vh;
+    background-color: #1a1a1a;
+    transform: translateX(100%);
+    transition: transform 0.4s ease-in-out;
+    z-index: 1000;
+    padding-top: 20px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+  
+
+  .navbar-menu.open {
+    transform: translateX(0);
+  }
+  
+  .navbar-menu:not(.open) {
+    transform: translateX(100%);
+  }
+
+  .navbar-menu .navbar-links {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; 
+    text-align: right;     
+    gap: 20px;
+    padding: 80px 30px 20px 20px; 
+  }
+  
+  .navbar-menu .navbar-links li a {
+    color: #fff;
+    font-size: 18px;
+    opacity: 0;
+    animation: fadeIn 0.3s ease forwards;
+  }
+  
+  .navbar-menu .navbar-links li:nth-child(1) a { animation-delay: 0.5s; }
+  .navbar-menu .navbar-links li:nth-child(2) a { animation-delay: 0.6s; }
+  .navbar-menu .navbar-links li:nth-child(3) a { animation-delay: 0.7s; }
+  .navbar-menu .navbar-links li:nth-child(4) a { animation-delay: 0.8s; }
+  .navbar-menu .navbar-links li:nth-child(5) a { animation-delay: 0.9s; }
+  
+  
+  .navbar-menu .navbar-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 20px;
+    opacity: 0;
+    animation: fadeIn 0.3s ease forwards;
+    animation-delay: 1s;
+  }
+
+  .navbar-menu .sign-in-btn,
+  .navbar-menu .get-started-btn {
+    font-size: 16px;
+    padding: 10px 20px;
+    text-align: center;
+  }
+
+  .navbar-menu .get-started-btn {
+    border: 1px solid #fff;
+  }
+
+  .navbar-menu .user-login {
+    color: #fff;
+    font-size: 16px;
+    text-align: center;
+  }
+
+  .menu-overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 998; 
+    transition: opacity 0.5s ease-in-out;
+  }
+
+  /* Hero Section */
+  .hero-section {
+    padding: 80px 15px;
+  }
+
+  .hero-section h1 {
+    font-size: 32px;
+  }
+
+  .hero-section p {
+    font-size: 14px;
+    max-width: 90%;
+  }
+
+  .hero-btn {
+    padding: 12px 25px;
+    font-size: 16px;
+  }
+
+  /* Popular Section */
+  .popular-section {
+    padding: 30px 15px;
+  }
+
+  .popular-section h2 {
+    font-size: 20px;
+  }
+
+  .crypto-cards {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .crypto-card {
+    padding: 12px;
+  }
+
+  .crypto-header {
+    gap: 8px;
+  }
+
+  .crypto-name .name {
+    font-size: 16px;
+  }
+
+  .crypto-name .full-name {
+    font-size: 13px;
+  }
+
+  .crypto-price span:first-child {
+    font-size: 16px;
+  }
+
+  .price-change {
+    font-size: 13px;
+    padding: 4px 8px;
+  }
+
+  .crypto-chart {
+    height: 40px;
+  }
+
+  /* Features Section */
+  .features-section {
+    padding: 40px 15px;
+  }
+
+  .features-section h2 {
+    font-size: 1.8rem;
+  }
+
+  .features-section p {
+    font-size: 1rem;
+  }
+
+  .features-grid {
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .feature-card {
+    max-width: 100%;
+    text-align: center;
+  }
+
+  .feature-icon {
+    margin: 0 auto 15px;
+  }
+
+  .feature-card h3 {
+    font-size: 1.2rem;
+  }
+
+  .feature-card p {
+    font-size: 0.9rem;
+  }
+
+  /* Market Update Section */
+  .mu-section {
+    padding: 40px 15px;
+  }
+
+  .mu-section h2 {
+    font-size: 1.6rem;
+  }
+
+  .mu-categories {
+    gap: 10px;
+  }
+
+  .mu-category {
+    font-size: 0.8rem;
+    padding: 6px 10px;
+  }
+
+  .mu-table-header {
+    display: none;
+  }
+
+  .mu-table-row {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
+
+  .mu-table-row span {
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+  }
+
+  .mu-table-row span:nth-child(1)::before {
+    content: "No: ";
+    font-weight: bold;
+  }
+
+  .mu-table-row span:nth-child(2)::before {
+    content: "Name: ";
+    font-weight: bold;
+  }
+
+  .mu-table-row span:nth-child(3)::before {
+    content: "Price: ";
+    font-weight: bold;
+  }
+
+  .mu-table-row span:nth-child(4)::before {
+    content: "Change: ";
+    font-weight: bold;
+  }
+
+  .mu-table-row span:nth-child(5) {
+    display: none;
+  }
+
+  .mu-table-row span:last-child {
+    align-self: flex-end;
+  }
+
+  .mu-trade-btn {
+    padding: 8px 20px;
+    font-size: 0.85rem;
+  }
+
+  .mu-see-all-coins {
+    font-size: 0.9rem;
+    text-align: center;
+  }
+
+  /* Learn About Section */
+  .la-section {
+    padding: 20px 15px;
+  }
+
+  .la-section h2 {
+    font-size: 1.6rem;
+  }
+
+  .la-section p {
+    font-size: 1rem;
+  }
+
+  .la-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .la-card-large {
+    grid-column: span 1;
+  }
+
+  .la-image {
+    height: 120px;
+  }
+
+  .la-card-large .la-image {
+    height: 180px;
+  }
+
+  .la-content {
+    padding: 12px;
+  }
+
+  .la-category {
+    font-size: 0.8rem;
+  }
+
+  .la-title {
+    font-size: 1rem;
+  }
+
+  .la-card-large .la-title {
+    font-size: 1.2rem;
+  }
+
+  /* New Generation Section */
+  .ng-section {
+    padding: 40px 20px;
+  }
+
+  .ng-content {
+    left: 40px;
+    width: 70%;
+    margin-left: 0;
+    padding: 20px;
+    height: auto;
+  }
+
+  .ng-content h2 {
+    font-size: 1.2rem;
+    text-align: left;
+  }
+
+  .ng-btn {
+    padding: 8px 20px;
+    font-size: 0.9rem;
+  }
+
+  /* Footer */
+  .footer {
+    padding: 40px 15px;
+  }
+
+  .footer-content {
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    text-align: center;
+  }
+
+  .footer-logo {
+    font-size: 24px;
+  }
+
+  .footer-socials {
+    align-items: center;
+  }
+
+  .socials-label {
+    margin-top: 0;
+    font-size: 16px;
+  }
+
+  .socials-icons {
+    margin-left: 0;
+    gap: 15px;
+  }
+
+  .socials-icons .social-icon {
+    width: 20px;
+    height: 20px;
+    padding: 15%;
+  }
+
+  .footer-copyright {
+    margin-top: 20px;
+    margin-bottom: 0;
+    font-size: 12px;
+  }
 }

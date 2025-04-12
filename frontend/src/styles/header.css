@@ -192,7 +192,7 @@
 .profile-user-info .profile-avatar {
   width: 50px;
   height: 50px;
-  border-radius: 15%;
+  border-radius: 20%;
   object-fit: cover;
   user-select: none;
   -webkit-user-select: none; 
