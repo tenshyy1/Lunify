@@ -199,8 +199,8 @@ const Profile = ({ onLogout, login, avatar, updateAvatarUrl }) => {
                   className={isEditing ? 'editable' : 'disabled'}
                 />
               </div>
-              <div className="profile-form-group">
-                <label style={{ marginLeft: "-66%" }}>Email Address</label>
+              <div className="profile-form-group" id='email_label'>
+                <label >Email Address</label>
                 <input
                   type="email"
                   value={email}

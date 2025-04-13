@@ -127,3 +127,14 @@
     transform: translateY(0);
   }
 }
+/*adaptive*/
+@media (max-width: 1440px) and (min-width: 920px){
+  
+}
+
+@media (max-width: 920px) and (min-width: 280px){
+  .profile-sidebar{
+    display: none;
+  }
+  
+}
