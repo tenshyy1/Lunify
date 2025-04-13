@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
+import Market from './pages/Market';
 import Profile from './pages/Profile';
 import Swap from './pages/Swap';
 import ProtectedRoute from './context/ProtectedRoute';
@@ -83,6 +84,14 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route
+          path="/trade"
+          element={
+            <ProtectedRoute>
+              <Market onLogout={handleLogout} login={login} avatar={avatar} />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/profile"
           element={

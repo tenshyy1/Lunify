@@ -22,7 +22,7 @@ export default function Header({ login, avatar }) {
       case '/wallet':
         return 'Wallet';
       case '/trade':
-        return 'Cryptocurrency';
+        return 'Market';
       default:
         return 'Profile';
     }
