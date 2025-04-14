@@ -166,7 +166,7 @@
     background: linear-gradient(135deg, #2a2a2a, #222);
     border: 1px solid #444;
     border-radius: 20px;
-    font-size: 14px;
+    font-size: 15px;
     color: #ffffff;
     width: 200px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
@@ -189,14 +189,14 @@
     left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
 }
 
 .market-category {
     background: transparent;
     border: none;
-    font-size: 16px;
+    font-size: 17px;
     color: #a0aec0;
     font-weight: 500;
     cursor: pointer;
@@ -217,11 +217,11 @@
 .market-items-per-page {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
 }
 
 .market-items-per-page label {
-    font-size: 14px;
+    font-size: 15px;
     color: #a0aec0;
     font-weight: 500;
 }
@@ -323,10 +323,11 @@
 /* Options Buttons */
 .market-options-buttons {
     display: flex;
-    gap: 8px;
+    gap: 10px;
 }
 
 .market-buy-btn {
+    margin-top: 15px;
     padding: 10px 25px;
     background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: #FFFFFF;
@@ -346,7 +347,8 @@
 }
 
 .market-sell-btn {
-    padding: 6px 12px;
+    margin-top: 15px;
+    padding: 10px 25px;
     background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
     color: #FFFFFF;
     border: none;

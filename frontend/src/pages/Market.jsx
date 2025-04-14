@@ -9,8 +9,9 @@ const Market = ({ onLogout, login, avatar }) => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
   const [itemsPerPage, setItemsPerPage] = useState(100);
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
-  // change to api
+  {/*(to be replaced with API) */}
   const fallbackIcons = {
     btc: (
       <svg width="40px" height="45px" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
@@ -61,17 +62,16 @@ const Market = ({ onLogout, login, avatar }) => {
     ),
   };
 
-  // change to api
+  {/*(to be replaced with API) */}
   const sectionData = {
-    Popular: [
-      { id: '01', currency: 'Bitcoin', icon: fallbackIcons.btc, price: '$2144.05', last24h: '+2.24%', last7d: '+8.24%' },
-      { id: '02', currency: 'Ethereum', icon: fallbackIcons.eth, price: '$1649.88', last24h: '+2.24%', last7d: '+8.24%' },
-      { id: '03', currency: 'Binance', icon: fallbackIcons.bnb, price: '$18,204.01', last24h: '-6.13%', last7d: '-6.17%' },
-      { id: '04', currency: 'Tether', icon: fallbackIcons.usdt, price: '$6,014.63', last24h: '+2.24%', last7d: '+8.24%' },
-      { id: '05', currency: 'Pirl', icon: fallbackIcons.btc, price: '$3721.32', last24h: '+2.24%', last7d: '+8.24%' },
-      { id: '06', currency: 'Mona', icon: fallbackIcons.eth, price: '$5,206.94', last24h: '-6.13%', last7d: '-6.17%' },
-      { id: '07', currency: 'Zcash', icon: fallbackIcons.bnb, price: '$5,206.94', last24h: '+2.24%', last7d: '+8.24%' },
-    ],
+    Popular: Array.from({ length: 250 }, (_, i) => ({
+      id: String(i + 1).padStart(2, '0'),
+      currency: `Crypto ${i + 1}`,
+      icon: [fallbackIcons.btc, fallbackIcons.eth, fallbackIcons.bnb, fallbackIcons.usdt][i % 4],
+      price: `$${Math.floor(Math.random() * 10000)}.00`,
+      last24h: `${Math.random() > 0.5 ? '+' : '-'}${Math.random() * 10}%`,
+      last7d: `${Math.random() > 0.5 ? '+' : '-'}${Math.random() * 10}%`,
+    })),
     Metaverse: [
       { id: '01', currency: 'Pirl', icon: fallbackIcons.btc, price: '$3721.32', last24h: '+2.24%', last7d: '+8.24%' },
       { id: '02', currency: 'Bitcoin', icon: fallbackIcons.btc, price: '$2144.05', last24h: '+2.24%', last7d: '+8.24%' },
@@ -119,7 +119,7 @@ const Market = ({ onLogout, login, avatar }) => {
     ],
   };
 
-  // change to api
+  {/*(to be replaced with API) */}
   const topGainers = [
     { currency: 'Bitcoin', ticker: 'BTC', price: 'USD 104,144.57', change: '+12.7%', icon: fallbackIcons.btc },
     { currency: 'Ethereum', ticker: 'ETH', price: 'USD 3,214.88', change: '+9.5%', icon: fallbackIcons.eth },
@@ -127,16 +127,15 @@ const Market = ({ onLogout, login, avatar }) => {
     { currency: 'Tether', ticker: 'USDT', price: 'USD 6,014.63', change: '+5.2%', icon: fallbackIcons.usdt },
   ];
 
+  {/** Data processing: filter, sort, and paginate */}
   const currentData = sectionData[selectedCategory] || [];
   const filteredData = currentData.filter((crypto) =>
     crypto.currency.toLowerCase().includes(searchQuery.toLowerCase())
   );
   const sortedData = [...filteredData].sort((a, b) => {
     if (!sortConfig.key) return 0;
-    
     const aValue = a[sortConfig.key];
     const bValue = b[sortConfig.key];
-
     if (sortConfig.key === 'price' || sortConfig.key === 'last24h' || sortConfig.key === 'last7d') {
       const aNum = parseFloat(aValue.replace('$', '').replace('%', '').replace(',', ''));
       const bNum = parseFloat(bValue.replace('$', '').replace('%', '').replace(',', ''));
@@ -148,25 +147,55 @@ const Market = ({ onLogout, login, avatar }) => {
       : bValue.localeCompare(aValue);
   });
 
-  const numberedData = sortedData.map((crypto, index) => ({
+  {/** Pagination logic */}
+  const totalItems = sortedData.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedData = sortedData.slice(startIndex, endIndex);
+  const numberedData = paginatedData.map((crypto, index) => ({
     ...crypto,
-    displayId: String(index + 1).padStart(2, '0'),
+    displayId: String(startIndex + index + 1).padStart(2, '0'),
   }));
 
+  {/** Event handlers for sorting, pagination, and search */}
   const handleSort = (key) => {
     setSortConfig((prev) => ({
       key,
       direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc',
     }));
+    setCurrentPage(1);
   };
 
   const handleItemsPerPageChange = (e) => {
     setItemsPerPage(Number(e.target.value));
+    setCurrentPage(1);
   };
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
+    setCurrentPage(1);
   };
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  {/** Generate pagination buttons */}
+  const paginationButtons = [];
+  for (let i = 1; i <= Math.min(totalPages, 6); i++) {
+    paginationButtons.push(
+      <button
+        key={i}
+        className={currentPage === i ? 'market-active' : ''}
+        onClick={() => handlePageChange(i)}
+      >
+        {String(i).padStart(2, '0')}
+      </button>
+    );
+  }
 
   return (
     <div className="market-container">
@@ -176,7 +205,7 @@ const Market = ({ onLogout, login, avatar }) => {
         <div className="market-content-wrapper">
           <section className="market-section">
             <div className="market-content-container">
-              {/* Топ-гейнеры */}
+              {/** Top gainers section */}
               <div className="market-top-gainers">
                 {topGainers.map((gainer, index) => (
                   <div key={index} className="market-top-gainer-card">
@@ -194,17 +223,14 @@ const Market = ({ onLogout, login, avatar }) => {
                       <span className="market-top-gainer-currency">{gainer.currency}</span>
                       <span className="market-top-gainer-ticker">{gainer.ticker}</span>
                     </div>
-                    <div className="market-top-gainer-graph">📈</div>
                   </div>
                 ))}
               </div>
 
-              {/* Разделитель */}
               <div className="market-divider"></div>
 
-              {/* Таблица и категории */}
+              {/** Table and category controls */}
               <div className="market-table-wrapper">
-                {/* Панель категорий, поиска и "Show" */}
                 <div className="market-categories-wrapper">
                   <div className="market-categories-and-search">
                     <div className="market-categories">
@@ -215,6 +241,7 @@ const Market = ({ onLogout, login, avatar }) => {
                           onClick={() => {
                             setSelectedCategory(category);
                             setSearchQuery('');
+                            setCurrentPage(1);
                           }}
                         >
                           {category}
@@ -330,15 +357,21 @@ const Market = ({ onLogout, login, avatar }) => {
                   </motion.div>
                 </AnimatePresence>
 
+                {/** Pagination controls */}
                 <div className="market-pagination">
-                  <button>Prev</button>
-                  <button className="market-active">01</button>
-                  <button>02</button>
-                  <button>03</button>
-                  <button>04</button>
-                  <button>05</button>
-                  <button>06</button>
-                  <button>Next</button>
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                  >
+                    Prev
+                  </button>
+                  {paginationButtons}
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </button>
                 </div>
               </div>
             </div>
