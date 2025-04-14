@@ -4,6 +4,8 @@ import (
 	"log"
 
 	"service/handlers/login"
+	"service/handlers/market"
+	"service/handlers/portfolio"
 	"service/handlers/profile"
 	"service/models"
 
@@ -40,6 +42,8 @@ func main() {
 	app.Get("/profile", profile.GetProfileHandler)
 	app.Put("/profile", profile.UpdateProfileHandler)
 	app.Post("/profile/avatar", profile.UpdateAvatarHandler)
+	portfolio.SetupPortfolioRoutes(app)
+	market.SetupMarketRoutes(app)
 
 	// Запуск сервера
 	log.Fatal(app.Listen(":8099"))

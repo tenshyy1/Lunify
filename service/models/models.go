@@ -57,7 +57,33 @@ func InitDB() *sql.DB {
             first_name VARCHAR(50),
             last_name VARCHAR(50),
             email VARCHAR(100),
-            avatar_url TEXT -- Добавлено поле для URL аватарки
+            avatar_url TEXT
+        );
+    `)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = db.Exec(`
+        CREATE TABLE IF NOT EXISTS portfolios (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            name VARCHAR(100) NOT NULL,
+            description TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    `)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = db.Exec(`
+        CREATE TABLE IF NOT EXISTS portfolio_coins (
+            id SERIAL PRIMARY KEY,
+            portfolio_id INTEGER NOT NULL REFERENCES portfolios(id) ON DELETE CASCADE,
+            currency VARCHAR(50) NOT NULL,
+            ticker VARCHAR(10) NOT NULL,
+            amount DECIMAL(18,8) NOT NULL,
+            value_usd DECIMAL(18,2),
+            change_percent DECIMAL(10,2)
         );
     `)
 	if err != nil {

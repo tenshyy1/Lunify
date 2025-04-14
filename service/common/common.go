@@ -23,6 +23,24 @@ type User struct {
 	AvatarURL *string `json:"avatar_url,omitempty"`
 }
 
+type Portfolio struct {
+	ID          int       `json:"id"`
+	UserID      int       `json:"user_id"`
+	Name        string    `json:"name"`
+	Description *string   `json:"description,omitempty"`
+	CreatedAt   time.Time `json:"created_at"`
+}
+
+type PortfolioCoin struct {
+	ID            int     `json:"id"`
+	PortfolioID   int     `json:"portfolio_id"`
+	Currency      string  `json:"currency"`
+	Ticker        string  `json:"ticker"`
+	Amount        float64 `json:"amount"`
+	ValueUSD      float64 `json:"value_usd"`
+	ChangePercent float64 `json:"change_percent"`
+}
+
 // ToJSONStruct
 func (u *User) ToJSONStruct() map[string]interface{} {
 	return map[string]interface{}{
@@ -101,4 +119,25 @@ func HashPassword(password string) (string, error) {
 
 func ComparePassword(hashedPassword, password string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+}
+
+// change to api
+func GetMarketCoinPrice(ticker string) (float64, error) {
+	coins := map[string]float64{
+		"BTC":  104144.57,
+		"ETH":  3214.88,
+		"BNB":  18204.01,
+		"USDT": 6014.63,
+		"PIRL": 3721.32,
+		"MONA": 5206.94,
+		"ZEC":  5206.94,
+		"ADA":  1.23,
+		"SOL":  150.45,
+	}
+
+	price, exists := coins[ticker]
+	if !exists {
+		return 0, errors.New("coin not found")
+	}
+	return price, nil
 }

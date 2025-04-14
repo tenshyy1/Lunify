@@ -396,3 +396,105 @@
     border: none;
     box-shadow: 0 3px 6px rgba(37, 99, 235, 0.2);
 }
+
+/* Modal Styles */
+.market-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.market-modal-content {
+    background: #2a2a2a;
+    padding: 20px;
+    border-radius: 10px;
+    width: 400px;
+    max-width: 90%;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.market-modal-content h2 {
+    margin-bottom: 20px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.market-modal-input-group {
+    margin-bottom: 15px;
+}
+
+.market-modal-input-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 15px;
+    color: #a0aec0;
+    font-weight: 500;
+}
+
+.market-modal-input-group input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #444;
+    border-radius: 6px;
+    background: #222;
+    font-size: 14px;
+    color: #ffffff;
+    transition: border-color 0.2s ease;
+}
+
+.market-modal-input-group input:focus {
+    outline: none;
+    border-color: #3B82F6;
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+}
+
+.market-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.market-modal-cancel-btn {
+    padding: 8px 16px;
+    background: #6c757d;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.market-modal-cancel-btn:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+}
+
+.market-modal-submit-btn {
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #3B82F6 0%, #2563eb 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 3px 6px rgba(37, 99, 235, 0.2);
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.market-modal-submit-btn:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(37, 99, 235, 0.4);
+}

@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/market.css';
 import Header from '../components/Header';
 import SideHeader from '../components/SideHeader';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import marketApi from '../services/market';
+import walletApi from '../services/wallet';
 
 const Market = ({ onLogout, login, avatar }) => {
   const [selectedCategory, setSelectedCategory] = useState('Popular');
@@ -10,8 +14,15 @@ const Market = ({ onLogout, login, avatar }) => {
   const [itemsPerPage, setItemsPerPage] = useState(100);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [sectionData, setSectionData] = useState([]);
+  const [topGainers, setTopGainers] = useState([]);
+  const [portfolios, setPortfolios] = useState([]);
+  const [selectedPortfolioId, setSelectedPortfolioId] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalAction, setModalAction] = useState('buy'); // 'buy' или 'sell'
+  const [selectedCoin, setSelectedCoin] = useState(null);
+  const [amount, setAmount] = useState('');
 
-  {/*(to be replaced with API) */}
   const fallbackIcons = {
     btc: (
       <svg width="40px" height="45px" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
@@ -62,74 +73,138 @@ const Market = ({ onLogout, login, avatar }) => {
     ),
   };
 
-  {/*(to be replaced with API) */}
-  const sectionData = {
-    Popular: Array.from({ length: 250 }, (_, i) => ({
-      id: String(i + 1).padStart(2, '0'),
-      currency: `Crypto ${i + 1}`,
-      icon: [fallbackIcons.btc, fallbackIcons.eth, fallbackIcons.bnb, fallbackIcons.usdt][i % 4],
-      price: `$${Math.floor(Math.random() * 10000)}.00`,
-      last24h: `${Math.random() > 0.5 ? '+' : '-'}${Math.random() * 10}%`,
-      last7d: `${Math.random() > 0.5 ? '+' : '-'}${Math.random() * 10}%`,
-    })),
-    Metaverse: [
-      { id: '01', currency: 'Pirl', icon: fallbackIcons.btc, price: '$3721.32', last24h: '+2.24%', last7d: '+8.24%' },
-      { id: '02', currency: 'Bitcoin', icon: fallbackIcons.btc, price: '$2144.05', last24h: '+2.24%', last7d: '+8.24%' },
-      { id: '03', currency: 'Ethereum', icon: fallbackIcons.eth, price: '$1649.88', last24h: '+2.24%', last7d: '+8.24%' },
-      { id: '04', currency: 'Binance', icon: fallbackIcons.bnb, price: '$18,204.01', last24h: '-6.13%', last7d: '-6.17%' },
-      { id: '05', currency: 'Tether', icon: fallbackIcons.usdt, price: '$6,014.63', last24h: '+2.24%', last7d: '+8.24%' },
-      { id: '06', currency: 'Mona', icon: fallbackIcons.eth, price: '$5,206.94', last24h: '-6.13%', last7d: '-6.17%' },
-      { id: '07', currency: 'Zcash', icon: fallbackIcons.bnb, price: '$5,206.94', last24h: '+2.24%', last7d: '+8.24%' },
-    ],
-    Entertainment: [
-      { id: '01', currency: 'Mona', icon: fallbackIcons.eth, price: '$5,206.94', last24h: '-6.13%', last7d: '-6.17%' },
-      { id: '02', currency: 'Bitcoin', icon: fallbackIcons.btc, price: '$2144.05', last24h: '+2.24%', last7d: '+8.24%' },
-      { id: '03', currency: 'Ethereum', icon: fallbackIcons.eth, price: '$1649.88', last24h: '+2.24%', last7d: '+8.24%' },
-      { id: '04', currency: 'Binance', icon: fallbackIcons.bnb, price: '$18,204.01', last24h: '-6.13%', last7d: '-6.17%' },
-      { id: '05', currency: 'Tether', icon: fallbackIcons.usdt, price: '$6,014.63', last24h: '+2.24%', last7d: '+8.24%' },
-      { id: '06', currency: 'Pirl', icon: fallbackIcons.btc, price: '$3721.32', last24h: '+2.24%', last7d: '+8.24%' },
-      { id: '07', currency: 'Zcash', icon: fallbackIcons.bnb, price: '$5,206.94', last24h: '+2.24%', last7d: '+8.24%' },
-    ],
-    Energy: [
-      { id: '01', currency: 'Zcash', icon: fallbackIcons.bnb, price: '$5,206.94', last24h: '+2.24%', last7d: '+8.24%' },
-      { id: '02', currency: 'Bitcoin', icon: fallbackIcons.btc, price: '$2144.05', last24h: '+2.24%', last7d: '+8.24%' },
-      { id: '03', currency: 'Ethereum', icon: fallbackIcons.eth, price: '$1649.88', last24h: '+2.24%', last7d: '+8.24%' },
-      { id: '04', currency: 'Binance', icon: fallbackIcons.bnb, price: '$18,204.01', last24h: '-6.13%', last7d: '-6.17%' },
-      { id: '05', currency: 'Tether', icon: fallbackIcons.usdt, price: '$6,014.63', last24h: '+2.24%', last7d: '+8.24%' },
-      { id: '06', currency: 'Pirl', icon: fallbackIcons.btc, price: '$3721.32', last24h: '+2.24%', last7d: '+8.24%' },
-      { id: '07', currency: 'Mona', icon: fallbackIcons.eth, price: '$5,206.94', last24h: '-6.13%', last7d: '-6.17%' },
-    ],
-    Gaming: [
-      { id: '01', currency: 'Binance', icon: fallbackIcons.bnb, price: '$18,204.01', last24h: '-6.13%', last7d: '-6.17%' },
-      { id: '02', currency: 'Bitcoin', icon: fallbackIcons.btc, price: '$2144.05', last24h: '+2.24%', last7d: '+8.24%' },
-      { id: '03', currency: 'Ethereum', icon: fallbackIcons.eth, price: '$1649.88', last24h: '+2.24%', last7d: '+8.24%' },
-      { id: '04', currency: 'Tether', icon: fallbackIcons.usdt, price: '$6,014.63', last24h: '+2.24%', last7d: '+8.24%' },
-      { id: '05', currency: 'Pirl', icon: fallbackIcons.btc, price: '$3721.32', last24h: '+2.24%', last7d: '+8.24%' },
-      { id: '06', currency: 'Mona', icon: fallbackIcons.eth, price: '$5,206.94', last24h: '-6.13%', last7d: '-6.17%' },
-      { id: '07', currency: 'Zcash', icon: fallbackIcons.bnb, price: '$5,206.94', last24h: '+2.24%', last7d: '+8.24%' },
-    ],
-    Music: [
-      { id: '01', currency: 'Tether', icon: fallbackIcons.usdt, price: '$6,014.63', last24h: '+2.24%', last7d: '+8.24%' },
-      { id: '02', currency: 'Bitcoin', icon: fallbackIcons.btc, price: '$2144.05', last24h: '+2.24%', last7d: '+8.24%' },
-      { id: '03', currency: 'Ethereum', icon: fallbackIcons.eth, price: '$1649.88', last24h: '+2.24%', last7d: '+8.24%' },
-      { id: '04', currency: 'Binance', icon: fallbackIcons.bnb, price: '$18,204.01', last24h: '-6.13%', last7d: '-6.17%' },
-      { id: '05', currency: 'Pirl', icon: fallbackIcons.btc, price: '$3721.32', last24h: '+2.24%', last7d: '+8.24%' },
-      { id: '06', currency: 'Mona', icon: fallbackIcons.eth, price: '$5,206.94', last24h: '-6.13%', last7d: '-6.17%' },
-      { id: '07', currency: 'Zcash', icon: fallbackIcons.bnb, price: '$5,206.94', last24h: '+2.24%', last7d: '+8.24%' },
-    ],
+  useEffect(() => {
+    fetchMarketData();
+    fetchPortfolios();
+  }, [selectedCategory]);
+
+  useEffect(() => {
+    const handleStorageChange = (event) => {
+      if (event.key === 'activePortfolioId') {
+        const activePortfolioId = event.newValue;
+        if (activePortfolioId && portfolios.some(p => p.id === parseInt(activePortfolioId))) {
+          setSelectedPortfolioId(parseInt(activePortfolioId));
+        } else if (portfolios.length > 0) {
+          // 1 active portfolio
+          setSelectedPortfolioId(portfolios[0].id);
+          localStorage.setItem('activePortfolioId', portfolios[0].id.toString());
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [portfolios]);
+
+  const fetchMarketData = async () => {
+    try {
+      const coins = await marketApi.getMarketCoins(selectedCategory);
+      const gainers = await marketApi.getTopGainers();
+      setSectionData(coins.map((coin, index) => ({
+        id: String(index + 1).padStart(2, '0'),
+        currency: coin.currency,
+        ticker: coin.ticker,
+        icon: fallbackIcons[coin.ticker.toLowerCase()] || fallbackIcons.btc,
+        price: `$${coin.price_usd.toLocaleString('en-US')}`,
+        last24h: `${coin.change_24h > 0 ? '+' : ''}${coin.change_24h}%`,
+        last7d: `${coin.change_7d > 0 ? '+' : ''}${coin.change_7d}%`,
+      })));
+      setTopGainers(gainers.map(gainer => ({
+        currency: gainer.currency,
+        ticker: gainer.ticker,
+        price: `USD ${gainer.price_usd.toLocaleString('en-US')}`,
+        change: `${gainer.change_24h > 0 ? '+' : ''}${gainer.change_24h}%`,
+        icon: fallbackIcons[gainer.ticker.toLowerCase()] || fallbackIcons.btc,
+      })));
+    } catch (error) {
+      toast.error(error.message || 'Failed to fetch market data');
+      setSectionData([]);
+      setTopGainers([]);
+    }
   };
 
-  {/*(to be replaced with API) */}
-  const topGainers = [
-    { currency: 'Bitcoin', ticker: 'BTC', price: 'USD 104,144.57', change: '+12.7%', icon: fallbackIcons.btc },
-    { currency: 'Ethereum', ticker: 'ETH', price: 'USD 3,214.88', change: '+9.5%', icon: fallbackIcons.eth },
-    { currency: 'Binance', ticker: 'BNB', price: 'USD 18,204.01', change: '+8.3%', icon: fallbackIcons.bnb },
-    { currency: 'Tether', ticker: 'USDT', price: 'USD 6,014.63', change: '+5.2%', icon: fallbackIcons.usdt },
-  ];
+  const fetchPortfolios = async () => {
+    try {
+      const response = await walletApi.getPortfolios();
+      const portfoliosData = Array.isArray(response) ? response : response.data || [];
+      setPortfolios(portfoliosData);
+      const activePortfolioId = localStorage.getItem('activePortfolioId');
+      if (activePortfolioId && portfoliosData.some(p => p.id === parseInt(activePortfolioId))) {
+        setSelectedPortfolioId(parseInt(activePortfolioId));
+      } else if (portfoliosData.length > 0) {
+        setSelectedPortfolioId(portfoliosData[0].id);
+        localStorage.setItem('activePortfolioId', portfoliosData[0].id.toString());
+      }
+    } catch (error) {
+      toast.error(error.message || 'Failed to fetch portfolios');
+      setPortfolios([]);
+      setSelectedPortfolioId(null);
+    }
+  };
 
-  {/** Data processing: filter, sort, and paginate */}
-  const currentData = sectionData[selectedCategory] || [];
-  const filteredData = currentData.filter((crypto) =>
+  const handleBuyClick = (coin) => {
+    if (portfolios.length === 0) {
+      toast.error('Please create a portfolio first');
+      return;
+    }
+    if (!selectedPortfolioId) {
+      toast.error('Please select a portfolio');
+      return;
+    }
+    setSelectedCoin(coin);
+    setModalAction('buy');
+    setIsModalOpen(true);
+  };
+
+  const handleSellClick = (coin) => {
+    if (portfolios.length === 0) {
+      toast.error('Please create a portfolio first');
+      return;
+    }
+    if (!selectedPortfolioId) {
+      toast.error('Please select a portfolio');
+      return;
+    }
+    setSelectedCoin(coin);
+    setModalAction('sell');
+    setIsModalOpen(true);
+  };
+
+  const handleModalSubmit = async () => {
+    if (!amount || amount <= 0) {
+      toast.error('Please enter a valid amount');
+      return;
+    }
+
+    if (!selectedPortfolioId) {
+      toast.error('No portfolio selected');
+      return;
+    }
+
+    try {
+      if (modalAction === 'buy') {
+        await walletApi.addPortfolioCoin(selectedPortfolioId, {
+          currency: selectedCoin.currency,
+          ticker: selectedCoin.ticker,
+          amount: parseFloat(amount),
+        });
+        toast.success(`Successfully bought ${amount} ${selectedCoin.ticker}`);
+      } else {
+        await walletApi.sellPortfolioCoin(selectedPortfolioId, {
+          ticker: selectedCoin.ticker,
+          amount: parseFloat(amount),
+        });
+        toast.success(`Successfully sold ${amount} ${selectedCoin.ticker}`);
+      }
+      setIsModalOpen(false);
+      setAmount('');
+      setSelectedCoin(null);
+    } catch (error) {
+      toast.error(error.message || `Failed to ${modalAction} coin`);
+    }
+  };
+
+  const filteredData = sectionData.filter((crypto) =>
     crypto.currency.toLowerCase().includes(searchQuery.toLowerCase())
   );
   const sortedData = [...filteredData].sort((a, b) => {
@@ -183,7 +258,7 @@ const Market = ({ onLogout, login, avatar }) => {
     }
   };
 
-  {/** Generate pagination buttons */}
+   {/** Generate pagination buttons */}
   const paginationButtons = [];
   for (let i = 1; i <= Math.min(totalPages, 6); i++) {
     paginationButtons.push(
@@ -205,7 +280,7 @@ const Market = ({ onLogout, login, avatar }) => {
         <div className="market-content-wrapper">
           <section className="market-section">
             <div className="market-content-container">
-              {/** Top gainers section */}
+               {/** Top gainers section */}
               <div className="market-top-gainers">
                 {topGainers.map((gainer, index) => (
                   <div key={index} className="market-top-gainer-card">
@@ -229,7 +304,7 @@ const Market = ({ onLogout, login, avatar }) => {
 
               <div className="market-divider"></div>
 
-              {/** Table and category controls */}
+{/** Table and category controls */}
               <div className="market-table-wrapper">
                 <div className="market-categories-wrapper">
                   <div className="market-categories-and-search">
@@ -283,6 +358,37 @@ const Market = ({ onLogout, login, avatar }) => {
                     </select>
                   </div>
                 </div>
+
+                {portfolios.length > 0 ? (
+                  <div className="market-portfolio-selector" style={{ marginBottom: '20px' }}>
+                    <label style={{ color: '#ffffff', marginRight: '10px' }}>Select Portfolio: </label>
+                    <select
+                      value={selectedPortfolioId || ''}
+                      onChange={(e) => {
+                        const newPortfolioId = parseInt(e.target.value);
+                        setSelectedPortfolioId(newPortfolioId);
+                        localStorage.setItem('activePortfolioId', newPortfolioId.toString());
+                      }}
+                      style={{
+                        padding: '8px',
+                        background: '#2a2a2a',
+                        color: '#ffffff',
+                        border: '1px solid #444',
+                        borderRadius: '8px',
+                      }}
+                    >
+                      {portfolios.map((portfolio) => (
+                        <option key={portfolio.id} value={portfolio.id}>
+                          {portfolio.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ) : (
+                  <p style={{ color: '#a0aec0', marginBottom: '20px' }}>
+                    No portfolios available. Please create one in Wallet.
+                  </p>
+                )}
 
                 <AnimatePresence mode="wait">
                   <motion.div
@@ -347,8 +453,8 @@ const Market = ({ onLogout, login, avatar }) => {
                               <div className="market-performance-graph">📈</div>
                             </td>
                             <td className="market-options-buttons">
-                              <button className="market-buy-btn">Buy</button>
-                              <button className="market-sell-btn">Sell</button>
+                              <button className="market-buy-btn" onClick={() => handleBuyClick(crypto)}>Buy</button>
+                              <button className="market-sell-btn" onClick={() => handleSellClick(crypto)}>Sell</button>
                             </td>
                           </tr>
                         ))}
@@ -378,6 +484,47 @@ const Market = ({ onLogout, login, avatar }) => {
           </section>
         </div>
       </main>
+
+      <AnimatePresence>
+        {isModalOpen && (
+          <motion.div
+            className="market-modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <motion.div
+              className="market-modal-content"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <h2>{modalAction === 'buy' ? 'Buy' : 'Sell'} {selectedCoin?.currency}</h2>
+              <div className="market-modal-input-group">
+                <label>Amount</label>
+                <input
+                  type="number"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="Enter amount"
+                  min="0"
+                />
+              </div>
+              <div className="market-modal-actions">
+                <button className="market-modal-cancel-btn" onClick={() => setIsModalOpen(false)}>
+                  Cancel
+                </button>
+                <button className="market-modal-submit-btn" onClick={handleModalSubmit}>
+                  {modalAction === 'buy' ? 'Buy' : 'Sell'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <ToastContainer />
     </div>
   );
 };
