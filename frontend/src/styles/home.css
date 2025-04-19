@@ -581,8 +581,8 @@
 }
 
 .mu-crypto-icon {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 23px;
 }
 
 .mu-ticker {
@@ -604,6 +604,11 @@
   background: linear-gradient(145deg, #f0f0f0, #e0e0e0);
   border-radius: 5px;
   margin: 0 auto;
+}
+
+.mu-market-chart {
+  width: 50%;
+  height: 70px;
 }
 
 .mu-trade-btn {

@@ -4,6 +4,7 @@ import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip, Legend } from 'chart.js';
 import '../styles/home.css';
 import { getProfile } from '../services/profile';
+import marketApi from '../services/market';
 import favicon from '../assets/favicon.png';
 import nftInvesting from '../assets/news/nft-investing.jpg';
 import news2 from '../assets/news/news2.jpg';
@@ -16,64 +17,19 @@ import youtube from '../assets/socials/youtube.svg';
 
 ChartJS.register(LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip, Legend);
 
-//change to api
 const CryptoIcon = ({ name, iconFromApi }) => {
-  const fallbackIcons = {
-    btc: (
-      <svg width="40px" height="45px" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-        <g fill="none" fillRule="evenodd">
-          <circle cx="16" cy="16" r="16" fill="#F7931A" />
-          <path
-            fill="#FFF"
-            fillRule="nonzero"
-            d="M23.189 14.02c.314-2.096-1.283-3.223-3.465-3.975l.708-2.84-1.728-.43-.69 2.765c-.454-.114-.92-.22-1.385-.326l.695-2.783L15.596 6l-.708 2.839c-.376-.086-.746-.17-1.104-.26l.002-.009-2.384-.595-.46 1.846s1.283.294 1.256.312c.7.175.826.638.805 1.006l-.806 3.235c.048.012.11.03.18.057l-.183-.045-1.13 4.532c-.086.212-.303.531-.793.41.018.025-1.256-.313-1.256-.313l-.858 1.978 2.25.561c.418.105.828.215 1.231.318l-.715 2.872 1.727.43.708-2.84c.472.127.93.245 1.378.357l-.706 2.828 1.728.43.715-2.866c2.948.558 5.164.333 6.097-2.333.752-2.146-.037-3.385-1.588-4.192 1.13-.26 1.98-1.003 2.207-2.538zm-3.95 5.538c-.533 2.147-4.148.986-5.32.695l.95-3.805c1.172.293 4.929.872 4.37 3.11zm.535-5.569c-.487 1.953-3.495.96-4.47.717l.86-3.45c.975.243 4.118.696 3.61 2.733z"
-          />
-        </g>
-      </svg>
-    ),
-    eth: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="40" height="45" viewBox="0 0 32 32">
-        <g fill="none" fillRule="evenodd">
-          <circle cx="16" cy="16" r="16" fill="#627EEA" />
-          <g fill="#FFF" fillRule="nonzero">
-            <path fillOpacity=".602" d="M16.498 4v8.87l7.497 3.35z" />
-            <path d="M16.498 4L9 16.22l7.498-3.35z" />
-            <path fillOpacity=".602" d="M16.498 21.968v6.027L24 17.616z" />
-            <path d="M16.498 27.995v-6.028L9 17.616z" />
-            <path fillOpacity=".2" d="M16.498 20.573l7.497-4.353-7.497-3.348z" />
-            <path fillOpacity=".602" d="M9 16.22l7.498 4.353v-7.701z" />
-          </g>
-        </g>
-      </svg>
-    ),
-    bnb: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="40" height="45" viewBox="0 0 2000 2000">
-        <g fill="#f3ba2f">
-          <path d="M611.59 840.42l388.4-388.39 388.6 388.59 226-226L999.99 0 385.6 614.42l225.99 226"/>
-          <path d="M.006 999.969l226.007-226.007 225.992 225.993L226 1225.96z"/>
-          <path d="M611.59 1159.58l388.4 388.39 388.59-388.58 226.12 225.88-.11.12L999.99 2000l-614.41-614.4-.32-.32 226.33-225.7"/>
-          <path d="M1548.013 1000.093l226.007-226.006 225.992 225.992-226.006 226.007z"/>
-          <path d="M1229.22 999.88h.1L999.99 770.55 830.51 940.03h-.01l-19.47 19.48-40.16 40.17-.32.31.32.33 229.12 229.13 229.33-229.33.11-.13-.21-.11"/>
-        </g>
-      </svg>
-    ),
-    usdt: (
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="40px" height="45px">
-        <circle cx="24" cy="24" r="20" fill="#26a69a"/>
-        <rect width="18" height="5" x="15" y="13" fill="#fff"/>
-        <path fill="#fff" d="M24,21c-4.457,0-12,0.737-12,3.5S19.543,28,24,28s12-0.737,12-3.5S28.457,21,24,21z M24,26 c-5.523,0-10-0.895-10-2c0-1.105,4.477-2,10-2s10,0.895,10,2C34,25.105,29.523,26,24,26z"/>
-        <path fill="#fff" d="M24,24c1.095,0,2.093-0.037,3-0.098V13h-6v10.902C21.907,23.963,22.905,24,24,24z"/>
-        <path fill="#fff" d="M25.723,25.968c-0.111,0.004-0.223,0.007-0.336,0.01C24.932,25.991,24.472,26,24,26 s-0.932-0.009-1.387-0.021c-0.113-0.003-0.225-0.006-0.336-0.10c-0.435-0.015-0.863-0.034-1.277-0.06V36h6V25.908 C26.586,25.934,26.158,25.953,25.723,25.968z"/>
-      </svg>
-    )
-  };
+  if (iconFromApi) {
+    return (
+      <img
+        src={iconFromApi}
+        alt={name}
+        style={{ width: '40px', height: '45px' }}
+        onError={(e) => { e.target.src = 'https://via.placeholder.com/40'; }}
+      />
+    );
+  }
 
-  // Если есть иконка из API
-  // if (iconFromApi) {
-  //   return <img src={iconFromApi} alt={name} style={{ width: '40px', height: '45px' }} />;
-  // }
-
-  return fallbackIcons[name.toLowerCase()] || (
+  return (
     <svg width="40px" height="45px" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
       <circle cx="16" cy="16" r="16" fill="#ccc" />
     </svg>
@@ -88,7 +44,128 @@ const Home = () => {
   const [prevScrollPos, setPrevScrollPos] = useState(0);
   const [hasScrolled, setHasScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [popularCryptos, setPopularCryptos] = useState([]);
+  const [cryptoDataByCategory, setCryptoDataByCategory] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+
+  const categories = ["Popular", "Metaverse", "Entertainment", "Energy", "Gaming", "Music"];
+
+  // Получаем данные из API
+  useEffect(() => {
+    const fetchMarketData = async () => {
+      try {
+        const cachedData = localStorage.getItem('marketData');
+        if (cachedData) {
+          const parsedData = JSON.parse(cachedData);
+          processMarketData(parsedData);
+          setIsLoading(false);
+          fetchAndUpdateData();
+        } else {
+          await fetchAndUpdateData();
+        }
+      } catch (error) {
+        console.error('Error fetching market data:', error);
+        setPopularCryptos([]);
+        setCryptoDataByCategory({});
+        setIsLoading(false);
+      }
+    };
+
+    const fetchAndUpdateData = async () => {
+      try {
+        const coins = await marketApi.getMarketCoins();
+        localStorage.setItem('marketData', JSON.stringify(coins));
+        processMarketData(coins);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error updating market data:', error);
+        setIsLoading(false);
+      }
+    };
+
+    const processMarketData = (coins) => {
+      // Форматируем данные для Most Popular (первые 4 монеты)
+      const formattedPopularCryptos = coins.slice(0, 4).map((coin, index) => {
+        const currentPrice = coin.price_usd;
+        const chartDataPoints = Array(7).fill(0).map((_, i) => {
+          const variation = (Math.random() - 0.5) * currentPrice * 0.05;
+          return Math.max(currentPrice + variation * (i / 6), 0);
+        });
+        chartDataPoints[6] = currentPrice;
+
+        return {
+          name: coin.ticker,
+          fullName: coin.currency,
+          price: currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2 }),
+          change: `${coin.change_24h > 0 ? '+' : ''}${coin.change_24h}%`,
+          logo_url: coin.logo_url || 'https://via.placeholder.com/40',
+          chartData: {
+            labels: ['1', '2', '3', '4', '5', '6', '7'],
+            datasets: [
+              {
+                data: chartDataPoints,
+                borderColor: coin.change_24h >= 0 ? '#34c759' : '#ff3b30',
+                backgroundColor: coin.change_24h >= 0 ? 'rgba(52, 199, 89, 0.3)' : 'rgba(255, 59, 48, 0.3)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0,
+              },
+            ],
+          },
+        };
+      });
+      setPopularCryptos(formattedPopularCryptos);
+
+      // Форматируем данные для Market Update
+      const allCoinsFormatted = coins.map((coin, index) => {
+        const currentPrice = coin.price_usd;
+        const chartDataPoints = Array(7).fill(0).map((_, i) => {
+          const variation = (Math.random() - 0.5) * currentPrice * 0.05;
+          return Math.max(currentPrice + variation * (i / 6), 0);
+        });
+        chartDataPoints[6] = currentPrice;
+
+        return {
+          id: (index % 7) + 1,
+          name: coin.ticker,
+          price: `$${coin.price_usd.toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
+          change: `${coin.change_24h > 0 ? '+' : ''}${coin.change_24h}%`,
+          changePositive: coin.change_24h > 0,
+          ticker: coin.ticker,
+          logo_url: coin.logo_url || 'https://via.placeholder.com/40',
+          chartData: {
+            labels: ['1', '2', '3', '4', '5', '6', '7'],
+            datasets: [
+              {
+                data: chartDataPoints,
+                borderColor: coin.change_24h >= 0 ? '#34c759' : '#ff3b30',
+                backgroundColor: coin.change_24h >= 0 ? 'rgba(52, 199, 89, 0.3)' : 'rgba(255, 59, 48, 0.3)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0,
+              },
+            ],
+          },
+        };
+      });
+
+      // Распределяем монеты по категориям (по 7 в каждую)
+      const dataByCategory = {};
+      categories.forEach((category, index) => {
+        const startIndex = index * 7;
+        const endIndex = startIndex + 7;
+        dataByCategory[category] = allCoinsFormatted.slice(startIndex, endIndex).map((coin, idx) => ({
+          ...coin,
+          id: idx + 1,
+        }));
+      });
+
+      setCryptoDataByCategory(dataByCategory);
+    };
+
+    fetchMarketData();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -144,106 +221,6 @@ const Home = () => {
       document.body.style.overflow = 'auto';
     };
   }, [isMenuOpen]);
-
-  //change to api
-  const popularCryptos = [
-    {
-      name: 'BTC',
-      fullName: 'Bitcoin',
-      price: '100,623.54',
-      change: '+1.41%',
-      icon: <CryptoIcon name="BTC" />,
-      chartData: {
-        labels: ['1', '2', '3', '4', '5', '6', '7'],
-        datasets: [
-          {
-            data: [100000, 100500, 100200, 100800, 100600, 101000, 100623.54],
-            borderColor: '#34c759',
-            backgroundColor: 'rgba(52, 199, 89, 0.3)',
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0,
-          },
-        ],
-      },
-    },
-    {
-      name: 'ETH',
-      fullName: 'Ethereum',
-      price: '4,267.90',
-      change: '+2.23%',
-      icon: <CryptoIcon name="ETH" />,
-      chartData: {
-        labels: ['1', '2', '3', '4', '5', '6', '7'],
-        datasets: [
-          {
-            data: [4200, 4250, 4220, 4300, 4280, 4260, 4267.9],
-            borderColor: '#34c759',
-            backgroundColor: 'rgba(52, 199, 89, 0.3)',
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0,
-          },
-        ],
-      },
-    },
-    {
-      name: 'BNB',
-      fullName: 'Binance',
-      price: '587.74',
-      change: '+0.82%',
-      icon: <CryptoIcon name="BNB" />,
-      chartData: {
-        labels: ['1', '2', '3', '4', '5', '6', '7'],
-        datasets: [
-          {
-            data: [580, 582, 585, 583, 586, 584, 587.74],
-            borderColor: '#34c759',
-            backgroundColor: 'rgba(52, 199, 89, 0.3)',
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0,
-          },
-        ],
-      },
-    },
-    {
-      name: 'USDT',
-      fullName: 'Tether',
-      price: '0.9998',
-      change: '+0.03%',
-      icon: <CryptoIcon name="USDT" />,
-      chartData: {
-        labels: ['1', '2', '3', '4', '5', '6', '7'],
-        datasets: [
-          {
-            data: [0.9995, 0.9996, 0.9997, 0.9996, 0.9998, 0.9997, 0.9998],
-            borderColor: '#34c759',
-            backgroundColor: 'rgba(52, 199, 89, 0.3)',
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0,
-          },
-        ],
-      },
-    },
-  ];
-    //change to api
-  const categories = ["Popular", "Metaverse", "Entertainment", "Energy", "Gaming", "Music"];
-  const cryptoDataByCategory = {
-    Popular: popularCryptos.map((crypto, index) => ({
-      id: index + 1,
-      name: crypto.name,
-      price: `$${crypto.price}`,
-      change: crypto.change,
-      changePositive: crypto.change.startsWith('+')
-    })),
-    Metaverse: [{ id: 1, name: "Decentraland", price: "$3.45", change: "-0.42%", changePositive: false }],
-    Entertainment: [{ id: 1, name: "Theta", price: "$7.89", change: "2.01%", changePositive: true }],
-    Energy: [{ id: 1, name: "Power Ledger", price: "$0.59", change: "-1.21%", changePositive: false }],
-    Gaming: [{ id: 1, name: "Axie Infinity", price: "$72.13", change: "0.78%", changePositive: true }],
-    Music: [{ id: 1, name: "Audius", price: "$1.24", change: "-0.90%", changePositive: false }],
-  };
 
   const chartOptions = {
     responsive: true,
@@ -368,33 +345,41 @@ const Home = () => {
       <section className="popular-section">
         <h2>Most Popular</h2>
         <div className="crypto-cards">
-          {popularCryptos.map((crypto, index) => (
-            <div key={index} className="crypto-card">
-              <div className="crypto-content">
-                <div className="crypto-header">
-                  <span className="crypto-icon">{crypto.icon}</span>
-                  <div className="crypto-name">
-                    <span className="name">{crypto.name}</span>
-                    <span className="full-name">{crypto.fullName}</span>
+          {isLoading ? (
+            <p>Loading popular cryptos...</p>
+          ) : popularCryptos.length > 0 ? (
+            popularCryptos.map((crypto, index) => (
+              <div key={index} className="crypto-card">
+                <div className="crypto-content">
+                  <div className="crypto-header">
+                    <span className="crypto-icon">
+                      <CryptoIcon name={crypto.name} iconFromApi={crypto.logo_url} />
+                    </span>
+                    <div className="crypto-name">
+                      <span className="name">{crypto.name}</span>
+                      <span className="full-name">{crypto.fullName}</span>
+                    </div>
+                  </div>
+                  <div className="crypto-price">
+                    <span>${crypto.price}</span>
+                    <span className={`price-change ${crypto.change.startsWith('+') ? 'positive' : 'negative'}`}>
+                      {crypto.change}
+                    </span>
                   </div>
                 </div>
-                <div className="crypto-price">
-                  <span>${crypto.price}</span>
-                  <span className={`price-change ${crypto.change.startsWith('+') ? 'positive' : 'negative'}`}>
-                    {crypto.change}
-                  </span>
+                <div className="crypto-chart-wrapper">
+                  <div className="crypto-chart">
+                    <Line data={crypto.chartData} options={chartOptions} />
+                  </div>
                 </div>
               </div>
-              <div className="crypto-chart-wrapper">
-                <div className="crypto-chart">
-                  <Line data={crypto.chartData} options={chartOptions} />
-                </div>
-              </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p>No popular cryptos available.</p>
+          )}
         </div>
       </section>
-      
+
       {/* Features Section */}
       <section className="features-section">
         <h2>Lunify Amazing Features</h2>
@@ -450,35 +435,43 @@ const Home = () => {
             <span>TRADE</span>
           </div>
           <div className="mu-table-body" key={activeCategory}>
-            {cryptoDataByCategory[activeCategory].map((crypto) => (
-              <div key={crypto.id} className="mu-table-row">
-                <span>{crypto.id}</span>
-                <span className="mu-crypto-name">
-                  {crypto.icon ? (
-                    crypto.icon
-                  ) : (
-                    <CryptoIcon name={crypto.name} />
-                  )}
-                  {crypto.name}
-                </span>
-                <span>{crypto.price}</span>
-                <span className={crypto.changePositive ? "mu-change-positive" : "mu-change-negative"}>
-                  {crypto.change}
-                </span>
-                <span className="mu-market-stats">
-                  <div className="mu-chart-placeholder"></div>
-                </span>
-                {isLoggedIn ? (
-                  <Link to="/trade">
-                    <button className="mu-trade-btn">Trade</button>
-                  </Link>
-                ) : (
-                  <button className="mu-trade-btn mu-trade-btn-disabled" disabled title="Please login to trade">
-                    Trade
-                  </button>
-                )}
+            {isLoading ? (
+              <div className="mu-table-row">
+                <span colSpan="6">Loading market data...</span>
               </div>
-            ))}
+            ) : cryptoDataByCategory[activeCategory] && cryptoDataByCategory[activeCategory].length > 0 ? (
+              cryptoDataByCategory[activeCategory].map((crypto) => (
+                <div key={crypto.id} className="mu-table-row">
+                  <span>{crypto.id}</span>
+                  <span className="mu-crypto-name">
+                    <CryptoIcon name={crypto.name} iconFromApi={crypto.logo_url} />
+                    {crypto.name}
+                  </span>
+                  <span>{crypto.price}</span>
+                  <span className={crypto.changePositive ? "mu-change-positive" : "mu-change-negative"}>
+                    {crypto.change}
+                  </span>
+                  <span className="mu-market-stats">
+                    <div className="mu-market-chart">
+                      <Line data={crypto.chartData} options={chartOptions} />
+                    </div>
+                  </span>
+                  {isLoggedIn ? (
+                    <Link to="/trade">
+                      <button className="mu-trade-btn">Trade</button>
+                    </Link>
+                  ) : (
+                    <button className="mu-trade-btn mu-trade-btn-disabled" disabled title="Please login to trade">
+                      Trade
+                    </button>
+                  )}
+                </div>
+              ))
+            ) : (
+              <div className="mu-table-row">
+                <span colSpan="6">No data available for this category.</span>
+              </div>
+            )}
           </div>
         </div>
         <a href="/trade" className="mu-see-all-coins">

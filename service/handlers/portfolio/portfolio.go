@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"service/api"
 	"service/common"
 
 	"github.com/gofiber/fiber/v2"
@@ -195,8 +196,7 @@ func AddPortfolioCoin(c *fiber.Ctx) error {
 		return common.SendError(c, "Portfolio not found or not owned by user", fiber.StatusNotFound)
 	}
 
-	//calculate price monet
-	priceUSD, err := common.GetMarketCoinPrice(input.Ticker)
+	priceUSD, err := api.FetchCoinPrice(input.Ticker)
 	if err != nil {
 		return common.SendError(c, "Failed to fetch coin price", fiber.StatusInternalServerError)
 	}
@@ -248,7 +248,7 @@ func AddPortfolioCoin(c *fiber.Ctx) error {
 	return c.JSON(coin)
 }
 
-// delete monet in portfolio
+// Продажа монеты из портфеля
 func SellPortfolioCoin(c *fiber.Ctx) error {
 	claims, err := common.ParseJWT(c.Get("Authorization"))
 	if err != nil {
@@ -293,7 +293,7 @@ func SellPortfolioCoin(c *fiber.Ctx) error {
 		return common.SendError(c, "Not enough coins to sell", fiber.StatusBadRequest)
 	}
 
-	priceUSD, err := common.GetMarketCoinPrice(input.Ticker)
+	priceUSD, err := api.FetchCoinPrice(input.Ticker)
 	if err != nil {
 		return common.SendError(c, "Failed to fetch coin price", fiber.StatusInternalServerError)
 	}
