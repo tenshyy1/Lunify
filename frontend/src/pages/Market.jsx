@@ -5,26 +5,26 @@ import SideHeader from '../components/SideHeader';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import marketApi from '../services/market';
+import marketApi from '../services/market'; 
 import walletApi from '../services/wallet';
 
 const Market = ({ onLogout, login, avatar }) => {
   const [selectedCategory, setSelectedCategory] = useState('Popular');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
-  const [itemsPerPage, setItemsPerPage] = useState(100);
+  const [itemsPerPage, setItemsPerPage] = useState(50); 
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [allCoins, setAllCoins] = useState([]); // Храним все монеты
-  const [sectionData, setSectionData] = useState([]); // Данные для текущей категории
+  const [allCoins, setAllCoins] = useState([]);
+  const [sectionData, setSectionData] = useState([]);
   const [topGainers, setTopGainers] = useState([]);
   const [portfolios, setPortfolios] = useState([]);
   const [selectedPortfolioId, setSelectedPortfolioId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalAction, setModalAction] = useState('buy'); // 'buy' или 'sell'
+  const [modalAction, setModalAction] = useState('buy');
   const [selectedCoin, setSelectedCoin] = useState(null);
   const [amount, setAmount] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Списки тикеров для категорий
   const categoryTickers = {
     Metaverse: ['SAND', 'MANA', 'ENJ', 'AXS', 'DEC', 'ATLAS', 'STARL', 'RACA', 'ILV', 'UFO', 'RNDR', 'ALICE', 'CHR', 'TLM', 'BOSON', 'DEP', 'YGG', 'CUBE', 'VRA', 'WILD'],
     Entertainment: ['THETA', 'TFUEL', 'BAT', 'CHZ', 'OGN', 'SLP', 'WOM', 'RFR', 'VIB', 'MFT', 'DENT', 'FUN', 'CELR', 'MTL', 'IQ', 'COS', 'WTC', 'KEY', 'LBC', 'BLZ'],
@@ -34,41 +34,13 @@ const Market = ({ onLogout, login, avatar }) => {
   };
 
   useEffect(() => {
-    fetchMarketData();
+    marketApi.fetchMarketData(selectedCategory, setAllCoins, setTopGainers, setIsLoading, toast);
     fetchPortfolios();
-  }, []);
+  }, [selectedCategory]);
 
-  // Обновляем данные для выбранной категории
   useEffect(() => {
     categorizeCoins();
-  }, [selectedCategory, allCoins, searchQuery]);
-
-  const fetchMarketData = async () => {
-    try {
-      const coins = await marketApi.getMarketCoins();
-      const gainers = await marketApi.getTopGainers();
-      setAllCoins(coins.map((coin, index) => ({
-        id: String(index + 1).padStart(2, '0'),
-        currency: coin.currency,
-        ticker: coin.ticker,
-        logo_url: coin.logo_url || 'https://via.placeholder.com/40',
-        price: `$${coin.price_usd.toLocaleString('en-US')}`,
-        last24h: `${coin.change_24h > 0 ? '+' : ''}${coin.change_24h}%`,
-        last7d: `${coin.change_7d > 0 ? '+' : ''}${coin.change_7d}%`,
-      })));
-      setTopGainers(gainers.map(gainer => ({
-        currency: gainer.currency,
-        ticker: gainer.ticker,
-        price: `USD ${gainer.price_usd.toLocaleString('en-US')}`,
-        change: `${gainer.change_24h > 0 ? '+' : ''}${gainer.change_24h}%`,
-        logo_url: gainer.logo_url || 'https://via.placeholder.com/40',
-      })));
-    } catch (error) {
-      toast.error(error.message || 'Failed to fetch market data');
-      setAllCoins([]);
-      setTopGainers([]);
-    }
-  };
+  }, [allCoins, searchQuery]);
 
   const fetchPortfolios = async () => {
     try {
@@ -92,21 +64,12 @@ const Market = ({ onLogout, login, avatar }) => {
   const categorizeCoins = () => {
     let filteredCoins = allCoins;
 
-    if (selectedCategory === 'Popular') {
-      filteredCoins = allCoins.slice(0, 20); // Первые 20 монет
-    } else if (selectedCategory in categoryTickers) {
-      filteredCoins = allCoins.filter(coin => 
-        categoryTickers[selectedCategory].includes(coin.ticker.toUpperCase())
-      ).slice(0, 20); // До 20 монет для каждой категории
-    }
-
-    // Применяем поиск
     filteredCoins = filteredCoins.filter((crypto) =>
       crypto.currency.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     setSectionData(filteredCoins);
-    setCurrentPage(1); // Сбрасываем страницу при изменении категории или поиска
+    setCurrentPage(1);
   };
 
   const handleBuyClick = (coin) => {
@@ -186,7 +149,6 @@ const Market = ({ onLogout, login, avatar }) => {
       : bValue.localeCompare(aValue);
   });
 
-  // Pagination logic
   const totalItems = sortedData.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -197,7 +159,6 @@ const Market = ({ onLogout, login, avatar }) => {
     displayId: String(startIndex + index + 1).padStart(2, '0'),
   }));
 
-  // Event handlers for sorting, pagination, and search
   const handleSort = (key) => {
     setSortConfig((prev) => ({
       key,
@@ -221,7 +182,6 @@ const Market = ({ onLogout, login, avatar }) => {
     }
   };
 
-  // Generate pagination buttons
   const paginationButtons = [];
   for (let i = 1; i <= Math.min(totalPages, 6); i++) {
     paginationButtons.push(
@@ -243,7 +203,6 @@ const Market = ({ onLogout, login, avatar }) => {
         <div className="market-content-wrapper">
           <section className="market-section">
             <div className="market-content-container">
-              {/* Top gainers section */}
               <div className="market-top-gainers">
                 {topGainers.map((gainer, index) => (
                   <div key={index} className="market-top-gainer-card">
@@ -267,7 +226,6 @@ const Market = ({ onLogout, login, avatar }) => {
 
               <div className="market-divider"></div>
 
-              {/* Table and category controls */}
               <div className="market-table-wrapper">
                 <div className="market-categories-wrapper">
                   <div className="market-categories-and-search">
@@ -281,6 +239,7 @@ const Market = ({ onLogout, login, avatar }) => {
                             setSearchQuery('');
                             setCurrentPage(1);
                           }}
+                          disabled={isLoading}
                         >
                           {category}
                         </button>
@@ -293,6 +252,7 @@ const Market = ({ onLogout, login, avatar }) => {
                         placeholder={`Search in ${selectedCategory}...`}
                         value={searchQuery}
                         onChange={handleSearchChange}
+                        disabled={isLoading}
                       />
                       <svg
                         className="market-search-icon"
@@ -313,11 +273,10 @@ const Market = ({ onLogout, login, avatar }) => {
                   </div>
                   <div className="market-items-per-page">
                     <label>Show: </label>
-                    <select value={itemsPerPage} onChange={handleItemsPerPageChange}>
+                    <select value={itemsPerPage} onChange={handleItemsPerPageChange} disabled={isLoading}>
+                      <option value={50}>50</option>
                       <option value={100}>100</option>
-                      <option value={200}>200</option>
-                      <option value={300}>300</option>
-                      <option value={400}>400</option>
+                      <option value={150}>150</option>
                     </select>
                   </div>
                 </div>
@@ -339,6 +298,7 @@ const Market = ({ onLogout, login, avatar }) => {
                         border: '1px solid #444',
                         borderRadius: '8px',
                       }}
+                      disabled={isLoading}
                     >
                       {portfolios.map((portfolio) => (
                         <option key={portfolio.id} value={portfolio.id}>
@@ -354,91 +314,108 @@ const Market = ({ onLogout, login, avatar }) => {
                 )}
 
                 <AnimatePresence mode="wait">
-                  <motion.div
-                    key={selectedCategory}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <table className="market-crypto-table">
-                      <thead>
-                        <tr>
-                          <th onClick={() => handleSort('id')}>
-                            No.
-                            <span className="market-sort-arrow">
-                              {sortConfig.key === 'id' ? (sortConfig.direction === 'asc' ? ' ↑' : ' ↓') : ' ↕'}
-                            </span>
-                          </th>
-                          <th onClick={() => handleSort('currency')}>
-                            Currency
-                            <span className="market-sort-arrow">
-                              {sortConfig.key === 'currency' ? (sortConfig.direction === 'asc' ? ' ↑' : ' ↓') : ' ↕'}
-                            </span>
-                          </th>
-                          <th onClick={() => handleSort('price')}>
-                            Current Price
-                            <span className="market-sort-arrow">
-                              {sortConfig.key === 'price' ? (sortConfig.direction === 'asc' ? ' ↑' : ' ↓') : ' ↕'}
-                            </span>
-                          </th>
-                          <th onClick={() => handleSort('last24h')}>
-                            Last 24h
-                            <span className="market-sort-arrow">
-                              {sortConfig.key === 'last24h' ? (sortConfig.direction === 'asc' ? ' ↑' : ' ↓') : ' ↕'}
-                            </span>
-                          </th>
-                          <th onClick={() => handleSort('last7d')}>
-                            Last 7d
-                            <span className="market-sort-arrow">
-                              {sortConfig.key === 'last7d' ? (sortConfig.direction === 'asc' ? ' ↑' : ' ↓') : ' ↕'}
-                            </span>
-                          </th>
-                          <th>Performance</th>
-                          <th>Options</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {numberedData.map((crypto) => (
-                          <tr key={crypto.id}>
-                            <td>{crypto.displayId}</td>
-                            <td>
-                              <img src={crypto.logo_url} alt={crypto.ticker} className="market-currency-icon" style={{ width: '40px', height: '40px' }} />
-                              {crypto.currency}
-                            </td>
-                            <td>{crypto.price}</td>
-                            <td className={crypto.last24h.includes('+') ? 'market-positive' : 'market-negative'}>
-                              {crypto.last24h}
-                            </td>
-                            <td className={crypto.last7d.includes('+') ? 'market-positive' : 'market-negative'}>
-                              {crypto.last7d}
-                            </td>
-                            <td>
-                              <div className="market-performance-graph">📈</div>
-                            </td>
-                            <td className="market-options-buttons">
-                              <button className="market-buy-btn" onClick={() => handleBuyClick(crypto)}>Buy</button>
-                              <button className="market-sell-btn" onClick={() => handleSellClick(crypto)}>Sell</button>
-                            </td>
+                  {isLoading ? (
+                    <motion.div
+                      key="loading"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      style={{ textAlign: 'center', padding: '20px' }}
+                    >
+                      <div className="loading-dots">
+                        <span className="dot"></span>
+                        <span className="dot"></span>
+                        <span className="dot"></span>
+                      </div>
+                      <p style={{ color: '#a0aec0' }}>Fetching market data...</p>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key={selectedCategory}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <table className="market-crypto-table">
+                        <thead>
+                          <tr>
+                            <th onClick={() => handleSort('id')}>
+                              No.
+                              <span className="market-sort-arrow">
+                                {sortConfig.key === 'id' ? (sortConfig.direction === 'asc' ? ' ↑' : ' ↓') : ' ↕'}
+                              </span>
+                            </th>
+                            <th onClick={() => handleSort('currency')}>
+                              Currency
+                              <span className="market-sort-arrow">
+                                {sortConfig.key === 'currency' ? (sortConfig.direction === 'asc' ? ' ↑' : ' ↓') : ' ↕'}
+                              </span>
+                            </th>
+                            <th onClick={() => handleSort('price')}>
+                              Current Price
+                              <span className="market-sort-arrow">
+                                {sortConfig.key === 'price' ? (sortConfig.direction === 'asc' ? ' ↑' : ' ↓') : ' ↕'}
+                              </span>
+                            </th>
+                            <th onClick={() => handleSort('last24h')}>
+                              Last 24h
+                              <span className="market-sort-arrow">
+                                {sortConfig.key === 'last24h' ? (sortConfig.direction === 'asc' ? ' ↑' : ' ↓') : ' ↕'}
+                              </span>
+                            </th>
+                            <th onClick={() => handleSort('last7d')}>
+                              Last 7d
+                              <span className="market-sort-arrow">
+                                {sortConfig.key === 'last7d' ? (sortConfig.direction === 'asc' ? ' ↑' : ' ↓') : ' ↕'}
+                              </span>
+                            </th>
+                            <th>Performance</th>
+                            <th>Options</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </motion.div>
+                        </thead>
+                        <tbody>
+                          {numberedData.map((crypto) => (
+                            <tr key={crypto.id}>
+                              <td>{crypto.displayId}</td>
+                              <td>
+                                <img src={crypto.logo_url} alt={crypto.ticker} className="market-currency-icon" style={{ width: '40px', height: '40px' }} />
+                                {crypto.currency}
+                              </td>
+                              <td>{crypto.price}</td>
+                              <td className={crypto.last24h.includes('+') ? 'market-positive' : 'market-negative'}>
+                                {crypto.last24h}
+                              </td>
+                              <td className={crypto.last7d.includes('+') ? 'market-positive' : 'market-negative'}>
+                                {crypto.last7d}
+                              </td>
+                              <td>
+                                <div className="market-performance-graph">📈</div>
+                              </td>
+                              <td className="market-options-buttons">
+                                <button className="market-buy-btn" onClick={() => handleBuyClick(crypto)}>Buy</button>
+                                <button className="market-sell-btn" onClick={() => handleSellClick(crypto)}>Sell</button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </motion.div>
+                  )}
                 </AnimatePresence>
 
-                {/* Pagination controls */}
                 <div className="market-pagination">
                   <button
                     onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
+                    disabled={currentPage === 1 || isLoading}
                   >
                     Prev
                   </button>
                   {paginationButtons}
                   <button
                     onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
+                    disabled={currentPage === totalPages || isLoading}
                   >
                     Next
                   </button>
