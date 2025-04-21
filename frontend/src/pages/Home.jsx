@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip, Legend } from 'chart.js';
@@ -292,32 +293,40 @@ const Home = () => {
               <p style={{ color: '#a0aec0', marginTop: '10px' }}>Loading popular cryptos...</p>
             </div>
           ) : popularCryptos.length > 0 ? (
-            popularCryptos.map((crypto, index) => (
-              <div key={index} className="crypto-card">
-                <div className="crypto-content">
-                  <div className="crypto-header">
-                    <span className="crypto-icon">
-                      <CryptoIcon name={crypto.name} iconFromApi={crypto.logo_url} />
-                    </span>
-                    <div className="crypto-name">
-                      <span className="name">{crypto.name}</span>
-                      <span className="full-name">{crypto.fullName}</span>
+            <AnimatePresence>
+              {popularCryptos.map((crypto, index) => (
+                <motion.div
+                  key={index}
+                  className="crypto-card"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.2 }} 
+                >
+                  <div className="crypto-content">
+                    <div className="crypto-header">
+                      <span className="crypto-icon">
+                        <CryptoIcon name={crypto.name} iconFromApi={crypto.logo_url} />
+                      </span>
+                      <div className="crypto-name">
+                        <span className="name">{crypto.name}</span>
+                        <span className="full-name">{crypto.fullName}</span>
+                      </div>
+                    </div>
+                    <div className="crypto-price">
+                      <span>${crypto.price}</span>
+                      <span className={`price-change ${crypto.change.startsWith('+') ? 'positive' : 'negative'}`}>
+                        {crypto.change}
+                      </span>
                     </div>
                   </div>
-                  <div className="crypto-price">
-                    <span>${crypto.price}</span>
-                    <span className={`price-change ${crypto.change.startsWith('+') ? 'positive' : 'negative'}`}>
-                      {crypto.change}
-                    </span>
+                  <div className="crypto-chart-wrapper">
+                    <div className="crypto-chart">
+                      <Line data={crypto.chartData} options={chartOptions} />
+                    </div>
                   </div>
-                </div>
-                <div className="crypto-chart-wrapper">
-                  <div className="crypto-chart">
-                    <Line data={crypto.chartData} options={chartOptions} />
-                  </div>
-                </div>
-              </div>
-            ))
+                </motion.div>
+              ))}
+            </AnimatePresence>
           ) : (
             <p>No popular cryptos available.</p>
           )}
