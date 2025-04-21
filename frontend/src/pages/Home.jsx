@@ -4,7 +4,7 @@ import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip, Legend } from 'chart.js';
 import '../styles/home.css';
 import { getProfile } from '../services/profile';
-import marketApi from '../services/market';
+import homeApi from '../services/home';
 import favicon from '../assets/favicon.png';
 import nftInvesting from '../assets/news/nft-investing.jpg';
 import news2 from '../assets/news/news2.jpg';
@@ -51,120 +51,17 @@ const Home = () => {
 
   const categories = ["Popular", "Metaverse", "Entertainment", "Energy", "Gaming", "Music"];
 
-  // Получаем данные из API
+  const categoryTickers = {
+    Metaverse: ['SAND', 'MANA', 'ENJ', 'AXS', 'DEC', 'ATLAS', 'STARL', 'RACA', 'ILV', 'UFO', 'RNDR', 'ALICE', 'CHR', 'TLM', 'BOSON', 'DEP', 'YGG', 'CUBE', 'VRA', 'WILD'],
+    Entertainment: ['THETA', 'TFUEL', 'BAT', 'CHZ', 'OGN', 'SLP', 'WOM', 'RFR', 'VIB', 'MFT', 'DENT', 'FUN', 'CELR', 'MTL', 'IQ', 'COS', 'WTC', 'KEY', 'LBC', 'BLZ'],
+    Energy: ['POWR', 'EWT', 'SNC', 'WPR', 'GRID', 'SEELE', 'ENG', 'REQ', 'OST', 'GVT', 'AMB', 'NAS', 'QSP', 'RDN', 'DLT', 'APPC', 'SNTVT', 'NULS', 'FUEL', 'XAS'],
+    Gaming: ['GALA', 'IMX', 'WAXP', 'UOS', 'MBOX', 'PYR', 'VULC', 'XWG', 'GAFI', 'KRL', 'AURY', 'PRIME', 'MYRIA', 'NAKA', 'GODS', 'FYN', 'LOKA', 'TLM', 'DERC', 'GHX'],
+    Music: ['AUDIO', 'VIB', 'MFT', 'RFR', 'COS', 'VRA', 'BLZ', 'WOM', 'CELR', 'IQ', 'KEY', 'LBC', 'WTC', 'MTL', 'DENT', 'FUN', 'REQ', 'OST', 'RDN', 'SNTVT'],
+  };
+
+  // Fetch data using homeApi
   useEffect(() => {
-    const fetchMarketData = async () => {
-      try {
-        const cachedData = localStorage.getItem('marketData');
-        if (cachedData) {
-          const parsedData = JSON.parse(cachedData);
-          processMarketData(parsedData);
-          setIsLoading(false);
-          fetchAndUpdateData();
-        } else {
-          await fetchAndUpdateData();
-        }
-      } catch (error) {
-        console.error('Error fetching market data:', error);
-        setPopularCryptos([]);
-        setCryptoDataByCategory({});
-        setIsLoading(false);
-      }
-    };
-
-    const fetchAndUpdateData = async () => {
-      try {
-        const coins = await marketApi.getMarketCoins();
-        localStorage.setItem('marketData', JSON.stringify(coins));
-        processMarketData(coins);
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Error updating market data:', error);
-        setIsLoading(false);
-      }
-    };
-
-    const processMarketData = (coins) => {
-      // Форматируем данные для Most Popular (первые 4 монеты)
-      const formattedPopularCryptos = coins.slice(0, 4).map((coin, index) => {
-        const currentPrice = coin.price_usd;
-        const chartDataPoints = Array(7).fill(0).map((_, i) => {
-          const variation = (Math.random() - 0.5) * currentPrice * 0.05;
-          return Math.max(currentPrice + variation * (i / 6), 0);
-        });
-        chartDataPoints[6] = currentPrice;
-
-        return {
-          name: coin.ticker,
-          fullName: coin.currency,
-          price: currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2 }),
-          change: `${coin.change_24h > 0 ? '+' : ''}${coin.change_24h}%`,
-          logo_url: coin.logo_url || 'https://via.placeholder.com/40',
-          chartData: {
-            labels: ['1', '2', '3', '4', '5', '6', '7'],
-            datasets: [
-              {
-                data: chartDataPoints,
-                borderColor: coin.change_24h >= 0 ? '#34c759' : '#ff3b30',
-                backgroundColor: coin.change_24h >= 0 ? 'rgba(52, 199, 89, 0.3)' : 'rgba(255, 59, 48, 0.3)',
-                fill: true,
-                tension: 0.4,
-                pointRadius: 0,
-              },
-            ],
-          },
-        };
-      });
-      setPopularCryptos(formattedPopularCryptos);
-
-      // Форматируем данные для Market Update
-      const allCoinsFormatted = coins.map((coin, index) => {
-        const currentPrice = coin.price_usd;
-        const chartDataPoints = Array(7).fill(0).map((_, i) => {
-          const variation = (Math.random() - 0.5) * currentPrice * 0.05;
-          return Math.max(currentPrice + variation * (i / 6), 0);
-        });
-        chartDataPoints[6] = currentPrice;
-
-        return {
-          id: (index % 7) + 1,
-          name: coin.ticker,
-          price: `$${coin.price_usd.toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
-          change: `${coin.change_24h > 0 ? '+' : ''}${coin.change_24h}%`,
-          changePositive: coin.change_24h > 0,
-          ticker: coin.ticker,
-          logo_url: coin.logo_url || 'https://via.placeholder.com/40',
-          chartData: {
-            labels: ['1', '2', '3', '4', '5', '6', '7'],
-            datasets: [
-              {
-                data: chartDataPoints,
-                borderColor: coin.change_24h >= 0 ? '#34c759' : '#ff3b30',
-                backgroundColor: coin.change_24h >= 0 ? 'rgba(52, 199, 89, 0.3)' : 'rgba(255, 59, 48, 0.3)',
-                fill: true,
-                tension: 0.4,
-                pointRadius: 0,
-              },
-            ],
-          },
-        };
-      });
-
-      // Распределяем монеты по категориям (по 7 в каждую)
-      const dataByCategory = {};
-      categories.forEach((category, index) => {
-        const startIndex = index * 7;
-        const endIndex = startIndex + 7;
-        dataByCategory[category] = allCoinsFormatted.slice(startIndex, endIndex).map((coin, idx) => ({
-          ...coin,
-          id: idx + 1,
-        }));
-      });
-
-      setCryptoDataByCategory(dataByCategory);
-    };
-
-    fetchMarketData();
+    homeApi.fetchHomeData(setPopularCryptos, setCryptoDataByCategory, setIsLoading, categories, categoryTickers);
   }, []);
 
   useEffect(() => {
@@ -275,6 +172,46 @@ const Home = () => {
 
   return (
     <div className="home-container">
+      {/* Inline styles for loading animation */}
+      <style>
+        {`
+          .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+          }
+          .loading-dots {
+            display: flex;
+            gap: 8px;
+          }
+          .loading-dots .dot {
+            width: 12px;
+            height: 12px;
+            background-color: #a0aec0;
+            border-radius: 50%;
+            animation: pulse 1.4s infinite ease-in-out;
+          }
+          .loading-dots .dot:nth-child(2) {
+            animation-delay: 0.2s;
+          }
+          .loading-dots .dot:nth-child(3) {
+            animation-delay: 0.4s;
+          }
+          @keyframes pulse {
+            0%, 80%, 100% {
+              transform: scale(0.8);
+              opacity: 0.5;
+            }
+            40% {
+              transform: scale(1.2);
+              opacity: 1;
+            }
+          }
+        `}
+      </style>
+
       {/* Navbar */}
       <nav className={`navbar ${isNavVisible ? 'navbar-visible' : 'navbar-hidden'}`}>
         <div className="navbar-header">
@@ -346,7 +283,14 @@ const Home = () => {
         <h2>Most Popular</h2>
         <div className="crypto-cards">
           {isLoading ? (
-            <p>Loading popular cryptos...</p>
+            <div className="loading-container">
+              <div className="loading-dots">
+                <span className="dot"></span>
+                <span className="dot"></span>
+                <span className="dot"></span>
+              </div>
+              <p style={{ color: '#a0aec0', marginTop: '10px' }}>Loading popular cryptos...</p>
+            </div>
           ) : popularCryptos.length > 0 ? (
             popularCryptos.map((crypto, index) => (
               <div key={index} className="crypto-card">
@@ -436,8 +380,13 @@ const Home = () => {
           </div>
           <div className="mu-table-body" key={activeCategory}>
             {isLoading ? (
-              <div className="mu-table-row">
-                <span colSpan="6">Loading market data...</span>
+              <div className="loading-container">
+                <div className="loading-dots">
+                  <span className="dot"></span>
+                  <span className="dot"></span>
+                  <span className="dot"></span>
+                </div>
+                <p style={{ color: '#a0aec0', marginTop: '10px' }}>Loading market data...</p>
               </div>
             ) : cryptoDataByCategory[activeCategory] && cryptoDataByCategory[activeCategory].length > 0 ? (
               cryptoDataByCategory[activeCategory].map((crypto) => (
