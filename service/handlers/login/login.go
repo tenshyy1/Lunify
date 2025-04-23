@@ -51,7 +51,6 @@ func LoginHandler(c *fiber.Ctx) error {
 		return common.SendError(c, "Invalid request body", fiber.StatusBadRequest)
 	}
 
-	// Сначала проверяем, существует ли логин
 	var storedPassword string
 	var id int
 	err := common.DB.QueryRow(
@@ -59,7 +58,6 @@ func LoginHandler(c *fiber.Ctx) error {
 		user.Login,
 	).Scan(&id, &storedPassword)
 	if err != nil {
-		// Если логин не найден, возвращаем конкретную ошибку
 		return common.SendError(c, "Invalid login", fiber.StatusUnauthorized)
 	}
 
