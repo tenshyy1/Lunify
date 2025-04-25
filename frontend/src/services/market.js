@@ -1,17 +1,9 @@
 import debounce from 'lodash.debounce';
-import axios from 'axios';
+import api from './api';
 
-const API_URL = 'http://localhost:8099';
-
-// API service instance
-const marketApi = axios.create({
-  baseURL: API_URL,
-});
-
-// Fetch market coins by category
 const getMarketCoins = async (category) => {
   try {
-    const response = await marketApi.get(`/market/coins?category=${category.toLowerCase()}`);
+    const response = await api.get(`/market/coins?category=${category.toLowerCase()}`);
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.message || 'Failed to fetch market coins');
@@ -21,7 +13,7 @@ const getMarketCoins = async (category) => {
 // Fetch top gainers
 const getTopGainers = async () => {
   try {
-    const response = await marketApi.get('/market/top-gainers');
+    const response = await api.get('/market/top-gainers');
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.message || 'Failed to fetch top gainers');

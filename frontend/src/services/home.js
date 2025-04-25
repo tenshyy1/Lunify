@@ -1,24 +1,15 @@
-import axios from 'axios';
 import debounce from 'lodash.debounce';
+import api from './api';
 
-const API_URL = 'http://localhost:8099';
-
-// API service instance
-const homeApi = axios.create({
-  baseURL: API_URL,
-});
-
-// Fetch market coins with optional category
 const getMarketCoins = async (category = 'popular') => {
   try {
-    const response = await homeApi.get(`/market/coins?category=${category.toLowerCase()}`);
+    const response = await api.get(`/market/coins?category=${category.toLowerCase()}`);
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.message || 'Failed to fetch market coins');
   }
 };
 
-// Debounced fetch data for Home page
 const fetchHomeData = debounce(async (setPopularCryptos, setCryptoDataByCategory, setIsLoading, categories, categoryTickers) => {
   setIsLoading(true);
   try {
@@ -97,7 +88,7 @@ const fetchHomeData = debounce(async (setPopularCryptos, setCryptoDataByCategory
     }));
 
     categories.forEach((category) => {
-      if (category === 'Popular') return; 
+      if (category === 'Popular') return;
       const tickers = categoryTickers[category] || [];
       const categoryCoins = allCoinsFormatted.filter(coin => tickers.includes(coin.ticker)).slice(0, 7);
       dataByCategory[category] = categoryCoins.map((coin, idx) => ({

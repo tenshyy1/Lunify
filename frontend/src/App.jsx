@@ -8,29 +8,22 @@ import Wallet from './pages/Wallet';
 import Profile from './pages/Profile';
 import Swap from './pages/Swap';
 import ProtectedRoute from './context/ProtectedRoute';
-import foto from './assets/favicon.png'; 
+import foto from './assets/favicon.png';
+import api from './services/api'; 
 
 function App() {
   const AppContent = () => {
     const navigate = useNavigate();
-    const [login, setLogin] = useState(''); 
-    const [avatar, setAvatar] = useState(foto); 
+    const [login, setLogin] = useState('');
+    const [avatar, setAvatar] = useState(foto);
 
     // profile logic
     useEffect(() => {
       const token = localStorage.getItem('token');
       if (token) {
-        fetch('http://localhost:8099/profile', {
-          method: 'GET',
-          headers: {
-            'Authorization': token,
-          },
-        })
+        api.get('/profile')
           .then(response => {
-            if (!response.ok) throw new Error('Failed to fetch profile');
-            return response.json();
-          })
-          .then(data => {
+            const data = response.data;
             setLogin(data.login || 'User');
             const avatarUrl = data.avatar_url ? `http://localhost:8099${data.avatar_url}` : foto;
             setAvatar(avatarUrl);
@@ -44,28 +37,12 @@ function App() {
     }, []);
 
     const handleLogout = () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        console.error('No token found');
-        navigate('/login');
-        return;
-      }
-
-      fetch('http://localhost:8099/logout', {
-        method: 'POST',
-        headers: {
-          'Authorization': token,
-        },
-      })
+      api.post('/logout')
         .then(response => {
-          if (!response.ok) throw new Error('Failed to logout');
-          return response.json();
-        })
-        .then(data => {
-          console.log('Logout successful:', data);
+          console.log('Logout successful:', response.data);
           localStorage.removeItem('token');
           setLogin('');
-          setAvatar(foto); 
+          setAvatar(foto);
           navigate('/login');
         })
         .catch(error => {
@@ -76,6 +53,7 @@ function App() {
           navigate('/login');
         });
     };
+
     const updateAvatarUrl = (newAvatarUrl) => {
       setAvatar(newAvatarUrl);
     };

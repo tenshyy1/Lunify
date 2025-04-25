@@ -1,45 +1,19 @@
-const API_URL = "http://localhost:8099";
+import api from './api';
 
 export const loginUser = async (login, password) => {
   try {
-    const response = await fetch(`${API_URL}/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ login, password }),
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.message || "Login failed");
-    }
-
-    return data;
+    const response = await api.post('/login', { login, password });
+    return response.data;
   } catch (error) {
-    console.error("Login error:", error);
-    throw error;
+    throw new Error(error.response?.data?.message || 'Login failed');
   }
 };
 
 export const registerUser = async (login, password) => {
   try {
-    const response = await fetch(`${API_URL}/register`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ login, password }),
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.message || "Registration failed");
-    }
-
-    return data;
+    const response = await api.post('/register', { login, password });
+    return response.data;
   } catch (error) {
-    console.error("Registration error:", error);
-    throw error;
+    throw new Error(error.response?.data?.message || 'Registration failed');
   }
 };

@@ -1,44 +1,57 @@
-import axios from 'axios';
+import api from './api';
 
-const API_URL = 'http://localhost:8099';
-
-const walletApi = {
+export default {
   getPortfolios: async () => {
-    const response = await axios.get(`${API_URL}/portfolios`, {
-      headers: { Authorization: localStorage.getItem('token') },
-    });
-    return response.data;
+    try {
+      const response = await api.get('/portfolios');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch portfolios');
+    }
   },
+
   createPortfolio: async (portfolioData) => {
-    const response = await axios.post(`${API_URL}/portfolios`, portfolioData, {
-      headers: { Authorization: localStorage.getItem('token') },
-    });
-    return response.data;
+    try {
+      const response = await api.post('/portfolios', portfolioData);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to create portfolio');
+    }
   },
+
   deletePortfolio: async (portfolioId) => {
-    const response = await axios.delete(`${API_URL}/portfolios/${portfolioId}`, {
-      headers: { Authorization: localStorage.getItem('token') },
-    });
-    return response.data;
+    try {
+      const response = await api.delete(`/portfolios/${portfolioId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to delete portfolio');
+    }
   },
+
   getPortfolioCoins: async (portfolioId) => {
-    const response = await axios.get(`${API_URL}/portfolios/${portfolioId}/coins`, {
-      headers: { Authorization: localStorage.getItem('token') },
-    });
-    return response.data;
+    try {
+      const response = await api.get(`/portfolios/${portfolioId}/coins`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch portfolio coins');
+    }
   },
+
   addPortfolioCoin: async (portfolioId, coinData) => {
-    const response = await axios.post(`${API_URL}/portfolios/${portfolioId}/coins`, coinData, {
-      headers: { Authorization: localStorage.getItem('token') },
-    });
-    return response.data;
+    try {
+      const response = await api.post(`/portfolios/${portfolioId}/coins`, coinData);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to add coin to portfolio');
+    }
   },
+
   sellPortfolioCoin: async (portfolioId, coinData) => {
-    const response = await axios.post(`${API_URL}/portfolios/${portfolioId}/coins/sell`, coinData, {
-      headers: { Authorization: localStorage.getItem('token') },
-    });
-    return response.data;
+    try {
+      const response = await api.post(`/portfolios/${portfolioId}/coins/sell`, coinData);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to sell coin from portfolio');
+    }
   },
 };
-
-export default walletApi;

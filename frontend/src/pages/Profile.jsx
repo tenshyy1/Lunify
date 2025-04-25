@@ -70,7 +70,7 @@ const Profile = ({ onLogout, login, avatar, updateAvatarUrl }) => {
       return;
     }
 
-    getProfile(token)
+    getProfile()
       .then(data => {
         setFirstName(data.first_name || '');
         setLastName(data.last_name || '');
@@ -96,11 +96,8 @@ const Profile = ({ onLogout, login, avatar, updateAvatarUrl }) => {
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    const token = localStorage.getItem('token');
-    if (!token) return;
-
     const profileData = { first_name: firstName, last_name: lastName, email };
-    updateProfile(token, profileData)
+    updateProfile(profileData)
       .then(data => {
         toast.success('Profile updated successfully');
         setInitialData(profileData);
@@ -120,18 +117,17 @@ const Profile = ({ onLogout, login, avatar, updateAvatarUrl }) => {
     }
   };
   const handleAvatarUpdate = async () => {
-    const token = localStorage.getItem('token');
-    if (!token || !selectedFile) {
-      toast.error(!token ? 'No token found' : 'Please select a file');
+    if (!selectedFile) {
+      toast.error('Please select a file');
       return;
     }
-
+  
     const formData = new FormData();
     formData.append('avatar', selectedFile);
     try {
-      const data = await updateAvatar(token, formData);
+      const data = await updateAvatar(formData);
       const newAvatarUrl = `${API_URL}${data.avatar_url}`;
-      updateAvatarUrl(newAvatarUrl); 
+      updateAvatarUrl(newAvatarUrl);
       setIsModalOpen(false);
       setNewAvatarPreview(null);
       setSelectedFile(null);

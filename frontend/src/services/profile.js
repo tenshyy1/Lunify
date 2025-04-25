@@ -1,78 +1,50 @@
-const API_URL = "http://localhost:8099";
+import api from './api';
 
-export const getProfile = async (token) => {
+export const getProfile = async () => {
   try {
-    const response = await fetch(`${API_URL}/profile`, {
-      method: "GET",
-      headers: {
-        "Authorization": token,
-      },
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.message || "Failed to fetch profile");
-    }
-    return data;
+    const response = await api.get('/profile');
+    return response.data;
   } catch (error) {
-    console.error("Get profile error:", error);
-    throw error;
+    console.error('Get profile error:', error);
+    throw new Error(error.response?.data?.message || 'Failed to fetch profile');
   }
 };
 
-export const updateProfile = async (token, profileData) => {
+export const updateProfile = async (profileData) => {
   try {
-    const response = await fetch(`${API_URL}/profile`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": token,
-      },
-      body: JSON.stringify(profileData),
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.message || "Failed to update profile");
-    }
-    return data;
+    const response = await api.put('/profile', profileData);
+    return response.data;
   } catch (error) {
-    console.error("Update profile error:", error);
-    throw error;
+    console.error('Update profile error:', error);
+    throw new Error(error.response?.data?.message || 'Failed to update profile');
   }
 };
 
-export const updateAvatar = async (token, formData) => {
+export const updateAvatar = async (formData) => {
   try {
-    const response = await fetch(`${API_URL}/profile/avatar`, {
-      method: "POST",
+    const response = await api.post('/profile/avatar', formData, {
       headers: {
-        "Authorization": token,
+        'Content-Type': 'multipart/form-data',
       },
-      body: formData,
     });
-
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.message || "Failed to update avatar");
-    }
-    return data;
+    return response.data;
   } catch (error) {
-    console.error("Update avatar error:", error);
-    throw error;
+    console.error('Update avatar error:', error);
+    throw new Error(error.response?.data?.message || 'Failed to update avatar');
   }
 };
 
 // use avatar
-export const handleAvatarUpload = async (token, file, callback) => {
+export const handleAvatarUpload = async (file, callback) => {
   if (!file) {
-    throw new Error("No file selected");
+    throw new Error('No file selected');
   }
 
   const formData = new FormData();
-  formData.append("avatar", file);
+  formData.append('avatar', file);
 
-  const data = await updateAvatar(token, formData);
+  const data = await updateAvatar(formData);
+  const API_URL = 'http://localhost:8099'; // Можно вынести в api.js, но оставим здесь для обратной совместимости
   const newAvatarUrl = `${API_URL}${data.avatar_url}`;
   callback(newAvatarUrl); // new url
   return newAvatarUrl;
