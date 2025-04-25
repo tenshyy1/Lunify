@@ -42,6 +42,16 @@ const Market = ({ onLogout, login, avatar }) => {
     categorizeCoins();
   }, [allCoins, searchQuery]);
 
+  useEffect(() => {
+    const handleStorageChange = (event) => {
+      if (event.key === 'portfolioDeleted') {
+        fetchPortfolios();
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   const fetchPortfolios = async () => {
     try {
       const response = await walletApi.getPortfolios();
@@ -53,11 +63,15 @@ const Market = ({ onLogout, login, avatar }) => {
       } else if (portfoliosData.length > 0) {
         setSelectedPortfolioId(portfoliosData[0].id);
         localStorage.setItem('activePortfolioId', portfoliosData[0].id.toString());
+      } else {
+        setSelectedPortfolioId(null);
+        localStorage.removeItem('activePortfolioId');
       }
     } catch (error) {
       toast.error(error.message || 'Failed to fetch portfolios');
       setPortfolios([]);
       setSelectedPortfolioId(null);
+      localStorage.removeItem('activePortfolioId');
     }
   };
 
@@ -72,13 +86,24 @@ const Market = ({ onLogout, login, avatar }) => {
     setCurrentPage(1);
   };
 
-  const handleBuyClick = (coin) => {
+  const handleBuyClick = async (coin) => {
     if (portfolios.length === 0) {
       toast.error('Please create a portfolio first');
       return;
     }
     if (!selectedPortfolioId) {
       toast.error('Please select a portfolio');
+      return;
+    }
+    try {
+      const portfolioExists = portfolios.some(p => p.id === selectedPortfolioId);
+      if (!portfolioExists) {
+        toast.error('Selected portfolio no longer exists. Please select another portfolio.');
+        await fetchPortfolios(); 
+        return;
+      }
+    } catch (error) {
+      toast.error('Failed to verify portfolio');
       return;
     }
     setSelectedCoin(coin);
@@ -86,13 +111,30 @@ const Market = ({ onLogout, login, avatar }) => {
     setIsModalOpen(true);
   };
 
-  const handleSellClick = (coin) => {
+  const handleSellClick = async (coin) => {
     if (portfolios.length === 0) {
       toast.error('Please create a portfolio first');
       return;
     }
     if (!selectedPortfolioId) {
       toast.error('Please select a portfolio');
+      return;
+    }
+    try {
+      const portfolioExists = portfolios.some(p => p.id === selectedPortfolioId);
+      if (!portfolioExists) {
+        toast.error('Selected portfolio no longer exists. Please select another portfolio.');
+        await fetchPortfolios(); 
+        return;
+      }
+      const coins = await walletApi.getPortfolioCoins(selectedPortfolioId);
+      const coinExists = coins.some(c => c.ticker === coin.ticker);
+      if (!coinExists) {
+        toast.error(`You don't have ${coin.ticker} in this portfolio to sell.`);
+        return;
+      }
+    } catch (error) {
+      toast.error(error.message || 'Failed to verify portfolio or coins');
       return;
     }
     setSelectedCoin(coin);

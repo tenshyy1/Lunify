@@ -79,6 +79,7 @@ const Wallet = ({ onLogout, login, avatar }) => {
         setSelectedPortfolio(null);
       }
       toast.success('Portfolio deleted successfully');
+      localStorage.setItem('portfolioDeleted', Date.now().toString());
     } catch (error) {
       toast.error(error.message || 'Failed to delete portfolio');
     }
