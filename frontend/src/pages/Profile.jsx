@@ -7,7 +7,7 @@ import Header from '../components/Header';
 import SideHeader from '../components/SideHeader';
 import favicon from '../assets/favicon.png';
 import penIcon from '../assets/pen.svg';
-import { getProfile, updateProfile, updateAvatar } from '../services/profile';
+import { getProfile, updateProfile, updateAvatar, changePassword } from '../services/profile';
 
 const API_URL = "http://localhost:8099";
 
@@ -27,10 +27,15 @@ const Profile = ({ onLogout, login, avatar, updateAvatarUrl }) => {
   const [isTransactionsModalOpen, setIsTransactionsModalOpen] = useState(false);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isChangePassModalOpen, setIsChangePassModalOpen] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const graphRef = useRef(null);
   const navigate = useNavigate();
 
-  //заглушки для balance card
+  // Заглушки для balance card
   const portfolioValue = '$1,025,000';
   const balanceData = {
     Day: { total: '$1,023,460', change: '-$1,540', percentage: '-0.15%' },
@@ -38,7 +43,7 @@ const Profile = ({ onLogout, login, avatar, updateAvatarUrl }) => {
     Year: { total: '$1,177,780', change: '+$152,780', percentage: '+12.45%' },
   };
 
-  // transactions
+  // Transactions
   const allTransactions = [
     { id: 1, coin: "Bitcoin", qty: "0.221231", amount: "$45230.00", portfolio: "Portfolio 1", side: "SELL" },
     { id: 2, coin: "Ethereum", qty: "0.221231", amount: "$45230.00", portfolio: "Portfolio 2", side: "BUY" },
@@ -137,6 +142,32 @@ const Profile = ({ onLogout, login, avatar, updateAvatarUrl }) => {
     }
   };
 
+  // Change password handler
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    if (newPassword !== confirmNewPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+    if (newPassword.length < 3) {
+      toast.error('Password must be at least 3 characters');
+      return;
+    }
+    try {
+      await changePassword({
+        new_password: newPassword,
+      });
+      toast.success('Password changed successfully');
+      setIsChangePassModalOpen(false);
+      setNewPassword('');
+      setConfirmNewPassword('');
+      setShowNewPassword(false);
+      setShowConfirmPassword(false);
+    } catch (error) {
+      toast.error(`Failed to change password: ${error.message}`);
+    }
+  };
+
   const getAmountClass = (change) => {
     if (change === '$0') return 'profile-neutral';
     return change.startsWith('-') ? 'profile-negative' : 'profile-positive';
@@ -196,7 +227,7 @@ const Profile = ({ onLogout, login, avatar, updateAvatarUrl }) => {
                 />
               </div>
               <div className="profile-form-group" id='email_label'>
-                <label >Email Address</label>
+                <label>Email Address</label>
                 <input
                   type="email"
                   value={email}
@@ -215,9 +246,12 @@ const Profile = ({ onLogout, login, avatar, updateAvatarUrl }) => {
               )}
             </form>
 
-            {/* Edit Profile Button */}
+            {/* Edit and Change Password Buttons */}
             {!isEditing && (
               <div className="profile-edit-btn-wrapper">
+                <button type="button" onClick={() => setIsChangePassModalOpen(true)} className="changepass-btn">
+                  Change Password
+                </button>
                 <button type="button" onClick={handleEditClick} className="profile-edit-btn">
                   <img src={penIcon} alt="Edit" className="pen-icon" />
                 </button>
@@ -267,9 +301,93 @@ const Profile = ({ onLogout, login, avatar, updateAvatarUrl }) => {
             </div>
           )}
 
+          {/* Change Password Modal */}
+          {isChangePassModalOpen && (
+            <div className="changepass-modal-overlay">
+              <div className="changepass-modal">
+                <div className="changepass-modal-content">
+                  <h3>Change Password</h3>
+                  <form onSubmit={handleChangePassword}>
+                    <div className="changepass-form-group">
+                      <label>New Password</label>
+                      <div className="changepass-input-wrapper">
+                        <input
+                          type={showNewPassword ? 'text' : 'password'}
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          required
+                        />
+                        <button
+                          type="button"
+                          className="changepass-toggle-btn"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                        >
+                          {showNewPassword ? (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                              <circle cx="12" cy="12" r="3" />
+                            </svg>
+                          ) : (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                              <line x1="1" y1="1" x2="23" y2="23" />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                    <div className="changepass-form-group">
+                      <label>Confirm New Password</label>
+                      <div className="changepass-input-wrapper">
+                        <input
+                          type={showConfirmPassword ? 'text' : 'password'}
+                          value={confirmNewPassword}
+                          onChange={(e) => setConfirmNewPassword(e.target.value)}
+                          required
+                        />
+                        <button
+                          type="button"
+                          className="changepass-toggle-btn"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        >
+                          {showConfirmPassword ? (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                              <circle cx="12" cy="12" r="3" />
+                            </svg>
+                          ) : (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                              <line x1="1" y1="1" x2="23" y2="23" />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                    <div className="changepass-modal-buttons">
+                      <button type="submit" className="changepass-confirm-btn">Change Password</button>
+                      <button
+                        type="button"
+                        className="changepass-cancel-btn"
+                        onClick={() => {
+                          setIsChangePassModalOpen(false);
+                          setNewPassword('');
+                          setConfirmNewPassword('');
+                          setShowNewPassword(false);
+                          setShowConfirmPassword(false);
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Balance and Transactions */}
           <section className="profile-balance-transactions">
-
             {/* Balance Card */}
             <div className="profile-balance-card">
               <div className="profile-balance-header">
@@ -312,7 +430,7 @@ const Profile = ({ onLogout, login, avatar, updateAvatarUrl }) => {
               </div>
             </div>
 
-            {/* Transactions and Achievments */}
+            {/* Transactions and Achievements */}
             <div className="profile-transactions">
               <div className="profile-transactions-header">
                 <h3>{activeSection === 'Transactions' ? 'Last 5 Transactions' : 'Achievements'}</h3>
@@ -379,7 +497,7 @@ const Profile = ({ onLogout, login, avatar, updateAvatarUrl }) => {
         </div>
       </main>
 
-              {/*Transactions-modal*/}
+      {/* Transactions Modal */}
       {isTransactionsModalOpen && (
         <div className="profile-modal-overlay">
           <div className="profile-modal transactions-modal">

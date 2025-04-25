@@ -96,9 +96,9 @@
   height: 20px;
   filter: brightness(0) invert(1); 
 }
-.profile-edit-avatar-btn .pen-icon:hover{
-  filter: brightness(0) invert(0);
 
+.profile-edit-avatar-btn .pen-icon:hover {
+  filter: brightness(0) invert(0);
 }
 
 .profile-profile-details h2 {
@@ -131,7 +131,8 @@
   font-size: 14px;
   margin-left: -72%;
 }
-#email_label label{
+
+#email_label label {
   margin-left: -68%;
 }
 
@@ -143,6 +144,7 @@
   border: 1px solid #D1D5DB;
   border-radius: 5px;
   font-size: 14px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .profile-form-group input.disabled {
@@ -156,6 +158,7 @@
   background-color: #FFFFFF;
   color: #1C2526;
   border: 2px solid #3B82F6;
+  box-shadow: 0 0 5px rgba(59, 130, 246, 0.2);
 }
 
 /* Edit Profile Button */
@@ -163,6 +166,9 @@
   position: absolute;
   bottom: 50px;
   right: 35px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
 .profile-edit-btn {
@@ -226,7 +232,6 @@
   animation: slideUp 0.4s ease-out forwards;
 }
 
-
 .profile-cancel-btn {
   padding: 10px 22px;
   background-color: #1C2526;
@@ -280,7 +285,6 @@
   transform: translate(-50%, -50%) scale(1); 
 }
 
-
 .profile-confirm-btn {
   padding: 10px 20px;
   background-color: #3B82F6;
@@ -319,18 +323,240 @@
   transform: translate(-50%, -50%) scale(1);
 }
 
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Change Password Button */
+.changepass-btn {
+  left: -240%;
+  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  color: #FFFFFF;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 3px 6px rgba(59, 130, 246, 0.2);
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
+.changepass-btn:hover {
+  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 10px rgba(59, 130, 246, 0.4);
+}
 
+.changepass-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 150%;
+  height: 150%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.4s ease;
+  pointer-events: none;
+}
+
+.changepass-btn:hover::before {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Modal Overlay */
+.changepass-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  animation: fadeInModal 0.4s ease-out forwards;
+}
+
+/* Modal */
+.changepass-modal {
+  background: #FFFFFF;
+  border-radius: 12px;
+  width: 400px;
+  max-width: 90%;
+  padding: 25px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  transform: translateY(50px);
+  opacity: 0;
+  animation: slideInModal 0.4s ease-out forwards 0.1s;
+}
+
+/* Modal Content */
+.changepass-modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.changepass-modal-content h3 {
+  color: #1C2526;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 15px;
+  text-align: center;
+}
+
+/* Form Group */
+.changepass-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.changepass-form-group label {
+  color: #4B5563;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.changepass-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.changepass-form-group input {
+  background-color: #F9FAFB;
+  border: 1px solid #D1D5DB;
+  border-radius: 8px;
+  padding: 12px 40px 12px 12px;
+  color: #1C2526;
+  font-size: 14px;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.changepass-form-group input:focus {
+  border-color: #3B82F6;
+  box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+  transform: translateY(-1px);
+}
+
+.changepass-form-group input:hover {
+  border-color: #2563EB;
+}
+
+.changepass-toggle-btn {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748B;
+  transition: color 0.2s ease;
+}
+
+.changepass-toggle-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.changepass-toggle-btn:hover {
+  color: #2563EB;
+}
+
+/* Modal Buttons */
+.changepass-modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.changepass-confirm-btn {
+  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  color: #FFFFFF;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  flex: 1;
+  box-shadow: 0 3px 6px rgba(59, 130, 246, 0.2);
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.changepass-confirm-btn:hover {
+  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 10px rgba(59, 130, 246, 0.4);
+}
+
+.changepass-confirm-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 150%;
+  height: 150%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.4s ease;
+  pointer-events: none;
+}
+
+.changepass-confirm-btn:hover::before {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.changepass-cancel-btn {
+  background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+  color: #FFFFFF;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  flex: 1;
+  box-shadow: 0 3px 6px rgba(239, 68, 68, 0.2);
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.changepass-cancel-btn:hover {
+  background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 10px rgba(239, 68, 68, 0.4);
+}
+
+.changepass-cancel-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 150%;
+  height: 150%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.4s ease;
+  pointer-events: none;
+}
+
+.changepass-cancel-btn:hover::before {
+  transform: translate(-50%, -50%) scale(1);
+}
 
 /* Avatar Modal */
 .profile-modal-overlay {
@@ -398,13 +624,11 @@
   transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease; 
 }
 
-
 .profile-modal-input span:hover {
   background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%); 
   box-shadow: 0 6px 12px rgba(59, 130, 246, 0.4), 0 3px 6px rgba(0, 0, 0, 0.15); 
   transform: translateY(-2px);
 }
-
 
 .profile-modal-input span:active {
   transform: translateY(0); 
@@ -502,30 +726,6 @@
   justify-content: center;
   margin-top: 25px;
 }
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Animations */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideIn {
-  from { transform: translateY(-50px); }
-  to { transform: translateY(0); }
-}
-
-
 
 /* Balance Card */
 .profile-balance-card {
@@ -705,18 +905,6 @@
   background: linear-gradient(135deg, #f9fbfd, #f1f5f9);
 }
 
-@keyframes slideFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-
 /* Transactions Table */
 .profile-transactions {
   width: 112.5%;
@@ -875,7 +1063,7 @@
   opacity: 1; 
 }
 
-/*achievements*/
+/* Achievements */
 .profile-achievements-placeholder {
   text-align: center;
   padding: 20px;
@@ -896,8 +1084,7 @@
   opacity: 0.8;
 }
 
-
-/*Transactions-modal*/
+/* Transactions Modal */
 .transactions-modal {
   width: 90%;
   max-width: 1400px;
@@ -1058,10 +1245,43 @@
   background: #1e40af;
 }
 
+/* Animations */
 @keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-50px); }
+  to { transform: translateY(0); }
+}
+
+@keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(5px);
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -1080,7 +1300,25 @@
   }
 }
 
+@keyframes fadeInModal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 
+@keyframes slideInModal {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 /*adaptive*/
 @media (max-width: 1440px) and (min-width: 920px){
   /* Main Content */

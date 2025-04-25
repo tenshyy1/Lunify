@@ -34,7 +34,18 @@ export const updateAvatar = async (formData) => {
   }
 };
 
-// use avatar
+// Change password
+export const changePassword = async (passwordData) => {
+  try {
+    const response = await api.post('/profile/change-password', passwordData);
+    return response.data;
+  } catch (error) {
+    console.error('Change password error:', error);
+    throw new Error(error.response?.data?.message || 'Failed to change password');
+  }
+};
+
+// Use avatar
 export const handleAvatarUpload = async (file, callback) => {
   if (!file) {
     throw new Error('No file selected');
@@ -44,8 +55,8 @@ export const handleAvatarUpload = async (file, callback) => {
   formData.append('avatar', file);
 
   const data = await updateAvatar(formData);
-  const API_URL = 'http://localhost:8099'; // Можно вынести в api.js, но оставим здесь для обратной совместимости
+  const API_URL = 'http://localhost:8099';
   const newAvatarUrl = `${API_URL}${data.avatar_url}`;
-  callback(newAvatarUrl); // new url
+  callback(newAvatarUrl);
   return newAvatarUrl;
 };

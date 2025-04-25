@@ -14,39 +14,40 @@ import (
 )
 
 func main() {
-	// start db
+	// Start db
 	dbInstance, err := models.InitDB()
 	if err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
 
-	// migrations
+	// Migrations
 	if err := models.RunMigrations(dbInstance); err != nil {
 		log.Fatalf("Failed to run migrations: %v", err)
 	}
 
-	// fiber app
+	// Fiber app
 	app := fiber.New()
 
-	// cors settings
+	// CORS settings
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "http://localhost:3001",
 		AllowMethods: "GET,POST,PUT,DELETE,OPTIONS",
 		AllowHeaders: "Content-Type, Authorization",
 	}))
 
-	app.Static("/uploads", "./uploads")
+	app.Static("/uploads", "./Uploads")
 
-	// routes
+	// Routes
 	app.Post("/register", login.RegisterHandler(dbInstance))
 	app.Post("/login", login.LoginHandler(dbInstance))
 	app.Post("/logout", login.LogoutHandler(dbInstance))
 	app.Get("/profile", profile.GetProfileHandler(dbInstance))
 	app.Put("/profile", profile.UpdateProfileHandler(dbInstance))
 	app.Post("/profile/avatar", profile.UpdateAvatarHandler(dbInstance))
+	app.Post("/profile/change-password", profile.ChangePasswordHandler(dbInstance))
 	portfolio.SetupPortfolioRoutes(app, dbInstance)
 	market.SetupMarketRoutes(app)
 
-	// start server
+	// Start server
 	log.Fatal(app.Listen(":8099"))
 }
