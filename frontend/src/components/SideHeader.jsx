@@ -89,6 +89,7 @@ export default function SideHeader({ onLogout }) {
       </nav>
       <div className="profile-bottom-nav">
         <ul>
+          <div className="divider-line"></div>
           <li className={location.pathname === '/faq' ? 'profile-active' : ''}>
             <a href="#" onClick={handleFaqClick}>
               <img 
