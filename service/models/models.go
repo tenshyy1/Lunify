@@ -1,172 +1,140 @@
 package models
 
 import (
-	"database/sql"
+	"encoding/json"
 	"log"
+	"time"
 
-	_ "github.com/lib/pq"
+	"gorm.io/gorm"
 )
 
-const systemConnStr = "postgres://postgres:12345@localhost:5432/postgres?sslmode=disable"
-const appConnStr = "postgres://postgres:12345@localhost:5432/mydb?sslmode=disable"
+// User represents the users table
+type User struct {
+	ID          uint           `gorm:"primaryKey" json:"id"`
+	Login       string         `gorm:"type:varchar(50);unique;not null" json:"login"`
+	Password    string         `gorm:"type:text;not null" json:"password"`
+	CreatedAt   time.Time      `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
+	DeletedAt   gorm.DeletedAt `gorm:"index" json:"deleted_at"`
+	UserDetails UserDetails    `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
+}
 
-func InitDB() *sql.DB {
-	systemDB, err := sql.Open("postgres", systemConnStr)
-	if err != nil {
-		log.Fatal(err)
+// Custom JSON marshalling
+func (u User) MarshalJSON() ([]byte, error) {
+	type Alias User
+	var deletedAt string
+	if u.DeletedAt.Valid {
+		deletedAt = u.DeletedAt.Time.Format("2006.01.02 15:04")
+	} else {
+		deletedAt = ""
 	}
-	defer systemDB.Close()
+	return json.Marshal(&struct {
+		*Alias
+		CreatedAt string `json:"created_at"`
+		DeletedAt string `json:"deleted_at"`
+	}{
+		Alias:     (*Alias)(&u),
+		CreatedAt: u.CreatedAt.Format("2006.01.02 15:04"),
+		DeletedAt: deletedAt,
+	})
+}
 
-	var dbExists bool
-	err = systemDB.QueryRow("SELECT EXISTS (SELECT 1 FROM pg_database WHERE datname = 'mydb')").Scan(&dbExists)
-	if err != nil {
-		log.Fatal(err)
+func (User) TableName() string {
+	return "users"
+}
+
+// UserDetails represents
+type UserDetails struct {
+	UserID    uint    `gorm:"primaryKey" json:"user_id"`
+	FirstName *string `gorm:"type:varchar(50)" json:"first_name,omitempty"`
+	LastName  *string `gorm:"type:varchar(50)" json:"last_name,omitempty"`
+	Email     *string `gorm:"type:varchar(100)" json:"email,omitempty"`
+	AvatarURL *string `gorm:"type:text" json:"avatar_url,omitempty"`
+}
+
+func (UserDetails) TableName() string {
+	return "user_details"
+}
+
+// Portfolio represents
+type Portfolio struct {
+	ID          uint      `gorm:"primaryKey" json:"id"`
+	UserID      uint      `gorm:"not null" json:"user_id"`
+	Name        string    `gorm:"type:varchar(100);not null" json:"name"`
+	Description *string   `gorm:"type:text" json:"description,omitempty"`
+	CreatedAt   time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
+}
+
+func (Portfolio) TableName() string {
+	return "portfolios"
+}
+
+// PortfolioCoin
+type PortfolioCoin struct {
+	ID            uint     `gorm:"primaryKey" json:"id"`
+	PortfolioID   uint     `gorm:"not null" json:"portfolio_id"`
+	Currency      string   `gorm:"type:varchar(50);not null" json:"currency"`
+	Ticker        string   `gorm:"type:varchar(10);not null" json:"ticker"`
+	Amount        float64  `gorm:"type:decimal(18,8);not null" json:"amount"`
+	ValueUSD      *float64 `gorm:"type:decimal(18,2)" json:"value_usd"`
+	ChangePercent *float64 `gorm:"type:decimal(10,2)" json:"change_percent"`
+}
+
+func (PortfolioCoin) TableName() string {
+	return "portfolio_coins"
+}
+
+// RunMigrations applies schema migrations
+func RunMigrations(db *gorm.DB) error {
+	// Create tables
+	if err := db.AutoMigrate(&User{}, &UserDetails{}, &Portfolio{}, &PortfolioCoin{}); err != nil {
+		return err
 	}
-	if !dbExists {
-		log.Println("Creating database mydb...")
-		_, err = systemDB.Exec("CREATE DATABASE mydb")
-		if err != nil {
-			log.Printf("Failed to create database mydb: %v", err)
-			log.Fatal(err)
+
+	// Drop UpdatedAt if it exists
+	if db.Migrator().HasColumn(&User{}, "UpdatedAt") {
+		log.Println("Dropping UpdatedAt column from users...")
+		if err := db.Migrator().DropColumn(&User{}, "UpdatedAt"); err != nil {
+			return err
 		}
-		log.Println("Database mydb created successfully.")
-	}
-	db, err := sql.Open("postgres", appConnStr)
-	if err != nil {
-		log.Fatal(err)
+		log.Println("UpdatedAt column dropped from users.")
 	}
 
-	err = db.Ping()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	_, err = db.Exec(`
-        CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
-            login VARCHAR(50) UNIQUE NOT NULL,
-            password TEXT NOT NULL
-        );
-    `)
-	if err != nil {
-		log.Fatal(err)
-	}
-	_, err = db.Exec(`
-        CREATE TABLE IF NOT EXISTS user_details (
-            user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-            first_name VARCHAR(50),
-            last_name VARCHAR(50),
-            email VARCHAR(100),
-            avatar_url TEXT
-        );
-    `)
-	if err != nil {
-		log.Fatal(err)
-	}
-	_, err = db.Exec(`
-        CREATE TABLE IF NOT EXISTS portfolios (
-            id SERIAL PRIMARY KEY,
-            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-            name VARCHAR(100) NOT NULL,
-            description TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-    `)
-	if err != nil {
-		log.Fatal(err)
-	}
-	_, err = db.Exec(`
-        CREATE TABLE IF NOT EXISTS portfolio_coins (
-            id SERIAL PRIMARY KEY,
-            portfolio_id INTEGER NOT NULL REFERENCES portfolios(id) ON DELETE CASCADE,
-            currency VARCHAR(50) NOT NULL,
-            ticker VARCHAR(10) NOT NULL,
-            amount DECIMAL(18,8) NOT NULL,
-            value_usd DECIMAL(18,2),
-            change_percent DECIMAL(10,2)
-        );
-    `)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var emailColumnExistsInUserDetails bool
-	err = db.QueryRow(`
-        SELECT EXISTS (
-            SELECT 1
-            FROM information_schema.columns
-            WHERE table_name = 'user_details' AND column_name = 'email'
-        );
-    `).Scan(&emailColumnExistsInUserDetails)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if !emailColumnExistsInUserDetails {
+	// Add email column if missing
+	if !db.Migrator().HasColumn(&UserDetails{}, "Email") {
 		log.Println("Adding email column to user_details...")
-		_, err = db.Exec(`ALTER TABLE user_details ADD COLUMN email VARCHAR(100);`)
-		if err != nil {
-			log.Printf("Failed to add email column to user_details: %v", err)
-			log.Fatal(err)
+		if err := db.Migrator().AddColumn(&UserDetails{}, "Email"); err != nil {
+			return err
 		}
 		log.Println("Email column added to user_details.")
 	}
 
-	var avatarColumnExistsInUserDetails bool
-	err = db.QueryRow(`
-        SELECT EXISTS (
-            SELECT 1
-            FROM information_schema.columns
-            WHERE table_name = 'user_details' AND column_name = 'avatar_url'
-        );
-    `).Scan(&avatarColumnExistsInUserDetails)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if !avatarColumnExistsInUserDetails {
+	// Add avatar_url column if missing
+	if !db.Migrator().HasColumn(&UserDetails{}, "AvatarURL") {
 		log.Println("Adding avatar_url column to user_details...")
-		_, err = db.Exec(`ALTER TABLE user_details ADD COLUMN avatar_url TEXT;`)
-		if err != nil {
-			log.Printf("Failed to add avatar_url column to user_details: %v", err)
-			log.Fatal(err)
+		if err := db.Migrator().AddColumn(&UserDetails{}, "AvatarURL"); err != nil {
+			return err
 		}
 		log.Println("Avatar_url column added to user_details.")
 	}
 
-	var emailColumnExistsInUsers bool
-	err = db.QueryRow(`
-        SELECT EXISTS (
-            SELECT 1
-            FROM information_schema.columns
-            WHERE table_name = 'users' AND column_name = 'email'
-        );
-    `).Scan(&emailColumnExistsInUsers)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if emailColumnExistsInUsers {
+	// Migrate email from users if exists
+	if db.Migrator().HasColumn(&User{}, "email") {
 		log.Println("Migrating email from users to user_details...")
-		_, err = db.Exec(`
-            INSERT INTO user_details (user_id, email)
-            SELECT id, email FROM users
-            WHERE email IS NOT NULL
-            ON CONFLICT (user_id) DO UPDATE SET email = EXCLUDED.email;
-        `)
-		if err != nil {
-			log.Printf("Failed to migrate email data: %v", err)
-			log.Fatal(err)
+		if err := db.Exec(`
+			INSERT INTO user_details (user_id, email)
+			SELECT id, email FROM users
+			WHERE email IS NOT NULL
+			ON CONFLICT (user_id) DO UPDATE SET email = EXCLUDED.email;
+		`).Error; err != nil {
+			return err
 		}
-		_, err = db.Exec(`ALTER TABLE users DROP COLUMN IF EXISTS email;`)
-		if err != nil {
-			log.Printf("Failed to drop email column from users: %v", err)
-			log.Fatal(err)
+		if err := db.Migrator().DropColumn(&User{}, "email"); err != nil {
+			return err
 		}
 		log.Println("Email migration completed successfully.")
 	} else {
 		log.Println("Email column in users does not exist, no migration needed.")
 	}
 
-	return db
+	return nil
 }

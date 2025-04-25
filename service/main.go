@@ -11,22 +11,24 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-
-	"service/common"
 )
 
 func main() {
-	// Инициализация БД
-	dbInstance := models.InitDB()
-	defer dbInstance.Close()
+	// start db
+	dbInstance, err := models.InitDB()
+	if err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
+	}
 
-	// Установка подключения в common
-	common.DB = dbInstance
+	// migrations
+	if err := models.RunMigrations(dbInstance); err != nil {
+		log.Fatalf("Failed to run migrations: %v", err)
+	}
 
-	// Создание приложения Fiber
+	// fiber app
 	app := fiber.New()
 
-	// Настройка CORS
+	// cors settings
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "http://localhost:3001",
 		AllowMethods: "GET,POST,PUT,DELETE,OPTIONS",
@@ -35,16 +37,16 @@ func main() {
 
 	app.Static("/uploads", "./uploads")
 
-	// Маршруты
-	app.Post("/register", login.RegisterHandler)
-	app.Post("/login", login.LoginHandler)
-	app.Post("/logout", login.LogoutHandler)
-	app.Get("/profile", profile.GetProfileHandler)
-	app.Put("/profile", profile.UpdateProfileHandler)
-	app.Post("/profile/avatar", profile.UpdateAvatarHandler)
-	portfolio.SetupPortfolioRoutes(app)
+	// routes
+	app.Post("/register", login.RegisterHandler(dbInstance))
+	app.Post("/login", login.LoginHandler(dbInstance))
+	app.Post("/logout", login.LogoutHandler(dbInstance))
+	app.Get("/profile", profile.GetProfileHandler(dbInstance))
+	app.Put("/profile", profile.UpdateProfileHandler(dbInstance))
+	app.Post("/profile/avatar", profile.UpdateAvatarHandler(dbInstance))
+	portfolio.SetupPortfolioRoutes(app, dbInstance)
 	market.SetupMarketRoutes(app)
 
-	// Запуск сервера
+	// start server
 	log.Fatal(app.Listen(":8099"))
 }

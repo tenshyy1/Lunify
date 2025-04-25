@@ -1,7 +1,6 @@
 package common
 
 import (
-	"database/sql"
 	"errors"
 	"time"
 
@@ -10,37 +9,9 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var DB *sql.DB
 var jwtKey = []byte("my_secret_key")
 
-type User struct {
-	ID        int     `json:"id"`
-	Login     string  `json:"login"`
-	Password  string  `json:"password"`
-	Email     *string `json:"email,omitempty"`
-	FirstName *string `json:"first_name,omitempty"`
-	LastName  *string `json:"last_name,omitempty"`
-	AvatarURL *string `json:"avatar_url,omitempty"`
-}
-
-type Portfolio struct {
-	ID          int       `json:"id"`
-	UserID      int       `json:"user_id"`
-	Name        string    `json:"name"`
-	Description *string   `json:"description,omitempty"`
-	CreatedAt   time.Time `json:"created_at"`
-}
-
-type PortfolioCoin struct {
-	ID            int     `json:"id"`
-	PortfolioID   int     `json:"portfolio_id"`
-	Currency      string  `json:"currency"`
-	Ticker        string  `json:"ticker"`
-	Amount        float64 `json:"amount"`
-	ValueUSD      float64 `json:"value_usd"`
-	ChangePercent float64 `json:"change_percent"`
-}
-
+// MarketCoin for external market data
 type MarketCoin struct {
 	Currency  string  `json:"currency"`
 	Ticker    string  `json:"ticker"`
@@ -49,26 +20,6 @@ type MarketCoin struct {
 	Change7d  float64 `json:"change_7d"`
 	Category  string  `json:"category"`
 	LogoURL   string  `json:"logo_url,omitempty"`
-}
-
-// ToJSONStruct
-func (u *User) ToJSONStruct() map[string]interface{} {
-	return map[string]interface{}{
-		"id":         u.ID,
-		"login":      u.Login,
-		"password":   u.Password,
-		"email":      stringOrEmpty(u.Email),
-		"first_name": stringOrEmpty(u.FirstName),
-		"last_name":  stringOrEmpty(u.LastName),
-		"avatar_url": stringOrEmpty(u.AvatarURL),
-	}
-}
-
-func stringOrEmpty(s *string) string {
-	if s == nil {
-		return ""
-	}
-	return *s
 }
 
 type Response struct {

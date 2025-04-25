@@ -2,87 +2,91 @@ package login
 
 import (
 	"service/common"
+	"service/models"
 
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 )
 
-func RegisterHandler(c *fiber.Ctx) error {
-	if c.Method() != fiber.MethodPost {
-		return common.SendError(c, "Method not allowed", fiber.StatusMethodNotAllowed)
-	}
+func RegisterHandler(db *gorm.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		if c.Method() != fiber.MethodPost {
+			return common.SendError(c, "Method not allowed", fiber.StatusMethodNotAllowed)
+		}
 
-	var user common.User
-	if err := c.BodyParser(&user); err != nil {
-		return common.SendError(c, "Invalid request body", fiber.StatusBadRequest)
-	}
+		var user models.User
+		if err := c.BodyParser(&user); err != nil {
+			return common.SendError(c, "Invalid request body", fiber.StatusBadRequest)
+		}
 
-	hashedPassword, err := common.HashPassword(user.Password)
-	if err != nil {
-		return common.SendError(c, "Internal server error", fiber.StatusInternalServerError)
-	}
+		hashedPassword, err := common.HashPassword(user.Password)
+		if err != nil {
+			return common.SendError(c, "Internal server error", fiber.StatusInternalServerError)
+		}
 
-	var id int
-	err = common.DB.QueryRow(
-		"INSERT INTO users (login, password) VALUES ($1, $2) RETURNING id",
-		user.Login, hashedPassword,
-	).Scan(&id)
-	if err != nil {
-		return common.SendError(c, "Login already exists", fiber.StatusConflict)
-	}
+		// Create user
+		user.Password = hashedPassword
+		if err := db.Create(&user).Error; err != nil {
+			return common.SendError(c, "Login already exists", fiber.StatusConflict)
+		}
 
-	token, err := common.GenerateToken(id)
-	if err != nil {
-		return common.SendError(c, "Failed to generate token", fiber.StatusInternalServerError)
-	}
+		token, err := common.GenerateToken(int(user.ID))
+		if err != nil {
+			return common.SendError(c, "Failed to generate token", fiber.StatusInternalServerError)
+		}
 
-	return c.JSON(common.Response{
-		Message: "User registered successfully",
-		Token:   token,
-	})
+		return c.JSON(common.Response{
+			Message: "User registered successfully",
+			Token:   token,
+		})
+	}
 }
 
-func LoginHandler(c *fiber.Ctx) error {
-	if c.Method() != fiber.MethodPost {
-		return common.SendError(c, "Method not allowed", fiber.StatusMethodNotAllowed)
-	}
+func LoginHandler(db *gorm.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		if c.Method() != fiber.MethodPost {
+			return common.SendError(c, "Method not allowed", fiber.StatusMethodNotAllowed)
+		}
 
-	var user common.User
-	if err := c.BodyParser(&user); err != nil {
-		return common.SendError(c, "Invalid request body", fiber.StatusBadRequest)
-	}
+		var input struct {
+			Login    string `json:"login"`
+			Password string `json:"password"`
+		}
+		if err := c.BodyParser(&input); err != nil {
+			return common.SendError(c, "Invalid request body", fiber.StatusBadRequest)
+		}
 
-	var storedPassword string
-	var id int
-	err := common.DB.QueryRow(
-		"SELECT id, password FROM users WHERE login = $1",
-		user.Login,
-	).Scan(&id, &storedPassword)
-	if err != nil {
-		return common.SendError(c, "Invalid login", fiber.StatusUnauthorized)
-	}
+		// Find user
+		var user models.User
+		if err := db.Where("login = ?", input.Login).First(&user).Error; err != nil {
+			return common.SendError(c, "Invalid login", fiber.StatusUnauthorized)
+		}
 
-	// Проверяем пароль
-	if err := common.ComparePassword(storedPassword, user.Password); err != nil {
-		return common.SendError(c, "Invalid password", fiber.StatusUnauthorized)
-	}
+		if err := common.ComparePassword(user.Password, input.Password); err != nil {
+			return common.SendError(c, "Invalid password", fiber.StatusUnauthorized)
+		}
 
-	token, err := common.GenerateToken(id)
-	if err != nil {
-		return common.SendError(c, "Failed to generate token", fiber.StatusInternalServerError)
-	}
+		token, err := common.GenerateToken(int(user.ID))
+		if err != nil {
+			return common.SendError(c, "Failed to generate token", fiber.StatusInternalServerError)
+		}
 
-	return c.JSON(common.Response{
-		Message: "Login successful",
-		Token:   token,
-	})
+		return c.JSON(common.Response{
+			Message: "Login successful",
+			Token:   token,
+		})
+	}
 }
 
-func LogoutHandler(c *fiber.Ctx) error {
-	if c.Method() != fiber.MethodPost {
-		return common.SendError(c, "Method not allowed", fiber.StatusMethodNotAllowed)
-	}
+// logout
+func LogoutHandler(db *gorm.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		if c.Method() != fiber.MethodPost {
+			return common.SendError(c, "Method not allowed", fiber.StatusMethodNotAllowed)
+		}
 
-	return c.JSON(common.Response{
-		Message: "Successfully logged out",
-	})
+		return c.JSON(common.Response{
+			Message: "Successfully logged out",
+		})
+	}
 }
