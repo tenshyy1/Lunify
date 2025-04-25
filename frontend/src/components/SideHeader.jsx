@@ -22,36 +22,66 @@ export default function SideHeader({ onLogout }) {
 
   return (
     <aside className="profile-sidebar">
-      <div className="profile-logo">Lunify</div>
+      <div className="profile-logo glowing-logo">Lunify</div>
       <nav className="profile-navigation">
         <ul>
           <li className={location.pathname === '/' ? 'profile-active' : ''}>
             <a href="/">
-              <img src={Overviews} alt="Overview" width="25" height="25" className="svg-icon-sideheader" />
+              <img 
+                src={Overviews} 
+                alt="Overview" 
+                width="25" 
+                height="25" 
+                className={`svg-icon-sideheader ${location.pathname === '/' ? 'icon-active' : 'icon-inactive'}`} 
+              />
               Overview
             </a>
           </li>
           <li className={location.pathname === '/trade' ? 'profile-active' : ''}>
             <a href="/trade">
-              <img src={Trade} alt="Trade" width="25" height="25" className="svg-icon-sideheader" />
+              <img 
+                src={Trade} 
+                alt="Trade" 
+                width="25" 
+                height="25" 
+                className={`svg-icon-sideheader ${location.pathname === '/trade' ? 'icon-active' : 'icon-inactive'}`} 
+              />
               Trade
             </a>
           </li>
           <li className={location.pathname === '/wallet' ? 'profile-active' : ''}>
             <a href="/wallet">
-              <img src={Wallet} alt="Wallet" width="25" height="25" className="svg-icon-sideheader" />
+              <img 
+                src={Wallet} 
+                alt="Wallet" 
+                width="25" 
+                height="25" 
+                className={`svg-icon-sideheader ${location.pathname === '/wallet' ? 'icon-active' : 'icon-inactive'}`} 
+              />
               Wallet
             </a>
           </li>
           <li className={location.pathname === '/swap' ? 'profile-active' : ''}>
             <a href="#" onClick={handleSwapClick}>
-              <img src={Swap} alt="Swap" width="25" height="25" className="svg-icon-sideheader" />
+              <img 
+                src={Swap} 
+                alt="Swap" 
+                width="25" 
+                height="25" 
+                className={`svg-icon-sideheader ${location.pathname === '/swap' ? 'icon-active' : 'icon-inactive'}`} 
+              />
               Swap
             </a>
           </li>
           <li className={location.pathname === '/profile' ? 'profile-active' : ''}>
             <a href="/profile">
-              <img src={Profile} alt="Profile" width="25" height="25" className="svg-icon-sideheader" />
+              <img 
+                src={Profile} 
+                alt="Profile" 
+                width="25" 
+                height="25" 
+                className={`svg-icon-sideheader ${location.pathname === '/profile' ? 'icon-active' : 'icon-inactive'}`} 
+              />
               Profile
             </a>
           </li>
@@ -61,13 +91,25 @@ export default function SideHeader({ onLogout }) {
         <ul>
           <li className={location.pathname === '/faq' ? 'profile-active' : ''}>
             <a href="#" onClick={handleFaqClick}>
-              <img src={Overviews} alt="FAQ" width="25" height="25" className="svg-icon-sideheader" />
+              <img 
+                src={Overviews} 
+                alt="FAQ" 
+                width="25" 
+                height="25" 
+                className={`svg-icon-sideheader ${location.pathname === '/faq' ? 'icon-active' : 'icon-inactive'}`} 
+              />
               FAQ
             </a>
           </li>
           <li>
-            <button onClick={onLogout} className="profile-logout-button">
-              <img src={Logout} alt="Logout" width="25" height="25" className="svg-icon-sideheader" />
+            <button onClick={onLogout} className="profile-logout-button glowing-button">
+              <img 
+                src={Logout} 
+                alt="Logout" 
+                width="25" 
+                height="25" 
+                className="svg-icon-sideheader icon-logout"
+              />
               Logout
             </button>
           </li>
