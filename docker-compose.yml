@@ -1,0 +1,43 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./frontend/src:/app/src  
+    environment:
+      - NODE_ENV=development
+
+  backend:
+    build:
+      context: ./service
+      dockerfile: Dockerfile
+    ports:
+      - "8099:8099"
+    volumes:
+      - uploads:/app/uploads  
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_NAME=mydb
+      - DB_PASS=12345
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=12345
+      - POSTGRES_DB=mydb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  uploads:
+  postgres_data:

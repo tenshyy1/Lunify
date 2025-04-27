@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	systemConnStr = "postgres://postgres:12345@localhost:5432/postgres?sslmode=disable"
-	appConnStr    = "postgres://postgres:12345@localhost:5432/mydb?sslmode=disable"
+	systemConnStr = "postgres://postgres:12345@localhost:5432/postgres?sslmode=disable" //postgres
+	appConnStr    = "postgres://postgres:12345@localhost:5432/mydb?sslmode=disable"     //postgres
 )
 
 // InitDB initializes the database and ensures mydb exists
