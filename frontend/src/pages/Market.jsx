@@ -1,17 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../styles/market.css';
 import Header from '../components/Header';
 import SideHeader from '../components/SideHeader';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import marketApi from '../services/market'; 
+import marketApi from '../services/market';
 import walletApi from '../services/wallet';
+import favicon from '../assets/favicon.png';
+import { AreaChart, Area, ResponsiveContainer } from 'recharts';
 
 const Market = ({ onLogout, login, avatar }) => {
   const [selectedCategory, setSelectedCategory] = useState('Popular');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
-  const [itemsPerPage, setItemsPerPage] = useState(50); 
+  const [itemsPerPage, setItemsPerPage] = useState(50);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [allCoins, setAllCoins] = useState([]);
@@ -24,6 +26,7 @@ const Market = ({ onLogout, login, avatar }) => {
   const [selectedCoin, setSelectedCoin] = useState(null);
   const [amount, setAmount] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const tableRef = useRef(null);
 
   const categoryTickers = {
     Metaverse: ['SAND', 'MANA', 'ENJ', 'AXS', 'DEC', 'ATLAS', 'STARL', 'RACA', 'ILV', 'UFO', 'RNDR', 'ALICE', 'CHR', 'TLM', 'BOSON', 'DEP', 'YGG', 'CUBE', 'VRA', 'WILD'],
@@ -32,6 +35,19 @@ const Market = ({ onLogout, login, avatar }) => {
     Gaming: ['GALA', 'IMX', 'WAXP', 'UOS', 'MBOX', 'PYR', 'VULC', 'XWG', 'GAFI', 'KRL', 'AURY', 'PRIME', 'MYRIA', 'NAKA', 'GODS', 'FYN', 'LOKA', 'TLM', 'DERC', 'GHX'],
     Music: ['AUDIO', 'VIB', 'MFT', 'RFR', 'COS', 'VRA', 'BLZ', 'WOM', 'CELR', 'IQ', 'KEY', 'LBC', 'WTC', 'MTL', 'DENT', 'FUN', 'REQ', 'OST', 'RDN', 'SNTVT'],
   };
+
+  useEffect(() => {
+    document.title = 'Crypto Market';
+    let link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+    link.type = 'image/png';
+    link.rel = 'icon';
+    link.href = favicon;
+    document.head.appendChild(link);
+    return () => {
+      document.title = '';
+      if (link) document.head.removeChild(link);
+    };
+  }, []);
 
   useEffect(() => {
     marketApi.fetchMarketData(selectedCategory, setAllCoins, setTopGainers, setIsLoading, toast);
@@ -77,11 +93,9 @@ const Market = ({ onLogout, login, avatar }) => {
 
   const categorizeCoins = () => {
     let filteredCoins = allCoins;
-
     filteredCoins = filteredCoins.filter((crypto) =>
       crypto.currency.toLowerCase().includes(searchQuery.toLowerCase())
     );
-
     setSectionData(filteredCoins);
     setCurrentPage(1);
   };
@@ -99,7 +113,7 @@ const Market = ({ onLogout, login, avatar }) => {
       const portfolioExists = portfolios.some(p => p.id === selectedPortfolioId);
       if (!portfolioExists) {
         toast.error('Selected portfolio no longer exists. Please select another portfolio.');
-        await fetchPortfolios(); 
+        await fetchPortfolios();
         return;
       }
     } catch (error) {
@@ -124,7 +138,7 @@ const Market = ({ onLogout, login, avatar }) => {
       const portfolioExists = portfolios.some(p => p.id === selectedPortfolioId);
       if (!portfolioExists) {
         toast.error('Selected portfolio no longer exists. Please select another portfolio.');
-        await fetchPortfolios(); 
+        await fetchPortfolios();
         return;
       }
       const coins = await walletApi.getPortfolioCoins(selectedPortfolioId);
@@ -147,12 +161,10 @@ const Market = ({ onLogout, login, avatar }) => {
       toast.error('Please enter a valid amount');
       return;
     }
-
     if (!selectedPortfolioId) {
       toast.error('No portfolio selected');
       return;
     }
-
     try {
       if (modalAction === 'buy') {
         await walletApi.addPortfolioCoin(selectedPortfolioId, {
@@ -185,7 +197,6 @@ const Market = ({ onLogout, login, avatar }) => {
       const bNum = parseFloat(bValue.replace('$', '').replace('%', '').replace(',', ''));
       return sortConfig.direction === 'asc' ? aNum - bNum : bNum - aNum;
     }
-
     return sortConfig.direction === 'asc'
       ? aValue.localeCompare(bValue)
       : bValue.localeCompare(aValue);
@@ -221,6 +232,9 @@ const Market = ({ onLogout, login, avatar }) => {
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
+      if (tableRef.current) {
+        tableRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
     }
   };
 
@@ -252,7 +266,7 @@ const Market = ({ onLogout, login, avatar }) => {
                       <span className="market-top-gainer-label">Top Gainer (24h)</span>
                     </div>
                     <div className="market-top-gainer-content">
-                      <img src={gainer.logo_url} alt={gainer.ticker} className="market-top-gainer-icon" style={{ width: '40px', height: '40px' }} />
+                      <img src={gainer.logo_url} alt={gainer.ticker} className="market-top-gainer-icon" />
                       <div className="market-top-gainer-info">
                         <span className="market-top-gainer-price">{gainer.price}</span>
                         <span className="market-top-gainer-change">{gainer.change}</span>
@@ -265,9 +279,7 @@ const Market = ({ onLogout, login, avatar }) => {
                   </div>
                 ))}
               </div>
-
               <div className="market-divider"></div>
-
               <div className="market-table-wrapper">
                 <div className="market-categories-wrapper">
                   <div className="market-categories-and-search">
@@ -283,7 +295,7 @@ const Market = ({ onLogout, login, avatar }) => {
                           }}
                           disabled={isLoading}
                         >
-                          {category}
+                          <span>{category}</span>
                         </button>
                       ))}
                     </div>
@@ -322,7 +334,6 @@ const Market = ({ onLogout, login, avatar }) => {
                     </select>
                   </div>
                 </div>
-
                 {portfolios.length > 0 ? (
                   <div className="market-portfolio-selector" style={{ marginBottom: '20px' }}>
                     <label style={{ color: '#ffffff', marginRight: '10px' }}>Select Portfolio: </label>
@@ -354,7 +365,6 @@ const Market = ({ onLogout, login, avatar }) => {
                     No portfolios available. Please create one in Wallet.
                   </p>
                 )}
-
                 <AnimatePresence mode="wait">
                   {isLoading ? (
                     <motion.div
@@ -379,6 +389,7 @@ const Market = ({ onLogout, login, avatar }) => {
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.3 }}
+                      ref={tableRef}
                     >
                       <table className="market-crypto-table">
                         <thead>
@@ -418,35 +429,77 @@ const Market = ({ onLogout, login, avatar }) => {
                           </tr>
                         </thead>
                         <tbody>
-                          {numberedData.map((crypto) => (
-                            <tr key={crypto.id}>
-                              <td>{crypto.displayId}</td>
-                              <td>
-                                <img src={crypto.logo_url} alt={crypto.ticker} className="market-currency-icon" style={{ width: '40px', height: '40px' }} />
-                                {crypto.currency}
-                              </td>
-                              <td>{crypto.price}</td>
-                              <td className={crypto.last24h.includes('+') ? 'market-positive' : 'market-negative'}>
-                                {crypto.last24h}
-                              </td>
-                              <td className={crypto.last7d.includes('+') ? 'market-positive' : 'market-negative'}>
-                                {crypto.last7d}
-                              </td>
-                              <td>
-                                <div className="market-performance-graph">📈</div>
-                              </td>
-                              <td className="market-options-buttons">
-                                <button className="market-buy-btn" onClick={() => handleBuyClick(crypto)}>Buy</button>
-                                <button className="market-sell-btn" onClick={() => handleSellClick(crypto)}>Sell</button>
-                              </td>
-                            </tr>
-                          ))}
+                          {numberedData.map((crypto, index) => {
+                            const chartData = (crypto.price_history?.length > 0 ? crypto.price_history : crypto.performanceData || []).map((price, i) => ({
+                              price,
+                              hour: i,
+                            }));
+                            const isPositive = crypto.last24h?.includes('+');
+                            return (
+                              <motion.tr
+                                key={crypto.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.3, delay: index * 0.05 }}
+                              >
+                                <td>{crypto.displayId}</td>
+                                <td>
+                                  <img src={crypto.logo_url} alt={crypto.ticker} className="market-currency-icon" />
+                                  {crypto.currency}
+                                </td>
+                                <td>{crypto.price}</td>
+                                <td className={isPositive ? 'market-positive' : 'market-negative'}>
+                                  {crypto.last24h}
+                                </td>
+                                <td className={crypto.last7d?.includes('+') ? 'market-positive' : 'market-negative'}>
+                                  {crypto.last7d}
+                                </td>
+                                <td>
+                                  <div className="market-performance-graph">
+                                    {chartData.length > 0 ? (
+                                      <ResponsiveContainer width={100} height={30}>
+                                        <AreaChart data={chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                                          <defs>
+                                            <linearGradient id="area-gradient-positive" x1="0" y1="0" x2="0" y2="1">
+                                              <stop offset="0%" stopColor="#10b981" stopOpacity={0.3} />
+                                              <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
+                                            </linearGradient>
+                                            <linearGradient id="area-gradient-negative" x1="0" y1="0" x2="0" y2="1">
+                                              <stop offset="0%" stopColor="#ef4444" stopOpacity={0.3} />
+                                              <stop offset="100%" stopColor="#ef4444" stopOpacity={0} />
+                                            </linearGradient>
+                                          </defs>
+                                          <Area
+                                            type="monotoneX"
+                                            dataKey="price"
+                                            stroke={isPositive ? '#10b981' : '#ef4444'}
+                                            fill={isPositive ? 'url(#area-gradient-positive)' : 'url(#area-gradient-negative)'}
+                                            strokeWidth={2}
+                                            dot={false}
+                                            isAnimationActive={true}
+                                            animationDuration={1500}
+                                            animationEasing="ease-in-out"
+                                            className={isPositive ? '' : 'negative'}
+                                          />
+                                        </AreaChart>
+                                      </ResponsiveContainer>
+                                    ) : (
+                                      <span style={{ color: '#a0aec0', fontSize: '12px' }}>No data</span>
+                                    )}
+                                  </div>
+                                </td>
+                                <td className="market-options-buttons">
+                                  <button className="market-buy-btn" onClick={() => handleBuyClick(crypto)}>Buy</button>
+                                  <button className="market-sell-btn" onClick={() => handleSellClick(crypto)}>Sell</button>
+                                </td>
+                              </motion.tr>
+                            );
+                          })}
                         </tbody>
                       </table>
                     </motion.div>
                   )}
                 </AnimatePresence>
-
                 <div className="market-pagination">
                   <button
                     onClick={() => handlePageChange(currentPage - 1)}
@@ -467,7 +520,6 @@ const Market = ({ onLogout, login, avatar }) => {
           </section>
         </div>
       </main>
-
       <AnimatePresence>
         {isModalOpen && (
           <motion.div

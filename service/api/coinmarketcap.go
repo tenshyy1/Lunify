@@ -11,8 +11,10 @@ import (
 )
 
 const (
-	apiBaseURL = "https://pro-api.coinmarketcap.com"
-	apiKey     = "602e29aa-f89f-4fbe-819b-37847531c7f8"
+	apiBaseURL       = "https://pro-api.coinmarketcap.com"
+	coinGeckoBaseURL = "https://api.coingecko.com/api/v3"
+	apiKey           = "602e29aa-f89f-4fbe-819b-37847531c7f8"
+	coinGeckoApiKey  = "CG-jRU5HPtX3hpkvdLMU3i6VsJu"
 )
 
 type CoinMarketCapResponse struct {
@@ -160,6 +162,7 @@ func FetchCoinsByCategory(category string, limit int) ([]common.MarketCoin, erro
 	return coins, nil
 }
 
+// FetchCoinPrice fetches current price for a coin
 func FetchCoinPrice(ticker string) (float64, error) {
 	client := &http.Client{Timeout: 10 * time.Second}
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/v1/cryptocurrency/quotes/latest?symbol=%s", apiBaseURL, ticker), nil)
@@ -203,6 +206,7 @@ func FetchCoinPrice(ticker string) (float64, error) {
 	return coin.Quote.USD.Price, nil
 }
 
+// FetchCoinInfo fetches metadata like logo for coins
 func FetchCoinInfo(tickers []string) (map[string]string, error) {
 	client := &http.Client{Timeout: 10 * time.Second}
 	tickersStr := strings.Join(tickers, ",")
@@ -233,4 +237,35 @@ func FetchCoinInfo(tickers []string) (map[string]string, error) {
 		logoMap[ticker] = info.Logo
 	}
 	return logoMap, nil
+}
+
+// FetchCoinPriceHistory fetches 24-hour hourly price history from CoinGecko
+func FetchCoinPriceHistory(ticker string) ([]float64, error) {
+	client := &http.Client{Timeout: 10 * time.Second}
+	url := fmt.Sprintf("%s/coins/%s/market_chart?vs_currency=usd&days=1&interval=hourly", coinGeckoBaseURL, strings.ToLower(ticker))
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("accept", "application/json")
+	req.Header.Set("x-cg-pro-api-key", coinGeckoApiKey)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var result struct {
+		Prices [][]float64 `json:"prices"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, err
+	}
+
+	prices := make([]float64, len(result.Prices))
+	for i, priceData := range result.Prices {
+		prices[i] = priceData[1] // Цена в USD
+	}
+	return prices, nil
 }

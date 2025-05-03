@@ -13,13 +13,14 @@ var jwtKey = []byte("my_secret_key")
 
 // MarketCoin for external market data
 type MarketCoin struct {
-	Currency  string  `json:"currency"`
-	Ticker    string  `json:"ticker"`
-	PriceUSD  float64 `json:"price_usd"`
-	Change24h float64 `json:"change_24h"`
-	Change7d  float64 `json:"change_7d"`
-	Category  string  `json:"category"`
-	LogoURL   string  `json:"logo_url,omitempty"`
+	Currency     string    `json:"currency"`
+	Ticker       string    `json:"ticker"`
+	PriceUSD     float64   `json:"price_usd"`
+	Change24h    float64   `json:"change_24h"`
+	Change7d     float64   `json:"change_7d"`
+	Category     string    `json:"category"`
+	LogoURL      string    `json:"logo_url,omitempty"`
+	PriceHistory []float64 `json:"price_history,omitempty"`
 }
 
 type Response struct {

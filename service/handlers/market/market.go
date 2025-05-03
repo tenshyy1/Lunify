@@ -54,7 +54,7 @@ func GetMarketCoins(c *fiber.Ctx) error {
 		return common.SendError(c, "Failed to fetch coins from API: "+err.Error(), fiber.StatusInternalServerError)
 	}
 
-	// Fetch and apply logos
+	// Fetch and apply logos and price history
 	tickers := make([]string, len(coins))
 	for i, coin := range coins {
 		tickers[i] = coin.Ticker
@@ -65,18 +65,20 @@ func GetMarketCoins(c *fiber.Ctx) error {
 		logoMap = make(map[string]string)
 	}
 
-	for _, ticker := range tickers {
-		if logoMap[ticker] == "" {
-			log.Printf("Missing logo for ticker %s in category %s", ticker, category)
-		}
-	}
-
 	for i, coin := range coins {
 		logoURL := logoMap[coin.Ticker]
 		if logoURL == "" {
 			logoURL = ""
 		}
 		coins[i].LogoURL = logoURL
+
+		// Fetch price history from CoinGecko
+		prices, err := api.FetchCoinPriceHistory(coin.Ticker)
+		if err != nil {
+			log.Printf("Failed to fetch price history for %s: %v", coin.Ticker, err)
+			prices = []float64{}
+		}
+		coins[i].PriceHistory = prices
 	}
 
 	// Cache results
@@ -115,7 +117,7 @@ func GetTopGainers(c *fiber.Ctx) error {
 		coins = coins[:4]
 	}
 
-	// Fetch and apply logos
+	// Fetch and apply logos and price history
 	tickers := make([]string, len(coins))
 	for i, coin := range coins {
 		tickers[i] = coin.Ticker
@@ -126,18 +128,20 @@ func GetTopGainers(c *fiber.Ctx) error {
 		logoMap = make(map[string]string)
 	}
 
-	for _, ticker := range tickers {
-		if logoMap[ticker] == "" {
-			log.Printf("Missing logo for ticker %s in top gainers", ticker)
-		}
-	}
-
 	for i, coin := range coins {
 		logoURL := logoMap[coin.Ticker]
 		if logoURL == "" {
 			logoURL = ""
 		}
 		coins[i].LogoURL = logoURL
+
+		// Fetch price history from CoinGecko
+		prices, err := api.FetchCoinPriceHistory(coin.Ticker)
+		if err != nil {
+			log.Printf("Failed to fetch price history for %s: %v", coin.Ticker, err)
+			prices = []float64{}
+		}
+		coins[i].PriceHistory = prices
 	}
 
 	// Cache results
