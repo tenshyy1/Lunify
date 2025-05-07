@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../styles/wallet.css';
 import Header from '../components/Header';
 import SideHeader from '../components/SideHeader';
@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import walletApi from '../services/wallet';
+import { FaArrowLeft } from 'react-icons/fa'; 
 
 const Wallet = ({ onLogout, login, avatar }) => {
   const [portfolios, setPortfolios] = useState([]);
@@ -17,6 +18,8 @@ const Wallet = ({ onLogout, login, avatar }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [portfolioToDelete, setPortfolioToDelete] = useState(null);
   const [newPortfolio, setNewPortfolio] = useState({ name: '', description: '' });
+  const [lineStyle, setLineStyle] = useState({ left: 0, width: 0 });
+  const portfolioRefs = useRef([]);
 
   useEffect(() => {
     fetchPortfolios();
@@ -57,7 +60,6 @@ const Wallet = ({ onLogout, login, avatar }) => {
       setIsCreateModalOpen(false);
       setNewPortfolio({ name: '', description: '' });
       toast.success('Portfolio created successfully');
-      // Если это первый портфель, автоматически делаем его активным
       if (portfolios.length === 0) {
         setActivePortfolioId(newPortfolioData.id.toString());
       }
@@ -97,7 +99,7 @@ const Wallet = ({ onLogout, login, avatar }) => {
       return coins.map((coin) => ({
         currency: coin.currency || 'Unknown',
         ticker: coin.ticker || 'UNKNOWN',
-        logo_url: coin.logo_url || 'https://via.placeholder.com/40',
+        logo_url: coin.logo_url || 'https://via.placeholder.com/40', // Убедились, что logo_url передаётся
         amount: coin.amount || 0,
         value: `$${coin.value_usd ? coin.value_usd.toLocaleString('en-US') : '0.00'}`,
         change: `${coin.change_percent > 0 ? '+' : ''}${coin.change_percent || 0}%`,
@@ -106,6 +108,21 @@ const Wallet = ({ onLogout, login, avatar }) => {
       toast.error(error.message || 'Failed to fetch portfolio coins');
       return [];
     }
+  };
+
+  const handlePortfolioHover = (index) => {
+    const portfolioCard = portfolioRefs.current[index];
+    if (portfolioCard) {
+      const rect = portfolioCard.getBoundingClientRect();
+      const containerRect = portfolioCard.parentElement.getBoundingClientRect();
+      const left = rect.left - containerRect.left;
+      const width = rect.width;
+      setLineStyle({ left, width });
+    }
+  };
+
+  const handlePortfolioLeave = () => {
+    setLineStyle({ left: 0, width: 0 });
   };
 
   return (
@@ -128,44 +145,65 @@ const Wallet = ({ onLogout, login, avatar }) => {
                   <div className="portfolio-grid">
                     <div className="portfolio-grid-header">
                       <h2>Your Portfolios</h2>
+                      <div
+                        className="portfolio-follow-line"
+                        style={{ left: lineStyle.left, width: lineStyle.width }}
+                      />
                       <button className="add-portfolio-btn" onClick={() => setIsCreateModalOpen(true)}>
                         Add Portfolio
                       </button>
                     </div>
                     <div className="portfolio-grid-items">
-                      {portfolios.map((portfolio) => (
-                        <div
-                          key={portfolio.id}
-                          className={`portfolio-card ${activePortfolioId === portfolio.id.toString() ? 'portfolio-card-active' : ''}`}
-                        >
-                          <div className="portfolio-card-content" onClick={async () => {
-                            const coins = await fetchPortfolioCoins(portfolio.id);
-                            setSelectedPortfolio({ ...portfolio, coins });
-                          }}>
-                            <h3>{portfolio.name}</h3>
-                            <p>{portfolio.description || 'No description'}</p>
-                            <div className="portfolio-card-value">
-                              <span>Total Value: $0.00</span>
+                      {portfolios.map((portfolio, index) => {
+                        const totalValue = (portfolio.coins || []).reduce((sum, coin) => {
+                          const value = parseFloat(coin.value.replace('$', '').replace(',', '')) || 0;
+                          return sum + value;
+                        }, 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+
+                        return (
+                          <div
+                            key={portfolio.id}
+                            className={`portfolio-card ${activePortfolioId === portfolio.id.toString() ? 'portfolio-card-active' : ''}`}
+                            ref={(el) => (portfolioRefs.current[index] = el)}
+                            onMouseEnter={() => handlePortfolioHover(index)}
+                            onMouseLeave={handlePortfolioLeave}
+                          >
+                            <div className="portfolio-card-content" onClick={async () => {
+                              const coins = await fetchPortfolioCoins(portfolio.id);
+                              setSelectedPortfolio({ ...portfolio, coins });
+                            }}>
+                              <h3>{portfolio.name}</h3>
+                              <p>{portfolio.description || 'No description'}</p>
+                              <div className="portfolio-card-value">
+                                <span>Total Value: {totalValue}</span>
+                              </div>
+                              {portfolio.coins && portfolio.coins.length > 0 && (
+                                <img
+                                  src={portfolio.coins[0].logo_url}
+                                  alt={portfolio.coins[0].ticker}
+                                  style={{ width: '24px', height: '24px', borderRadius: '50%' }}
+                                />
+                              )}
                             </div>
+                            <button
+                              className="portfolio-set-active-btn"
+                              onClick={() => handleSetActivePortfolio(portfolio.id)}
+                              disabled={activePortfolioId === portfolio.id.toString()}
+                            >
+                              {activePortfolioId === portfolio.id.toString() ? 'Active' : 'Set Active'}
+                            </button>
+                            <button
+                              className="portfolio-delete-btn"
+                              onClick={() => {
+                                setPortfolioToDelete(portfolio);
+                                setIsDeleteModalOpen(true);
+                              }}
+                            >
+                              Delete
+                            </button>
                           </div>
-                          <button
-                            className="portfolio-set-active-btn"
-                            onClick={() => handleSetActivePortfolio(portfolio.id)}
-                            disabled={activePortfolioId === portfolio.id.toString()}
-                          >
-                            {activePortfolioId === portfolio.id.toString() ? 'Active' : 'Set Active'}
-                          </button>
-                          <button
-                            className="portfolio-delete-btn"
-                            onClick={() => {
-                              setPortfolioToDelete(portfolio);
-                              setIsDeleteModalOpen(true);
-                            }}
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 )
@@ -173,6 +211,7 @@ const Wallet = ({ onLogout, login, avatar }) => {
                 <div className="portfolio-details">
                   <div className="portfolio-header">
                     <button className="portfolio-back-btn" onClick={() => setSelectedPortfolio(null)}>
+                      <FaArrowLeft className="back-icon" />
                       Back
                     </button>
                     <h2>{selectedPortfolio.name || 'Unnamed Portfolio'}</h2>
@@ -212,11 +251,17 @@ const Wallet = ({ onLogout, login, avatar }) => {
                         {selectedPortfolio.coins && selectedPortfolio.coins.length > 0 ? (
                           selectedPortfolio.coins.map((coin, index) => (
                             <div key={index} className="distribution-item">
-                              <img src={coin.logo_url} alt={coin.ticker} className="distribution-icon" style={{ width: '40px', height: '40px' }} />
+                              <img src={coin.logo_url} alt={coin.ticker} className="distribution-icon" style={{ width: '50px', height: '50px', borderRadius: '50%' }}/>
                               <span className="distribution-currency">{coin.currency}</span>
                               <span className="distribution-amount">{coin.amount}</span>
                               <span className="distribution-value">{coin.value}</span>
-                              <span className="distribution-change">{coin.change}</span>
+                              <span
+                                className={`distribution-change ${
+                                  coin.change.includes('+') ? 'positive' : 'negative'
+                                }`}
+                              >
+                                {coin.change}
+                              </span>
                             </div>
                           ))
                         ) : (
@@ -240,12 +285,14 @@ const Wallet = ({ onLogout, login, avatar }) => {
                           selectedPortfolio.coins.map((coin, index) => (
                             <tr key={index}>
                               <td>
-                                <img src={coin.logo_url} alt={coin.ticker} className="coin-icon" style={{ width: '40px', height: '40px' }} />
+                                <img src={coin.logo_url} alt={coin.ticker} className="coin-icon" style={{ width: '40px', height: '40px', borderRadius: '50%' }}/>
                                 {coin.currency}
                               </td>
                               <td>{coin.amount}</td>
                               <td>{coin.value}</td>
-                              <td className={coin.change.includes('+') ? 'positive' : 'negative'}>{coin.change}</td>
+                              <td className={coin.change.includes('+') ? 'positive' : 'negative'}>
+                                {coin.change}
+                              </td>
                             </tr>
                           ))
                         ) : (

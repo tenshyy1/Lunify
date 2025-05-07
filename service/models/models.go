@@ -77,6 +77,7 @@ type PortfolioCoin struct {
 	Amount        float64  `gorm:"type:decimal(18,8);not null" json:"amount"`
 	ValueUSD      *float64 `gorm:"type:decimal(18,2)" json:"value_usd"`
 	ChangePercent *float64 `gorm:"type:decimal(10,2)" json:"change_percent"`
+	LogoURL       string   `gorm:"type:text" json:"logo_url,omitempty"`
 }
 
 func (PortfolioCoin) TableName() string {

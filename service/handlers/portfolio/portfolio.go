@@ -1,6 +1,7 @@
 package portfolio
 
 import (
+	"log"
 	"strconv"
 
 	"service/api"
@@ -123,6 +124,23 @@ func GetPortfolioCoins(db *gorm.DB) fiber.Handler {
 		var coins []models.PortfolioCoin
 		if err := db.Where("portfolio_id = ?", id).Find(&coins).Error; err != nil {
 			return common.SendError(c, "Failed to fetch coins", fiber.StatusInternalServerError)
+		}
+
+		tickers := make([]string, len(coins))
+		for i, coin := range coins {
+			tickers[i] = coin.Ticker
+		}
+		logoMap, err := api.FetchCoinInfo(tickers)
+		if err != nil {
+			log.Printf("Warning: Failed to fetch coin logos: %v", err)
+		}
+
+		for i, coin := range coins {
+			logoURL, exists := logoMap[coin.Ticker]
+			if !exists {
+				logoURL = "https://via.placeholder.com/40"
+			}
+			coins[i].LogoURL = logoURL
 		}
 
 		return c.JSON(coins)
