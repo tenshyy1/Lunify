@@ -2,7 +2,6 @@ package portfolio
 
 import (
 	"errors"
-	"log"
 	"strconv"
 
 	"service/api"
@@ -13,7 +12,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// routes
+// portfolio routes
 func SetupPortfolioRoutes(app *fiber.App, db *gorm.DB) {
 	app.Get("/portfolios", GetPortfolios(db))
 	app.Post("/portfolios", CreatePortfolio(db))
@@ -23,7 +22,7 @@ func SetupPortfolioRoutes(app *fiber.App, db *gorm.DB) {
 	app.Post("/portfolios/:id/coins/sell", SellPortfolioCoin(db))
 }
 
-// return all spisok portofolio
+// GetPortfolios returns all portfolios
 func GetPortfolios(db *gorm.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		claims, err := common.ParseJWT(c.Get("Authorization"))
@@ -31,8 +30,19 @@ func GetPortfolios(db *gorm.DB) fiber.Handler {
 			return common.SendError(c, "Unauthorized", fiber.StatusUnauthorized)
 		}
 
-		// Find portfolios
 		var portfolios []models.Portfolio
+		if err := db.Where("user_id = ?", claims.UserID).Find(&portfolios).Error; err != nil {
+			return common.SendError(c, "Failed to fetch portfolios", fiber.StatusInternalServerError)
+		}
+
+		// Update total_value
+		for _, portfolio := range portfolios {
+			if err := updatePortfolioTotalValue(db, portfolio.ID); err != nil {
+				return common.SendError(c, "Failed to update portfolio total value", fiber.StatusInternalServerError)
+			}
+		}
+
+		// Fetch portfolios
 		if err := db.Where("user_id = ?", claims.UserID).Find(&portfolios).Error; err != nil {
 			return common.SendError(c, "Failed to fetch portfolios", fiber.StatusInternalServerError)
 		}
@@ -41,7 +51,7 @@ func GetPortfolios(db *gorm.DB) fiber.Handler {
 	}
 }
 
-// create portfolio
+// CreatePortfolio
 func CreatePortfolio(db *gorm.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		claims, err := common.ParseJWT(c.Get("Authorization"))
@@ -58,7 +68,6 @@ func CreatePortfolio(db *gorm.DB) fiber.Handler {
 			return common.SendError(c, "Name is required", fiber.StatusBadRequest)
 		}
 
-		// Create portfolio
 		portfolio := models.Portfolio{
 			UserID:      uint(claims.UserID),
 			Name:        input.Name,
@@ -73,7 +82,7 @@ func CreatePortfolio(db *gorm.DB) fiber.Handler {
 	}
 }
 
-// delete portfolio
+// deletes a portfolio
 func DeletePortfolio(db *gorm.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		claims, err := common.ParseJWT(c.Get("Authorization"))
@@ -86,13 +95,11 @@ func DeletePortfolio(db *gorm.DB) fiber.Handler {
 			return common.SendError(c, "Invalid portfolio ID", fiber.StatusBadRequest)
 		}
 
-		// Find portfolio
 		var portfolio models.Portfolio
 		if err := db.Where("id = ? AND user_id = ?", id, claims.UserID).First(&portfolio).Error; err != nil {
 			return common.SendError(c, "Portfolio not found or not owned by user", fiber.StatusNotFound)
 		}
 
-		// Delete portfolio
 		if err := db.Delete(&portfolio).Error; err != nil {
 			return common.SendError(c, "Failed to delete portfolio", fiber.StatusInternalServerError)
 		}
@@ -103,7 +110,49 @@ func DeletePortfolio(db *gorm.DB) fiber.Handler {
 	}
 }
 
-// all monet in portfolio
+// updatePortfolioCoinPrices updates coin prices and change percentages
+func updatePortfolioCoinPrices(db *gorm.DB, coins []models.PortfolioCoin) error {
+	tickers := make([]string, 0, len(coins))
+	for _, coin := range coins {
+		if coin.Ticker != "" {
+			tickers = append(tickers, coin.Ticker)
+		}
+	}
+
+	marketCoins, err := api.FetchMarketCoins(500)
+	if err != nil {
+		return err
+	}
+
+	tickerPriceMap := make(map[string]struct {
+		PriceUSD  float64
+		Change24h float64
+	})
+	for _, marketCoin := range marketCoins {
+		tickerPriceMap[marketCoin.Ticker] = struct {
+			PriceUSD  float64
+			Change24h float64
+		}{
+			PriceUSD:  marketCoin.PriceUSD,
+			Change24h: marketCoin.Change24h,
+		}
+	}
+
+	for i, coin := range coins {
+		if data, exists := tickerPriceMap[coin.Ticker]; exists {
+			newValueUSD := data.PriceUSD * coin.Amount
+			coins[i].ValueUSD = &newValueUSD
+			coins[i].ChangePercent = &data.Change24h
+			if err := db.Save(&coin).Error; err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+// returns all coins in a portfolio with updated prices
 func GetPortfolioCoins(db *gorm.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		claims, err := common.ParseJWT(c.Get("Authorization"))
@@ -116,16 +165,26 @@ func GetPortfolioCoins(db *gorm.DB) fiber.Handler {
 			return common.SendError(c, "Invalid portfolio ID", fiber.StatusBadRequest)
 		}
 
-		// Check portfolio ownership
 		var portfolio models.Portfolio
 		if err := db.Where("id = ? AND user_id = ?", id, claims.UserID).First(&portfolio).Error; err != nil {
 			return common.SendError(c, "Portfolio not found or not owned by user", fiber.StatusNotFound)
 		}
 
-		// Find coins
 		var coins []models.PortfolioCoin
 		if err := db.Where("portfolio_id = ?", id).Find(&coins).Error; err != nil {
 			return common.SendError(c, "Failed to fetch coins", fiber.StatusInternalServerError)
+		}
+
+		if err := updatePortfolioCoinPrices(db, coins); err != nil {
+
+		}
+
+		if err := updatePortfolioTotalValue(db, uint(id)); err != nil {
+			return common.SendError(c, "Failed to update portfolio total value", fiber.StatusInternalServerError)
+		}
+
+		if err := db.First(&portfolio, id).Error; err != nil {
+			return common.SendError(c, "Failed to fetch updated portfolio", fiber.StatusInternalServerError)
 		}
 
 		tickers := make([]string, 0, len(coins))
@@ -136,7 +195,6 @@ func GetPortfolioCoins(db *gorm.DB) fiber.Handler {
 		}
 		logoMap, err := api.FetchCoinInfo(tickers)
 		if err != nil {
-			log.Printf("Warning: Failed to fetch coin logos: %v", err)
 		}
 
 		for i, coin := range coins {
@@ -151,6 +209,7 @@ func GetPortfolioCoins(db *gorm.DB) fiber.Handler {
 	}
 }
 
+// updates the total value of a portfolio
 func updatePortfolioTotalValue(db *gorm.DB, portfolioID uint) error {
 	var coins []models.PortfolioCoin
 	if err := db.Where("portfolio_id = ?", portfolioID).Find(&coins).Error; err != nil {
@@ -169,7 +228,11 @@ func updatePortfolioTotalValue(db *gorm.DB, portfolioID uint) error {
 		return err
 	}
 
-	portfolio.TotalValue = &totalValue
+	//
+	if portfolio.TotalValue == nil {
+		portfolio.TotalValue = new(float64)
+	}
+	*portfolio.TotalValue = totalValue
 	if err := db.Save(&portfolio).Error; err != nil {
 		return err
 	}
@@ -177,7 +240,6 @@ func updatePortfolioTotalValue(db *gorm.DB, portfolioID uint) error {
 	return nil
 }
 
-// add and update portfolio coin
 func AddPortfolioCoin(db *gorm.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		claims, err := common.ParseJWT(c.Get("Authorization"))
@@ -199,20 +261,17 @@ func AddPortfolioCoin(db *gorm.DB) fiber.Handler {
 			return common.SendError(c, "Currency, ticker, and amount are required", fiber.StatusBadRequest)
 		}
 
-		// Check portfolio ownership
 		var portfolio models.Portfolio
 		if err := db.Where("id = ? AND user_id = ?", id, claims.UserID).First(&portfolio).Error; err != nil {
 			return common.SendError(c, "Portfolio not found or not owned by user", fiber.StatusNotFound)
 		}
 
-		// Fetch coin price
 		priceUSD, err := api.FetchCoinPrice(input.Ticker)
 		if err != nil {
 			return common.SendError(c, "Failed to fetch coin price", fiber.StatusInternalServerError)
 		}
 		valueUSD := priceUSD * input.Amount
 
-		// Check for existing coin
 		var existingCoin models.PortfolioCoin
 		err = db.Where("portfolio_id = ? AND ticker = ?", id, input.Ticker).First(&existingCoin).Error
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -220,7 +279,6 @@ func AddPortfolioCoin(db *gorm.DB) fiber.Handler {
 		}
 
 		if err == nil {
-			// Update existing coin
 			existingCoin.Amount += input.Amount
 			if existingCoin.ValueUSD != nil {
 				*existingCoin.ValueUSD += valueUSD
@@ -237,7 +295,6 @@ func AddPortfolioCoin(db *gorm.DB) fiber.Handler {
 			return c.JSON(existingCoin)
 		}
 
-		// Create new coin
 		coin := models.PortfolioCoin{
 			PortfolioID:   uint(id),
 			Currency:      input.Currency,
@@ -258,7 +315,7 @@ func AddPortfolioCoin(db *gorm.DB) fiber.Handler {
 	}
 }
 
-// Продажа монеты из портфеля
+// SellPortfolioCoin sells a coin from a portfolio
 func SellPortfolioCoin(db *gorm.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		claims, err := common.ParseJWT(c.Get("Authorization"))
@@ -283,13 +340,11 @@ func SellPortfolioCoin(db *gorm.DB) fiber.Handler {
 			return common.SendError(c, "Ticker and amount are required", fiber.StatusBadRequest)
 		}
 
-		// Check portfolio ownership
 		var portfolio models.Portfolio
 		if err := db.Where("id = ? AND user_id = ?", portfolioID, claims.UserID).First(&portfolio).Error; err != nil {
 			return common.SendError(c, "Portfolio not found or not owned by user", fiber.StatusNotFound)
 		}
 
-		// Find coin
 		var coin models.PortfolioCoin
 		err = db.Where("portfolio_id = ? AND ticker = ?", portfolioID, input.Ticker).First(&coin).Error
 		if err != nil {
@@ -303,14 +358,12 @@ func SellPortfolioCoin(db *gorm.DB) fiber.Handler {
 			return common.SendError(c, "Not enough coins to sell", fiber.StatusBadRequest)
 		}
 
-		// Fetch coin price
 		priceUSD, err := api.FetchCoinPrice(input.Ticker)
 		if err != nil {
 			return common.SendError(c, "Failed to fetch coin price", fiber.StatusInternalServerError)
 		}
 		valueUSDToSell := priceUSD * input.Amount
 
-		// Update or delete coin
 		coin.Amount -= input.Amount
 		if coin.ValueUSD != nil {
 			*coin.ValueUSD -= valueUSDToSell

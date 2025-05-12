@@ -62,7 +62,7 @@ type Portfolio struct {
 	Name        string    `gorm:"type:varchar(100);not null" json:"name"`
 	Description *string   `gorm:"type:text" json:"description,omitempty"`
 	CreatedAt   time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
-	TotalValue  *float64  `gorm:"type:decimal(18,2)" json:"total_value,omitempty"` // Новое поле
+	TotalValue  *float64  `gorm:"type:decimal(18,2)" json:"total_value,omitempty"`
 }
 
 func (Portfolio) TableName() string {

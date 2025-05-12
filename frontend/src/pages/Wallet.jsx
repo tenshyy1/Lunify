@@ -24,6 +24,8 @@ const Wallet = ({ onLogout, login, avatar }) => {
 
   useEffect(() => {
     fetchPortfolios();
+    const interval = setInterval(fetchPortfolios, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -36,11 +38,29 @@ const Wallet = ({ onLogout, login, avatar }) => {
 
   const fetchPortfolios = async () => {
     try {
-      const response = await walletApi.getPortfolios();
-      const portfoliosData = Array.isArray(response) ? response : [];
-      setPortfolios(portfoliosData);
-      if (activePortfolioId && !portfoliosData.some(p => p.id === parseInt(activePortfolioId))) {
+      let portfoliosData = await walletApi.getPortfolios();
+      portfoliosData = Array.isArray(portfoliosData) ? portfoliosData : [];
+
+      const updatedPortfolios = await Promise.all(
+        portfoliosData.map(async (portfolio) => {
+          const coins = await fetchPortfolioCoins(portfolio.id);
+          const totalValue = coins.reduce((sum, coin) => {
+            const value = parseFloat(coin.value.replace('$', '').replace(/,/g, '')) || 0;
+            return sum + value;
+          }, 0);
+          return { ...portfolio, coins, total_value: totalValue };
+        })
+      );
+
+      setPortfolios(updatedPortfolios);
+      if (activePortfolioId && !updatedPortfolios.some(p => p.id === parseInt(activePortfolioId))) {
         setActivePortfolioId(null);
+      }
+      if (selectedPortfolio) {
+        const updatedSelected = updatedPortfolios.find(p => p.id === selectedPortfolio.id);
+        if (updatedSelected) {
+          setSelectedPortfolio(updatedSelected);
+        }
       }
     } catch (error) {
       toast.error(error.message || 'Failed to fetch portfolios');
@@ -57,7 +77,7 @@ const Wallet = ({ onLogout, login, avatar }) => {
     try {
       const response = await walletApi.createPortfolio(newPortfolio);
       const newPortfolioData = response || {};
-      setPortfolios([...portfolios, newPortfolioData]);
+      setPortfolios([...portfolios, { ...newPortfolioData, coins: [], total_value: 0 }]);
       setIsCreateModalOpen(false);
       setNewPortfolio({ name: '', description: '' });
       toast.success('Portfolio created successfully');
@@ -102,8 +122,8 @@ const Wallet = ({ onLogout, login, avatar }) => {
         ticker: coin.ticker || 'UNKNOWN',
         logo_url: coin.logo_url || 'https://via.placeholder.com/40',
         amount: coin.amount || 0,
-        value: `$${coin.value_usd ? coin.value_usd.toLocaleString('en-US') : '0.00'}`,
-        change: `${coin.change_percent > 0 ? '+' : ''}${coin.change_percent || 0}%`,
+        value: `$${coin.value_usd ? coin.value_usd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}`,
+        change: `${coin.change_percent > 0 ? '+' : ''}${coin.change_percent ? coin.change_percent.toFixed(2) : '0.00'}%`,
       }));
     } catch (error) {
       toast.error(error.message || 'Failed to fetch portfolio coins');
@@ -168,10 +188,7 @@ const Wallet = ({ onLogout, login, avatar }) => {
                           onMouseEnter={() => handlePortfolioHover(index)}
                           onMouseLeave={handlePortfolioLeave}
                         >
-                          <div className="portfolio-card-content" onClick={async () => {
-                            const coins = await fetchPortfolioCoins(portfolio.id);
-                            setSelectedPortfolio({ ...portfolio, coins });
-                          }}>
+                          <div className="portfolio-card-content" onClick={() => setSelectedPortfolio(portfolio)}>
                             <h3>{portfolio.name}</h3>
                             <p>{portfolio.description || 'No description'}</p>
                             <div className="portfolio-card-value">
@@ -234,7 +251,7 @@ const Wallet = ({ onLogout, login, avatar }) => {
                       </div>
                       <div className="distribution-list">
                         {(() => {
-                          const sortedCoins = [...selectedPortfolio.coins].sort((a, b) => {
+                          const sortedCoins = [...(selectedPortfolio.coins || [])].sort((a, b) => {
                             const valueA = parseFloat(a.value.replace('$', '').replace(/,/g, '')) || 0;
                             const valueB = parseFloat(b.value.replace('$', '').replace(/,/g, '')) || 0;
                             return valueB - valueA;
@@ -299,11 +316,11 @@ const Wallet = ({ onLogout, login, avatar }) => {
                         </tr>
                       </thead>
                       <tbody>
-                        {selectedPortfolio.coins && selectedPortfolio.coins.length > 0 ? (
+                        {(selectedPortfolio.coins && selectedPortfolio.coins.length > 0) ? (
                           selectedPortfolio.coins.map((coin, index) => (
                             <tr key={index}>
                               <td>
-                                <img src={coin.logo_url} alt={coin.ticker} className="coin-icon" style={{ width: '45px', height: '45px', borderRadius: '50%' }}/>
+                                <img src={coin.logo_url} alt={coin.ticker} className="coin-icon" style={{ width: '45px', height: '45px', borderRadius: '50%' }} />
                                 {coin.currency}
                               </td>
                               <td>{coin.amount}</td>
@@ -330,7 +347,6 @@ const Wallet = ({ onLogout, login, avatar }) => {
         </div>
       </main>
 
-      {/* Модальное окно для создания портфеля */}
       <AnimatePresence>
         {isCreateModalOpen && (
           <motion.div
@@ -348,7 +364,7 @@ const Wallet = ({ onLogout, login, avatar }) => {
               transition={{ duration: 0.3 }}
             >
               <h2>Create New Portfolio</h2>
-              <p>details to create a new portfolio.</p>
+              <p>Enter details to create a new portfolio.</p>
               <div className="wallet-modal-input-group">
                 <label>Name</label>
                 <input
@@ -379,7 +395,6 @@ const Wallet = ({ onLogout, login, avatar }) => {
         )}
       </AnimatePresence>
 
-      {/* Модальное окно для подтверждения удаления */}
       <AnimatePresence>
         {isDeleteModalOpen && (
           <motion.div
@@ -411,7 +426,6 @@ const Wallet = ({ onLogout, login, avatar }) => {
         )}
       </AnimatePresence>
 
-      {/* Модальное окно для всех активов */}
       <AnimatePresence>
         {isModalOpen && (
           <motion.div
@@ -430,9 +444,9 @@ const Wallet = ({ onLogout, login, avatar }) => {
               transition={{ type: 'spring', damping: 20, stiffness: 100 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <h2>All</h2>
+              <h2>All Assets</h2>
               <div className="distribution_modal-content">
-                {[...selectedPortfolio.coins]
+                {[...(selectedPortfolio.coins || [])]
                   .sort((a, b) => {
                     const valueA = parseFloat(a.value.replace('$', '').replace(/,/g, '')) || 0;
                     const valueB = parseFloat(b.value.replace('$', '').replace(/,/g, '')) || 0;
