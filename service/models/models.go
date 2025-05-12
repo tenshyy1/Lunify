@@ -13,9 +13,11 @@ type User struct {
 	ID          uint           `gorm:"primaryKey" json:"id"`
 	Login       string         `gorm:"type:varchar(50);unique;not null" json:"login"`
 	Password    string         `gorm:"type:text;not null" json:"password"`
+	Role        string         `gorm:"type:varchar(50);default:'user'" json:"role"`
 	CreatedAt   time.Time      `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	DeletedAt   gorm.DeletedAt `gorm:"index" json:"deleted_at"`
 	UserDetails UserDetails    `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
+	IsBanned    bool           `gorm:"default:false" json:"is_banned"`
 }
 
 // Custom JSON marshalling
@@ -101,6 +103,32 @@ func RunMigrations(db *gorm.DB) error {
 		log.Println("UpdatedAt column dropped from users.")
 	}
 
+	// Add Role column if missing
+	if !db.Migrator().HasColumn(&User{}, "Role") {
+		log.Println("Adding Role column to users...")
+		if err := db.Migrator().AddColumn(&User{}, "Role"); err != nil {
+			return err
+		}
+		log.Println("Role column added to users.")
+		if err := db.Model(&User{}).Where("id IS NOT NULL").Update("Role", "user").Error; err != nil {
+			return err
+		}
+		log.Println("Defaulted Role to 'user' for existing users.")
+	}
+
+	// Add IsBanned column if missing
+	if !db.Migrator().HasColumn(&User{}, "IsBanned") {
+		log.Println("Adding IsBanned column to users...")
+		if err := db.Migrator().AddColumn(&User{}, "IsBanned"); err != nil {
+			return err
+		}
+		log.Println("IsBanned column added to users.")
+		if err := db.Model(&User{}).Where("id IS NOT NULL").Update("IsBanned", false).Error; err != nil {
+			return err
+		}
+		log.Println("Defaulted IsBanned to false for existing users.")
+	}
+
 	// Add email column if missing
 	if !db.Migrator().HasColumn(&UserDetails{}, "Email") {
 		log.Println("Adding email column to user_details...")
@@ -118,6 +146,7 @@ func RunMigrations(db *gorm.DB) error {
 		}
 		log.Println("Avatar_url column added to user_details.")
 	}
+
 	if !db.Migrator().HasColumn(&Portfolio{}, "TotalValue") {
 		log.Println("Adding total_value column to portfolios...")
 		if err := db.Migrator().AddColumn(&Portfolio{}, "TotalValue"); err != nil {

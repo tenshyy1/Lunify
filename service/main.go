@@ -3,10 +3,12 @@ package main
 import (
 	"log"
 
+	"service/handlers/admin"
 	"service/handlers/login"
 	"service/handlers/market"
 	"service/handlers/portfolio"
 	"service/handlers/profile"
+
 	"service/models"
 
 	"github.com/gofiber/fiber/v2"
@@ -47,6 +49,12 @@ func main() {
 	app.Post("/profile/change-password", profile.ChangePasswordHandler(dbInstance))
 	portfolio.SetupPortfolioRoutes(app, dbInstance)
 	market.SetupMarketRoutes(app)
+
+	// Admin routes
+	app.Get("/admin/users", admin.GetUsersHandler(dbInstance))
+	app.Post("/admin/users/:id/ban", admin.BanUserHandler(dbInstance))
+	app.Post("/admin/users/:id/unban", admin.UnbanUserHandler(dbInstance))
+	app.Delete("/admin/users/:id", admin.DeleteUserHandler(dbInstance))
 
 	// Start server
 	log.Fatal(app.Listen(":8099"))

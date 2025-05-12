@@ -33,14 +33,18 @@ type ErrorResponse struct {
 }
 
 type Claims struct {
-	UserID int `json:"user_id"`
+	UserID uint   `json:"user_id"`
+	Login  string `json:"login"`
+	Role   string `json:"role"`
 	jwt.StandardClaims
 }
 
-func GenerateToken(userID int) (string, error) {
+func GenerateToken(userID uint, login, role string) (string, error) {
 	expirationTime := time.Now().Add(24 * time.Hour)
 	claims := &Claims{
 		UserID: userID,
+		Login:  login,
+		Role:   role,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 		},

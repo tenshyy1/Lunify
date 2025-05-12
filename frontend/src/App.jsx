@@ -6,7 +6,7 @@ import Home from './pages/Home';
 import Market from './pages/Market';
 import Wallet from './pages/Wallet';
 import Profile from './pages/Profile';
-import Swap from './pages/Swap';
+import Admin from './pages/Admin';
 import ProtectedRoute from './context/ProtectedRoute';
 import foto from './assets/favicon.png';
 import api from './services/api'; 
@@ -88,10 +88,10 @@ function App() {
           }
         />
         <Route
-          path="/swap"
+          path="/admin"
           element={
             <ProtectedRoute>
-              <Swap onLogout={handleLogout} login={login} avatar={avatar} />
+              <Admin onLogout={handleLogout} login={login} avatar={avatar} />
             </ProtectedRoute>
           }
         />

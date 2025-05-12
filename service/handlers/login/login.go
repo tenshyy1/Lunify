@@ -30,7 +30,7 @@ func RegisterHandler(db *gorm.DB) fiber.Handler {
 			return common.SendError(c, "Login already exists", fiber.StatusConflict)
 		}
 
-		token, err := common.GenerateToken(int(user.ID))
+		token, err := common.GenerateToken(user.ID, user.Login, user.Role)
 		if err != nil {
 			return common.SendError(c, "Failed to generate token", fiber.StatusInternalServerError)
 		}
@@ -66,7 +66,7 @@ func LoginHandler(db *gorm.DB) fiber.Handler {
 			return common.SendError(c, "Invalid password", fiber.StatusUnauthorized)
 		}
 
-		token, err := common.GenerateToken(int(user.ID))
+		token, err := common.GenerateToken(user.ID, user.Login, user.Role)
 		if err != nil {
 			return common.SendError(c, "Failed to generate token", fiber.StatusInternalServerError)
 		}

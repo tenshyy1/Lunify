@@ -23,6 +23,8 @@ export default function Header({ login, avatar }) {
         return 'Wallet';
       case '/trade':
         return 'Market';
+      case '/admin':
+        return 'Admin Dashboard'
       default:
         return 'Profile';
     }
