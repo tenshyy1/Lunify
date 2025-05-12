@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import walletApi from '../services/wallet';
-import { FaArrowLeft } from 'react-icons/fa'; 
+import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 
 const Wallet = ({ onLogout, login, avatar }) => {
   const [portfolios, setPortfolios] = useState([]);
@@ -20,6 +20,7 @@ const Wallet = ({ onLogout, login, avatar }) => {
   const [newPortfolio, setNewPortfolio] = useState({ name: '', description: '' });
   const [lineStyle, setLineStyle] = useState({ left: 0, width: 0 });
   const portfolioRefs = useRef([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchPortfolios();
@@ -99,7 +100,7 @@ const Wallet = ({ onLogout, login, avatar }) => {
       return coins.map((coin) => ({
         currency: coin.currency || 'Unknown',
         ticker: coin.ticker || 'UNKNOWN',
-        logo_url: coin.logo_url || 'https://via.placeholder.com/40', // Убедились, что logo_url передаётся
+        logo_url: coin.logo_url || 'https://via.placeholder.com/40',
         amount: coin.amount || 0,
         value: `$${coin.value_usd ? coin.value_usd.toLocaleString('en-US') : '0.00'}`,
         change: `${coin.change_percent > 0 ? '+' : ''}${coin.change_percent || 0}%`,
@@ -248,25 +249,58 @@ const Wallet = ({ onLogout, login, avatar }) => {
                         <div className="chart-placeholder">📊</div>
                       </div>
                       <div className="distribution-list">
-                        {selectedPortfolio.coins && selectedPortfolio.coins.length > 0 ? (
-                          selectedPortfolio.coins.map((coin, index) => (
-                            <div key={index} className="distribution-item">
-                              <img src={coin.logo_url} alt={coin.ticker} className="distribution-icon" style={{ width: '50px', height: '50px', borderRadius: '50%' }}/>
-                              <span className="distribution-currency">{coin.currency}</span>
-                              <span className="distribution-amount">{coin.amount}</span>
-                              <span className="distribution-value">{coin.value}</span>
-                              <span
-                                className={`distribution-change ${
-                                  coin.change.includes('+') ? 'positive' : 'negative'
-                                }`}
-                              >
-                                {coin.change}
-                              </span>
-                            </div>
-                          ))
-                        ) : (
-                          <p>No coins in this portfolio.</p>
-                        )}
+                        {(() => {
+                          const sortedCoins = [...selectedPortfolio.coins].sort((a, b) => {
+                            const valueA = parseFloat(a.value.replace('$', '').replace(',', '')) || 0;
+                            const valueB = parseFloat(b.value.replace('$', '').replace(',', '')) || 0;
+                            return valueB - valueA;
+                          });
+                          const top5Coins = sortedCoins.slice(0, 5);
+                          const remainingCoins = sortedCoins.slice(5);
+
+                          return (
+                            <>
+                              {top5Coins.length > 0 ? (
+                                top5Coins.map((coin, index) => (
+                                  <div key={index} className="distribution-item">
+                                    <img
+                                      src={coin.logo_url}
+                                      alt={coin.ticker}
+                                      className="distribution-icon"
+                                      style={{ width: '35px', height: '35px', borderRadius: '50%' }}
+                                    />
+                                    <span className="distribution-currency">{coin.currency}</span>
+                                    <span className="distribution-amount">{coin.amount}</span>
+                                    <span className="distribution-value">{coin.value}</span>
+                                    <span
+                                      className={`distribution-change ${
+                                        coin.change.includes('+') ? 'positive' : 'negative'
+                                      }`}
+                                    >
+                                      {coin.change}
+                                    </span>
+                                  </div>
+                                ))
+                              ) : (
+                                <p>No coins in this portfolio.</p>
+                              )}
+                              {remainingCoins.length > 0 && (
+                                <button className="open-all-btn" onClick={() => setIsModalOpen(true)}>
+                                  See All{' '}
+                                  <FaArrowRight
+                                    style={{
+                                      marginLeft: '5px',
+                                      transition: 'transform 0.3s ease',
+                                      transform: 'translateX(0)',
+                                    }}
+                                    onMouseEnter={(e) => (e.target.style.transform = 'translateX(5px)')}
+                                    onMouseLeave={(e) => (e.target.style.transform = 'translateX(0)')}
+                                  />
+                                </button>
+                              )}
+                            </>
+                          );
+                        })()}
                       </div>
                     </div>
                   </div>
@@ -285,7 +319,7 @@ const Wallet = ({ onLogout, login, avatar }) => {
                           selectedPortfolio.coins.map((coin, index) => (
                             <tr key={index}>
                               <td>
-                                <img src={coin.logo_url} alt={coin.ticker} className="coin-icon" style={{ width: '40px', height: '40px', borderRadius: '50%' }}/>
+                                <img src={coin.logo_url} alt={coin.ticker} className="coin-icon" style={{ width: '45px', height: '45px', borderRadius: '50%' }}/>
                                 {coin.currency}
                               </td>
                               <td>{coin.amount}</td>
@@ -388,6 +422,62 @@ const Wallet = ({ onLogout, login, avatar }) => {
                   Delete
                 </button>
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Модальное окно для всех активов */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <motion.div
+            className="distribution_modalscreen-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            onClick={() => setIsModalOpen(false)}
+          >
+            <motion.div
+              className="distribution_modalscreen"
+              initial={{ scale: 0.7, opacity: 0, y: 50 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.7, opacity: 0, y: 50 }}
+              transition={{ type: 'spring', damping: 20, stiffness: 100 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2>All</h2>
+              <div className="distribution_modal-content">
+                {[...selectedPortfolio.coins]
+                  .sort((a, b) => {
+                    const valueA = parseFloat(a.value.replace('$', '').replace(',', '')) || 0;
+                    const valueB = parseFloat(b.value.replace('$', '').replace(',', '')) || 0;
+                    return valueB - valueA;
+                  })
+                  .map((coin, index) => (
+                    <div key={index} className="distribution-item">
+                      <img
+                        src={coin.logo_url}
+                        alt={coin.ticker}
+                        className="distribution-icon"
+                        style={{ width: '45px', height: '45px', borderRadius: '50%' }}
+                      />
+                      <span className="distribution-currency">{coin.currency}</span>
+                      <span className="distribution-amount">{coin.amount}</span>
+                      <span className="distribution-value">{coin.value}</span>
+                      <span
+                        className={`distribution-change ${
+                          coin.change.includes('+') ? 'positive' : 'negative'
+                        }`}
+                      >
+                        {coin.change}
+                      </span>
+                    </div>
+                  ))}
+              </div>
+              <button className="distribution_close-btn" onClick={() => setIsModalOpen(false)}>
+                Close
+              </button>
             </motion.div>
           </motion.div>
         )}
