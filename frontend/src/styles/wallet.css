@@ -700,26 +700,26 @@
 
 .distribution-currency {
   flex: 1;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
   color: #ffffff;
 }
 
 .distribution-amount {
-  font-size: 12px;
+  font-size: 13px;
+  margin-right: 5px;
   color: #a0aec0;
 }
 
 .distribution-value {
-  font-size: 12px;
+  margin-right: 15px;
+  font-size: 14px;
   font-weight: 600;
   color: #ffffff;
 }
 
 .distribution-change {
-  font-size: 12px;
-  font-weight: 500;
-  color: #10b981;
+  display: none;
 }
 
 .distribution-change.negative {

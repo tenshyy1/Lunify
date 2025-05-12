@@ -1,6 +1,7 @@
 package portfolio
 
 import (
+	"errors"
 	"log"
 	"strconv"
 
@@ -62,6 +63,7 @@ func CreatePortfolio(db *gorm.DB) fiber.Handler {
 			UserID:      uint(claims.UserID),
 			Name:        input.Name,
 			Description: input.Description,
+			TotalValue:  new(float64),
 		}
 		if err := db.Create(&portfolio).Error; err != nil {
 			return common.SendError(c, "Failed to create portfolio", fiber.StatusInternalServerError)
@@ -126,9 +128,11 @@ func GetPortfolioCoins(db *gorm.DB) fiber.Handler {
 			return common.SendError(c, "Failed to fetch coins", fiber.StatusInternalServerError)
 		}
 
-		tickers := make([]string, len(coins))
-		for i, coin := range coins {
-			tickers[i] = coin.Ticker
+		tickers := make([]string, 0, len(coins))
+		for _, coin := range coins {
+			if coin.Ticker != "" {
+				tickers = append(tickers, coin.Ticker)
+			}
 		}
 		logoMap, err := api.FetchCoinInfo(tickers)
 		if err != nil {
@@ -145,6 +149,32 @@ func GetPortfolioCoins(db *gorm.DB) fiber.Handler {
 
 		return c.JSON(coins)
 	}
+}
+
+func updatePortfolioTotalValue(db *gorm.DB, portfolioID uint) error {
+	var coins []models.PortfolioCoin
+	if err := db.Where("portfolio_id = ?", portfolioID).Find(&coins).Error; err != nil {
+		return err
+	}
+
+	totalValue := 0.0
+	for _, coin := range coins {
+		if coin.ValueUSD != nil {
+			totalValue += *coin.ValueUSD
+		}
+	}
+
+	var portfolio models.Portfolio
+	if err := db.First(&portfolio, portfolioID).Error; err != nil {
+		return err
+	}
+
+	portfolio.TotalValue = &totalValue
+	if err := db.Save(&portfolio).Error; err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // add and update portfolio coin
@@ -184,7 +214,12 @@ func AddPortfolioCoin(db *gorm.DB) fiber.Handler {
 
 		// Check for existing coin
 		var existingCoin models.PortfolioCoin
-		if err := db.Where("portfolio_id = ? AND ticker = ?", id, input.Ticker).First(&existingCoin).Error; err == nil {
+		err = db.Where("portfolio_id = ? AND ticker = ?", id, input.Ticker).First(&existingCoin).Error
+		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			return common.SendError(c, "Failed to check existing coin", fiber.StatusInternalServerError)
+		}
+
+		if err == nil {
 			// Update existing coin
 			existingCoin.Amount += input.Amount
 			if existingCoin.ValueUSD != nil {
@@ -195,6 +230,10 @@ func AddPortfolioCoin(db *gorm.DB) fiber.Handler {
 			if err := db.Save(&existingCoin).Error; err != nil {
 				return common.SendError(c, "Failed to update coin amount", fiber.StatusInternalServerError)
 			}
+			if err := updatePortfolioTotalValue(db, uint(id)); err != nil {
+				return common.SendError(c, "Failed to update portfolio total value", fiber.StatusInternalServerError)
+			}
+
 			return c.JSON(existingCoin)
 		}
 
@@ -209,6 +248,10 @@ func AddPortfolioCoin(db *gorm.DB) fiber.Handler {
 		}
 		if err := db.Create(&coin).Error; err != nil {
 			return common.SendError(c, "Failed to add coin", fiber.StatusInternalServerError)
+		}
+
+		if err := updatePortfolioTotalValue(db, uint(id)); err != nil {
+			return common.SendError(c, "Failed to update portfolio total value", fiber.StatusInternalServerError)
 		}
 
 		return c.JSON(coin)
@@ -248,8 +291,12 @@ func SellPortfolioCoin(db *gorm.DB) fiber.Handler {
 
 		// Find coin
 		var coin models.PortfolioCoin
-		if err := db.Where("portfolio_id = ? AND ticker = ?", portfolioID, input.Ticker).First(&coin).Error; err != nil {
-			return common.SendError(c, "Coin not found in portfolio", fiber.StatusNotFound)
+		err = db.Where("portfolio_id = ? AND ticker = ?", portfolioID, input.Ticker).First(&coin).Error
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return common.SendError(c, "Coin not found in portfolio", fiber.StatusNotFound)
+			}
+			return common.SendError(c, "Failed to find coin", fiber.StatusInternalServerError)
 		}
 
 		if input.Amount > coin.Amount {
@@ -276,6 +323,10 @@ func SellPortfolioCoin(db *gorm.DB) fiber.Handler {
 			if err := db.Save(&coin).Error; err != nil {
 				return common.SendError(c, "Failed to update coin amount", fiber.StatusInternalServerError)
 			}
+		}
+
+		if err := updatePortfolioTotalValue(db, uint(portfolioID)); err != nil {
+			return common.SendError(c, "Failed to update portfolio total value", fiber.StatusInternalServerError)
 		}
 
 		return c.JSON(common.Response{

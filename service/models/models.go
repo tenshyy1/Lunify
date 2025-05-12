@@ -62,6 +62,7 @@ type Portfolio struct {
 	Name        string    `gorm:"type:varchar(100);not null" json:"name"`
 	Description *string   `gorm:"type:text" json:"description,omitempty"`
 	CreatedAt   time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
+	TotalValue  *float64  `gorm:"type:decimal(18,2)" json:"total_value,omitempty"` // Новое поле
 }
 
 func (Portfolio) TableName() string {
@@ -116,6 +117,13 @@ func RunMigrations(db *gorm.DB) error {
 			return err
 		}
 		log.Println("Avatar_url column added to user_details.")
+	}
+	if !db.Migrator().HasColumn(&Portfolio{}, "TotalValue") {
+		log.Println("Adding total_value column to portfolios...")
+		if err := db.Migrator().AddColumn(&Portfolio{}, "TotalValue"); err != nil {
+			return err
+		}
+		log.Println("Total_value column added to portfolios.")
 	}
 
 	// Migrate email from users if exists
