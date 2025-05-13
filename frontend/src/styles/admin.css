@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
-/* Общий контейнер */
+
 .admin-container {
   display: flex;
   height: 100vh;
@@ -9,31 +9,30 @@
   scroll-behavior: smooth;
 }
 
-/* Основной контент */
+
 .admin-main-content {
   flex: 1;
   overflow-x: hidden;
   overflow-y: auto;
-  padding: 24px;
+  padding: 20px;
 }
 
-/* Обертка контента */
 .admin-content-wrapper {
   display: flex;
   gap: 24px;
 }
 
-/* Секция */
+
 .admin-section {
   margin-top: -4px;
   margin-left: 12px;
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 }
 
-/* Контейнер контента */
+
 .admin-content-container {
   background: #1a1a1a; 
   border-radius: 16px;
@@ -47,7 +46,7 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Заголовок */
+
 .admin-content-container h2 {
   font-size: 2rem;
   font-weight: 600;
@@ -107,7 +106,7 @@
   transform: translateY(-1px);
 }
 
-/* Кнопки */
+
 .admin-action-btn {
   padding: 10px 24px;
   margin-right: 8px;
@@ -180,7 +179,7 @@
   box-shadow: none;
 }
 
-/* Анимация загрузки */
+
 .loading-dots {
   display: flex;
   justify-content: center;
@@ -224,7 +223,7 @@
   }
 }
 
-/* Адаптивность */
+
 @media (max-width: 768px) {
   .admin-main-content {
     padding: 16px;
