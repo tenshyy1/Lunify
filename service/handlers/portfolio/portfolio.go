@@ -2,11 +2,14 @@ package portfolio
 
 import (
 	"errors"
-	"strconv"
-
+	"fmt"
+	"log"
 	"service/api"
 	"service/common"
 	"service/models"
+	"service/notifications"
+
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -20,6 +23,7 @@ func SetupPortfolioRoutes(app *fiber.App, db *gorm.DB) {
 	app.Get("/portfolios/:id/coins", GetPortfolioCoins(db))
 	app.Post("/portfolios/:id/coins", AddPortfolioCoin(db))
 	app.Post("/portfolios/:id/coins/sell", SellPortfolioCoin(db))
+	app.Post("/portfolios/:id/set-active", SetActivePortfolio(db))
 }
 
 // GetPortfolios returns all portfolios
@@ -78,6 +82,16 @@ func CreatePortfolio(db *gorm.DB) fiber.Handler {
 			return common.SendError(c, "Failed to create portfolio", fiber.StatusInternalServerError)
 		}
 
+		if err := notifications.CreateNotification(
+			db,
+			uint(claims.UserID),
+			"Portfolio Created",
+			fmt.Sprintf("Portfolio '%s' (ID: %d) was created.", portfolio.Name, portfolio.ID),
+			"portfolio",
+		); err != nil {
+			log.Printf("Failed to create portfolio creation notification: %v", err)
+		}
+
 		return c.JSON(portfolio)
 	}
 }
@@ -102,6 +116,16 @@ func DeletePortfolio(db *gorm.DB) fiber.Handler {
 
 		if err := db.Delete(&portfolio).Error; err != nil {
 			return common.SendError(c, "Failed to delete portfolio", fiber.StatusInternalServerError)
+		}
+
+		if err := notifications.CreateNotification(
+			db,
+			uint(claims.UserID),
+			"Portfolio Deleted",
+			fmt.Sprintf("Portfolio '%s' (ID: %d) was deleted.", portfolio.Name, id),
+			"portfolio",
+		); err != nil {
+			log.Printf("Failed to create delete portfolio notification: %v", err)
 		}
 
 		return c.JSON(common.Response{
@@ -176,7 +200,7 @@ func GetPortfolioCoins(db *gorm.DB) fiber.Handler {
 		}
 
 		if err := updatePortfolioCoinPrices(db, coins); err != nil {
-
+			log.Printf("Failed to update coin prices: %v", err)
 		}
 
 		if err := updatePortfolioTotalValue(db, uint(id)); err != nil {
@@ -195,6 +219,7 @@ func GetPortfolioCoins(db *gorm.DB) fiber.Handler {
 		}
 		logoMap, err := api.FetchCoinInfo(tickers)
 		if err != nil {
+			log.Printf("Failed to fetch coin logos: %v", err)
 		}
 
 		for i, coin := range coins {
@@ -228,7 +253,6 @@ func updatePortfolioTotalValue(db *gorm.DB, portfolioID uint) error {
 		return err
 	}
 
-	//
 	if portfolio.TotalValue == nil {
 		portfolio.TotalValue = new(float64)
 	}
@@ -292,6 +316,16 @@ func AddPortfolioCoin(db *gorm.DB) fiber.Handler {
 				return common.SendError(c, "Failed to update portfolio total value", fiber.StatusInternalServerError)
 			}
 
+			if err := notifications.CreateNotification(
+				db,
+				uint(claims.UserID),
+				"Coin Purchased",
+				fmt.Sprintf("You bought %.8f %s for portfolio %d.", input.Amount, input.Ticker, id),
+				"transaction",
+			); err != nil {
+				log.Printf("Failed to create purchase notification: %v", err)
+			}
+
 			return c.JSON(existingCoin)
 		}
 
@@ -309,6 +343,16 @@ func AddPortfolioCoin(db *gorm.DB) fiber.Handler {
 
 		if err := updatePortfolioTotalValue(db, uint(id)); err != nil {
 			return common.SendError(c, "Failed to update portfolio total value", fiber.StatusInternalServerError)
+		}
+
+		if err := notifications.CreateNotification(
+			db,
+			uint(claims.UserID),
+			"Coin Purchased",
+			fmt.Sprintf("You bought %.8f %s for portfolio %d.", input.Amount, input.Ticker, id),
+			"transaction",
+		); err != nil {
+			log.Printf("Failed to create purchase notification: %v", err)
 		}
 
 		return c.JSON(coin)
@@ -382,8 +426,52 @@ func SellPortfolioCoin(db *gorm.DB) fiber.Handler {
 			return common.SendError(c, "Failed to update portfolio total value", fiber.StatusInternalServerError)
 		}
 
+		if err := notifications.CreateNotification(
+			db,
+			uint(claims.UserID),
+			"Coin Sold",
+			fmt.Sprintf("You sold %.8f %s from portfolio %d.", input.Amount, input.Ticker, portfolioID),
+			"transaction",
+		); err != nil {
+			log.Printf("Failed to create sell notification: %v", err)
+		}
+
 		return c.JSON(common.Response{
 			Message: "Coin sold successfully",
+		})
+	}
+}
+
+func SetActivePortfolio(db *gorm.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		claims, err := common.ParseJWT(c.Get("Authorization"))
+		if err != nil {
+			return common.SendError(c, "Unauthorized", fiber.StatusUnauthorized)
+		}
+
+		portfolioID, err := strconv.Atoi(c.Params("id"))
+		if err != nil {
+			return common.SendError(c, "Invalid portfolio ID", fiber.StatusBadRequest)
+		}
+
+		var portfolio models.Portfolio
+		if err := db.Where("id = ? AND user_id = ?", portfolioID, claims.UserID).First(&portfolio).Error; err != nil {
+			return common.SendError(c, "Portfolio not found or not owned by user", fiber.StatusNotFound)
+		}
+
+		// Create notification for setting active portfolio
+		if err := notifications.CreateNotification(
+			db,
+			uint(claims.UserID),
+			"Active Portfolio Set",
+			fmt.Sprintf("Portfolio '%s' (ID: %d) was set as active.", portfolio.Name, portfolioID),
+			"portfolio",
+		); err != nil {
+			log.Printf("Failed to create active portfolio notification: %v", err)
+		}
+
+		return c.JSON(common.Response{
+			Message: "Portfolio set as active successfully",
 		})
 	}
 }

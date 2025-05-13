@@ -108,9 +108,14 @@ const Wallet = ({ onLogout, login, avatar }) => {
     }
   };
 
-  const handleSetActivePortfolio = (portfolioId) => {
-    setActivePortfolioId(portfolioId.toString());
-    toast.success('Active portfolio updated');
+  const handleSetActivePortfolio = async (portfolioId) => {
+    try {
+      await walletApi.setActivePortfolio(portfolioId);
+      setActivePortfolioId(portfolioId.toString());
+      toast.success('Active portfolio updated');
+    } catch (error) {
+      toast.error(error.message || 'Failed to set active portfolio');
+    }
   };
 
   const fetchPortfolioCoins = async (portfolioId) => {

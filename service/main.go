@@ -8,8 +8,8 @@ import (
 	"service/handlers/market"
 	"service/handlers/portfolio"
 	"service/handlers/profile"
-
 	"service/models"
+	"service/notifications"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -49,6 +49,7 @@ func main() {
 	app.Post("/profile/change-password", profile.ChangePasswordHandler(dbInstance))
 	portfolio.SetupPortfolioRoutes(app, dbInstance)
 	market.SetupMarketRoutes(app)
+	notifications.SetupNotificationRoutes(app, dbInstance)
 
 	// Admin routes
 	app.Get("/admin/users", admin.GetUsersHandler(dbInstance))

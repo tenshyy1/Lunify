@@ -8,6 +8,7 @@ import (
 
 	"service/common"
 	"service/models"
+	"service/notifications"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -95,6 +96,16 @@ func UpdateProfileHandler(db *gorm.DB) fiber.Handler {
 			return common.SendError(c, "Failed to update user details", fiber.StatusInternalServerError)
 		}
 
+		if err := notifications.CreateNotification(
+			db,
+			uint(claims.UserID),
+			"Profile Updated",
+			"Your profile information has been successfully updated.",
+			"system",
+		); err != nil {
+			log.Printf("Failed to create profile update notification: %v", err)
+		}
+
 		return c.JSON(common.Response{
 			Message: "Profile updated successfully",
 		})
@@ -164,6 +175,16 @@ func UpdateAvatarHandler(db *gorm.DB) fiber.Handler {
 			return common.SendError(c, "Failed to update avatar", fiber.StatusInternalServerError)
 		}
 
+		if err := notifications.CreateNotification(
+			db,
+			uint(claims.UserID),
+			"Avatar Updated",
+			"Your profile avatar has been successfully updated.",
+			"system",
+		); err != nil {
+			log.Printf("Failed to create avatar update notification: %v", err)
+		}
+
 		return c.JSON(fiber.Map{
 			"message":    "Avatar updated successfully",
 			"avatar_url": avatarURL,
@@ -221,6 +242,16 @@ func ChangePasswordHandler(db *gorm.DB) fiber.Handler {
 		if err := db.Save(&user).Error; err != nil {
 			log.Printf("Failed to update password for user_id %d: %v", claims.UserID, err)
 			return common.SendError(c, "Failed to update password", fiber.StatusInternalServerError)
+		}
+
+		if err := notifications.CreateNotification(
+			db,
+			uint(claims.UserID),
+			"Password Changed",
+			"Your password has been successfully changed.",
+			"system",
+		); err != nil {
+			log.Printf("Failed to create password change notification: %v", err)
 		}
 
 		return c.JSON(common.Response{

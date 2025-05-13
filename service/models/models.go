@@ -87,10 +87,25 @@ func (PortfolioCoin) TableName() string {
 	return "portfolio_coins"
 }
 
+type Notification struct {
+	ID          uint      `gorm:"primaryKey" json:"id"`
+	UserID      uint      `gorm:"not null;index" json:"user_id"`
+	Title       string    `gorm:"type:varchar(100);not null" json:"title"`
+	Description string    `gorm:"type:text;not null" json:"description"`
+	Status      string    `gorm:"type:varchar(20);default:'unread'" json:"status"`    // unread, read
+	Category    string    `gorm:"type:varchar(50);default:'general'" json:"category"` // transaction, portfolio, system
+	CreatedAt   time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
+	UpdatedAt   time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+}
+
+func (Notification) TableName() string {
+	return "notifications"
+}
+
 // RunMigrations applies schema migrations
 func RunMigrations(db *gorm.DB) error {
 	// Create tables
-	if err := db.AutoMigrate(&User{}, &UserDetails{}, &Portfolio{}, &PortfolioCoin{}); err != nil {
+	if err := db.AutoMigrate(&User{}, &UserDetails{}, &Portfolio{}, &PortfolioCoin{}, &Notification{}); err != nil {
 		return err
 	}
 

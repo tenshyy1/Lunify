@@ -54,4 +54,13 @@ export default {
       throw new Error(error.response?.data?.message || 'Failed to sell coin from portfolio');
     }
   },
+
+  setActivePortfolio: async (portfolioId) => {
+    try {
+      const response = await api.post(`/portfolios/${portfolioId}/set-active`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to set active portfolio');
+    }
+  },
 };
