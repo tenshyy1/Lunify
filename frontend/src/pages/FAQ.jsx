@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/FAQ.css';
 import SideHeader from '../components/SideHeader';
@@ -6,11 +6,25 @@ import Header from '../components/Header';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { motion, AnimatePresence } from 'framer-motion';
+import favicon from '../assets/favicon.png';
 
 const FAQ = ({ onLogout, login, avatar }) => {
   const navigate = useNavigate();
   const [openQuestion, setOpenQuestion] = useState(null);
   const answerRefs = useRef([]);
+
+  useEffect(() => {
+    document.title = 'FAQ';
+    let link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+    link.type = 'image/png';
+    link.rel = 'icon';
+    link.href = favicon;
+    document.head.appendChild(link);
+    return () => {
+      document.title = '';
+      if (link) document.head.removeChild(link);
+    };
+  }, []);
 
   const faqData = [
     {

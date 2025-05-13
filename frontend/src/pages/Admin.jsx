@@ -7,11 +7,25 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fetchUsers, banUser, unbanUser, deleteUser } from '../services/admin';
+import favicon from '../assets/favicon.png';
 
 const Admin = ({ onLogout, login, avatar }) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.title = 'Admin Page';
+    let link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+    link.type = 'image/png';
+    link.rel = 'icon';
+    link.href = favicon;
+    document.head.appendChild(link);
+    return () => {
+      document.title = '';
+      if (link) document.head.removeChild(link);
+    };
+  }, []);
 
   useEffect(() => {
     const loadUsers = async () => {

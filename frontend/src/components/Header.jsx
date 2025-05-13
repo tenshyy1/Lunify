@@ -10,9 +10,10 @@ export default function Header({ login, avatar }) {
   const isAdmin = token ? JSON.parse(atob(token.split('.')[1])).role === 'admin' : false;
 
   const notifications = [
-    { text: "New message received", read: false },
     { text: "Payment confirmed", read: true },
-    { text: "Update available", read: false }
+    { text: "Payment confirmed", read: true },
+    { text: "Payment confirmed", read: true },
+    { text: "Payment confirmed", read: true },
   ];
 
   const getPageTitle = (pathname) => {
