@@ -14,44 +14,44 @@ const FAQ = ({ onLogout, login, avatar }) => {
 
   const faqData = [
     {
-      question: 'Question 1',
-      answer: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
+      question: 'How do I start trading cryptocurrencies on Lunify?',
+      answer: 'To start trading, register an account, go to the "Market" section, select a portfolio, and click "Buy" or "Sell" next to your chosen currency. Ensure your balance is sufficient for the purchase.',
     },
     {
-      question: 'Question 2',
-      answer: 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+      question: 'How can I add a new portfolio in Wallet?',
+      answer: 'Navigate to the "Wallet" section, click "Add Portfolio," and fill in the required details. Your new portfolio will appear in the list with a unique number.',
     },
     {
-      question: 'Question 3',
-      answer: 'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.',
+      question: 'Why are my transactions not showing in my profile?',
+      answer: 'Ensure your portfolio is updated and the transactions are completed. If the issue persists, contact support through the notifications section.',
     },
     {
-      question: 'Question 4',
-      answer: 'Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet.',
+      question: 'How do I update my profile details, like my name or avatar?',
+      answer: 'Go to the "Profile" section, click the pencil icon at the bottom, edit your details or upload a new avatar, and click "Save Change" to confirm.',
     },
     {
-      question: 'Question 5',
-      answer: 'Consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.',
+      question: 'What should I do if I forget my password?',
+      answer: 'Click "Change Password" in the Profile section and follow the instructions to reset your password via the email you used during registration.',
     },
     {
-      question: 'Question 6',
-      answer: 'Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur? At vero eos et accusamus et iusto odio dignissimos ducimus.',
+      question: 'How can I track the performance of my portfolio?',
+      answer: 'In the "Wallet" section, select your portfolio to view its performance chart and detailed stats, including profit/loss and transaction history.',
     },
     {
-      question: 'Question 7',
-      answer: 'Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est.',
+      question: 'Is there a fee for trading on Lunify?',
+      answer: 'Yes, Lunify charges a small trading fee, which varies depending on the transaction type. Check the fee structure in the "Market" section before trading.',
     },
     {
-      question: 'Question 8',
-      answer: 'Omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus.',
+      question: 'How do I delete a portfolio I no longer need?',
+      answer: 'In the "Wallet" section, select the portfolio, click the three-dot menu, and choose "Delete Portfolio." Confirm the action to remove it permanently.',
     },
     {
-      question: 'Question 9',
-      answer: 'Ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat. Quisquam esse ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem.',
+      question: 'Can I use Lunify on multiple devices?',
+      answer: 'Yes, you can log into your Lunify account from any device using your credentials. Your data will sync automatically across devices.',
     },
     {
-      question: 'Question 10',
-      answer: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
+      question: 'How do I contact support if I encounter an issue?',
+      answer: 'Go to the notifications icon in the sidebar, click "Contact Support," and submit your query. Our team will respond within 24 hours.',
     },
   ];
 
