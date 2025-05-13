@@ -25,7 +25,11 @@
   align-items: center;
   gap: 20px;
   position: relative;
-  margin-right: -77%;
+  margin-right: -78%;
+}
+.header-admin .profile-user-info{
+  margin-right: -30% ;
+  
 }
 
 .profile-user-details {
@@ -251,4 +255,8 @@
   -moz-user-select: none;
   -ms-user-select: none;
   -moz-user-drag: none;
+}
+
+.sideheader-admin{
+  margin-right: -500% !important;
 }

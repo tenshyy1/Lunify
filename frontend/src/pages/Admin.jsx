@@ -76,7 +76,7 @@ const Admin = ({ onLogout, login, avatar }) => {
 
   return (
     <div className="admin-container">
-      <SideHeader activePage="admin" onLogout={onLogout} />
+      <SideHeader activePage="admin" onLogout={onLogout}/>
       <main className="admin-main-content">
         <Header login={login} avatar={avatar} />
         <div className="admin-content-wrapper">
