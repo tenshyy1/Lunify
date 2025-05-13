@@ -234,7 +234,6 @@ const Home = () => {
             <li><Link to="/" onClick={() => setIsMenuOpen(false)}>Home</Link></li>
             <li><Link to="/trade" onClick={() => setIsMenuOpen(false)}>Trade</Link></li>
             <li><Link to="/wallet" onClick={() => setIsMenuOpen(false)}>Wallet</Link></li>
-            <li><Link to="/swap" onClick={() => setIsMenuOpen(false)}>Swap</Link></li>
             <li><Link to="/profile" onClick={() => setIsMenuOpen(false)}>Profile</Link></li>
           </ul>
           <div className="navbar-actions">
@@ -255,7 +254,6 @@ const Home = () => {
           <li><Link to="/">Home</Link></li>
           <li><Link to="/trade">Trade</Link></li>
           <li><Link to="/wallet">Wallet</Link></li>
-          <li><Link to="/swap">Swap</Link></li>
           <li><Link to="/profile">Profile</Link></li>
         </ul>
         <div className="navbar-actions desktop-actions">
