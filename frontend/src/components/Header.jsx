@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import '../styles/header.css';
+import '../styles/Header.css';
 import BellIcon from '../assets/header/notif.svg';
 import { useLocation } from 'react-router-dom';
 
 export default function Header({ login, avatar }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const location = useLocation();
+  const token = localStorage.getItem('token');
+  const isAdmin = token ? JSON.parse(atob(token.split('.')[1])).role === 'admin' : false;
 
   const notifications = [
     { text: "New message received", read: false },
@@ -24,7 +26,9 @@ export default function Header({ login, avatar }) {
       case '/trade':
         return 'Market';
       case '/admin':
-        return 'Admin Dashboard'
+        return 'Admin Dashboard';
+      case '/faq':
+        return 'POPULAR QUESTIONS';
       default:
         return 'Profile';
     }
@@ -64,7 +68,10 @@ export default function Header({ login, avatar }) {
           </div>
         )}
         <img src={avatar} alt="User Avatar" className="profile-avatar" />
-        <span>{login || 'User'}</span>
+        <div className="profile-user-details">
+          <span className="profile-user-login">{login || 'User'}</span>
+          {isAdmin && <span className="profile-user-role">Admin</span>}
+        </div>
       </div>
     </header>
   );

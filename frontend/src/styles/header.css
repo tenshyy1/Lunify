@@ -28,6 +28,27 @@
   margin-right: 25px;
 }
 
+.profile-user-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.profile-user-login {
+  color: #1C2526;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+}
+
+.profile-user-role {
+  color: #6B7280;
+  font-size: 12px;
+  font-weight: 400;
+  font-family: 'Poppins', sans-serif;
+  line-height: 1.2;
+}
+
 .profile-bell-button {
   background: transparent;
   border: 1px solid #E5E7EB;
@@ -82,9 +103,9 @@
   right: 150px;
   width: 360px;
   max-height: 320px;
-  background: rgba(255, 255, 255, 0.9); 
-  backdrop-filter: blur(10px); 
-  border: 1px solid rgba(229, 231, 235, 0.5); 
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(229, 231, 235, 0.5);
   border-radius: 12px;
   padding: 20px;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
@@ -125,7 +146,6 @@
   opacity: 0.8;
 }
 
-
 .notifications-list {
   list-style: none;
   padding: 0;
@@ -158,7 +178,7 @@
 }
 
 .notifications-list li::before {
-  content: '🔔'; 
+  content: '🔔';
   font-size: 14px;
   color: #3B82F6;
 }
@@ -166,7 +186,7 @@
 .notifications-list li.read {
   opacity: 0.6;
   color: #6B7280;
-  border-left-color: #9CA3AF; 
+  border-left-color: #9CA3AF;
 }
 
 .notifications-list li.read::before {
@@ -181,30 +201,19 @@
   to { opacity: 1; transform: translateX(0); }
 }
 
-
-.profile-user-info span {
-  color: #1C2526;
-  font-size: 16px;
-  font-weight: 600;
-  font-family: 'Poppins', sans-serif;
-}
-
 .profile-user-info .profile-avatar {
   width: 50px;
   height: 50px;
   border-radius: 20%;
   object-fit: cover;
   user-select: none;
-  -webkit-user-select: none; 
-  -moz-user-select: none; 
-  -ms-user-select: none; 
-  -moz-user-drag: none; 
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -moz-user-drag: none;
 }
 
-
-
-
-@media (max-width: 1440px) and (min-width: 920px){
+@media (max-width: 1440px) and (min-width: 920px) {
   .profile-top-bar {
     width: 1078px;
   }
@@ -222,7 +231,7 @@
   .notifications-modal {
     right: 153px;
     width: 320px;
-    height: 165px;
+    max-height: 165px;
   }
 
   .no-notifications {
@@ -233,50 +242,57 @@
     font-size: 13px;
   }
 
-  .profile-user-info span {
+  .profile-user-login {
     font-size: 15px;
   }
 
+  .profile-user-role {
+    font-size: 11px;
+  }
 }
 
-@media (max-width: 920px) and (min-width: 280px){
+@media (max-width: 920px) and (min-width: 280px) {
   .profile-top-bar {
     width: 420px;
   }
-  
+
   .profile-top-bar h1 {
     margin-left: 20px;
     font-size: 25px;
   }
-  
+
   .profile-user-info {
     gap: 15px;
   }
-  
+
   .profile-bell-icon {
     width: 18px;
     height: 18px;
   }
-  
+
   .notifications-modal {
     top: 45px;
     right: 145px;
     width: 200px;
   }
-  
+
   .no-notifications {
     font-size: 14px;
   }
-  
+
   .notifications-list li {
     font-size: 13px;
   }
-  
+
   .notifications-list li::before {
     font-size: 13px;
   }
-  
-  .profile-user-info span {
+
+  .profile-user-login {
     font-size: 15px;
+  }
+
+  .profile-user-role {
+    font-size: 10px;
   }
 }

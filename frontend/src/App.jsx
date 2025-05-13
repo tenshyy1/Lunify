@@ -7,6 +7,7 @@ import Market from './pages/Market';
 import Wallet from './pages/Wallet';
 import Profile from './pages/Profile';
 import Admin from './pages/Admin';
+import FAQ from './pages/FAQ';
 import ProtectedRoute from './context/ProtectedRoute';
 import foto from './assets/favicon.png';
 import api from './services/api'; 
@@ -92,6 +93,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Admin onLogout={handleLogout} login={login} avatar={avatar} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/faq"
+          element={
+            <ProtectedRoute>
+              <FAQ onLogout={handleLogout} login={login} avatar={avatar} />
             </ProtectedRoute>
           }
         />
